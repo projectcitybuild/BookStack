@@ -121,8 +121,8 @@ return [
         'client_secret' => env('PCB_CLIENT_SECRET'),
         'redirect'      => env('APP_URL') . '/login/service/pcb/callback',
         'name'          => 'PCB',
-        'auto_register' => env('PCB_AUTO_REGISTER', false),
-        'auto_confirm'  => env('PCB_AUTO_CONFIRM_EMAIL', false),
+        'auto_register' => env('PCB_AUTO_REGISTER', true),
+        'auto_confirm'  => env('PCB_AUTO_CONFIRM_EMAIL', true),
     ],
 
     'ldap' => [
