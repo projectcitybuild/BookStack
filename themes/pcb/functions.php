@@ -3,7 +3,7 @@
 use BookStack\Facades\Theme;
 use BookStack\Theming\ThemeEvents;
 
-require "BookStack/themes\pcb\PCBSocialiteProvider.php";
+require "BookStack\themes\pcb\PCBSocialiteProvider.php";
 
 Theme::listen(ThemeEvents::APP_BOOT, function($app) {
     Theme::addSocialDriver('pcb', [
