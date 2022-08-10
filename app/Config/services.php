@@ -116,6 +116,15 @@ return [
         'auto_confirm'  => env('DISCORD_AUTO_CONFIRM_EMAIL', false),
     ],
 
+    'pcb' => [
+        'client_id'     => env('PCB_CLIENT_ID'),
+        'client_secret' => env('PCB_CLIENT_SECRET'),
+        'redirect'      => env('APP_URL') . '/login/service/pcb/callback',
+        'name'          => 'PCB',
+        'auto_register' => env('PCB_AUTO_REGISTER', false),
+        'auto_confirm'  => env('PCB_AUTO_CONFIRM_EMAIL', false),
+    ],
+
     'ldap' => [
         'server'                 => env('LDAP_SERVER', false),
         'dump_user_details'      => env('LDAP_DUMP_USER_DETAILS', false),

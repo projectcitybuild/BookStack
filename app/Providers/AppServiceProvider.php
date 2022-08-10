@@ -10,6 +10,7 @@ use BookStack\Entities\Models\Bookshelf;
 use BookStack\Entities\Models\Chapter;
 use BookStack\Entities\Models\Page;
 use BookStack\Exceptions\WhoopsBookStackPrettyHandler;
+use BookStack\PCB\PCBSocialiteProvider;
 use BookStack\Settings\Setting;
 use BookStack\Settings\SettingService;
 use BookStack\Util\CspService;
@@ -64,6 +65,16 @@ class AppServiceProvider extends ServiceProvider
 
         // Set paginator to use bootstrap-style pagination
         Paginator::useBootstrap();
+
+        // Add custom PCB socialite provider
+        $socialite = $this->app->make('Laravel\Socialite\Contracts\Factory');
+        $socialite->extend(
+            'pcb',
+            function ($app) use ($socialite) {
+                $config = $app['config']['services.pcb'];
+                return $socialite->buildProvider(PCBSocialiteProvider::class, $config);
+            }
+        );
     }
 
     /**

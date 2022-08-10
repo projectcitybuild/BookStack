@@ -1,6 +1,6 @@
 <?php
 
-namespace BookStack\themes\pcb;
+namespace BookStack\PCB;
 
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
