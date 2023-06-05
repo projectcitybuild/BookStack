@@ -11,10 +11,7 @@
 
             @include('auth.parts.login-message')
 
-            @include('auth.parts.login-form-' . $authMethod)
-
             @if(count($socialDrivers) > 0)
-                <hr class="my-l">
                 @foreach($socialDrivers as $driver => $name)
                     <div>
                         <a id="social-login-{{$driver}}" class="button outline svg" href="{{ url("/login/service/" . $driver) }}">
@@ -23,7 +20,10 @@
                         </a>
                     </div>
                 @endforeach
+                <hr class="my-l">
             @endif
+
+            @include('auth.parts.login-form-' . $authMethod)
 
             @if(setting('registration-enabled') && config('auth.method') === 'standard')
                 <div class="text-center pb-s">
