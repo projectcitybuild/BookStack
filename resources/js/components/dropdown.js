@@ -1,11 +1,12 @@
-import {onSelect} from "../services/dom";
+import {onSelect} from '../services/dom';
+import {KeyboardNavigationHandler} from '../services/keyboard-navigation';
+import {Component} from './component';
 
 /**
  * Dropdown
  * Provides some simple logic to create simple dropdown menus.
- * @extends {Component}
  */
-class DropDown {
+export class Dropdown extends Component {
 
     setup() {
         this.container = this.$el;
@@ -17,8 +18,9 @@ class DropDown {
         this.direction = (document.dir === 'rtl') ? 'right' : 'left';
         this.body = document.body;
         this.showing = false;
-        this.setupListeners();
+
         this.hide = this.hide.bind(this);
+        this.setupListeners();
     }
 
     show(event = null) {
@@ -37,13 +39,13 @@ class DropDown {
         if (this.moveMenu) {
             this.body.appendChild(this.menu);
             this.menu.style.position = 'fixed';
-            if (this.direction === 'right') {
-                this.menu.style.right = `${(menuOriginalRect.right - menuOriginalRect.width)}px`;
-            } else {
-                this.menu.style.left = `${menuOriginalRect.left}px`;
-            }
             this.menu.style.width = `${menuOriginalRect.width}px`;
-            heightOffset = dropUpwards ? (window.innerHeight - menuOriginalRect.top  - toggleHeight / 2) : menuOriginalRect.top;
+            this.menu.style.left = `${menuOriginalRect.left}px`;
+            if (dropUpwards) {
+                heightOffset = (window.innerHeight - menuOriginalRect.top - toggleHeight / 2);
+            } else {
+                heightOffset = menuOriginalRect.top;
+            }
         }
 
         // Adjust menu to display upwards if near the bottom of the screen
@@ -56,9 +58,9 @@ class DropDown {
         }
 
         // Set listener to hide on mouse leave or window click
-        this.menu.addEventListener('mouseleave', this.hide.bind(this));
-        window.addEventListener('click', event => {
-            if (!this.menu.contains(event.target)) {
+        this.menu.addEventListener('mouseleave', this.hide);
+        window.addEventListener('click', clickEvent => {
+            if (!this.menu.contains(clickEvent.target)) {
                 this.hide();
             }
         });
@@ -78,7 +80,7 @@ class DropDown {
     }
 
     hideAll() {
-        for (let dropdown of window.components.dropdown) {
+        for (const dropdown of window.$components.get('dropdown')) {
             dropdown.hide();
         }
     }
@@ -94,86 +96,47 @@ class DropDown {
             this.menu.style.position = '';
             this.menu.style[this.direction] = '';
             this.menu.style.width = '';
+            this.menu.style.left = '';
             this.container.appendChild(this.menu);
         }
 
         this.showing = false;
     }
 
-    getFocusable() {
-        return Array.from(this.menu.querySelectorAll('[tabindex]:not([tabindex="-1"]),[href],button,input:not([type=hidden])'));
-    }
-
-    focusNext() {
-        const focusable = this.getFocusable();
-        const currentIndex = focusable.indexOf(document.activeElement);
-        let newIndex = currentIndex + 1;
-        if (newIndex >= focusable.length) {
-            newIndex = 0;
-        }
-
-        focusable[newIndex].focus();
-    }
-
-    focusPrevious() {
-        const focusable = this.getFocusable();
-        const currentIndex = focusable.indexOf(document.activeElement);
-        let newIndex = currentIndex - 1;
-        if (newIndex < 0) {
-            newIndex = focusable.length - 1;
-        }
-
-        focusable[newIndex].focus();
-    }
-
     setupListeners() {
+        const keyboardNavHandler = new KeyboardNavigationHandler(this.container, event => {
+            this.hide();
+            this.toggle.focus();
+            if (!this.bubbleEscapes) {
+                event.stopPropagation();
+            }
+        }, event => {
+            if (event.target.nodeName === 'INPUT') {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            this.hide();
+        });
+
+        if (this.moveMenu) {
+            keyboardNavHandler.shareHandlingToEl(this.menu);
+        }
+
         // Hide menu on option click
         this.container.addEventListener('click', event => {
-             const possibleChildren = Array.from(this.menu.querySelectorAll('a'));
-             if (possibleChildren.includes(event.target)) {
-                 this.hide();
-             }
+            const possibleChildren = Array.from(this.menu.querySelectorAll('a'));
+            if (possibleChildren.includes(event.target)) {
+                this.hide();
+            }
         });
 
         onSelect(this.toggle, event => {
             event.stopPropagation();
             this.show(event);
             if (event instanceof KeyboardEvent) {
-                this.focusNext();
-            }
-        });
-
-        // Keyboard navigation
-        const keyboardNavigation = event => {
-            if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-                this.focusNext();
-                event.preventDefault();
-            } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-                this.focusPrevious();
-                event.preventDefault();
-            } else if (event.key === 'Escape') {
-                this.hide();
-                this.toggle.focus();
-                if (!this.bubbleEscapes) {
-                    event.stopPropagation();
-                }
-            }
-        };
-        this.container.addEventListener('keydown', keyboardNavigation);
-        if (this.moveMenu) {
-            this.menu.addEventListener('keydown', keyboardNavigation);
-        }
-
-        // Hide menu on enter press or escape
-        this.menu.addEventListener('keydown ', event => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                event.stopPropagation();
-                this.hide();
+                keyboardNavHandler.focusNext();
             }
         });
     }
 
 }
-
-export default DropDown;

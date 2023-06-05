@@ -2,15 +2,13 @@
 
 namespace Tests\Uploads;
 
-use BookStack\Auth\User;
 use BookStack\Exceptions\HttpFetchException;
 use BookStack\Uploads\HttpFetcher;
+use BookStack\Users\Models\User;
 use Tests\TestCase;
 
 class AvatarTest extends TestCase
 {
-    use UsesImages;
-
     protected function createUserRequest($user): User
     {
         $this->asAdmin()->post('/settings/users/create', [
@@ -29,12 +27,12 @@ class AvatarTest extends TestCase
 
         $http->shouldReceive('fetch')
             ->once()->with($url)
-            ->andReturn($this->getTestImageContent());
+            ->andReturn($this->files->pngImageData());
     }
 
     protected function deleteUserImage(User $user)
     {
-        $this->deleteImage($user->avatar->path);
+        $this->files->deleteAtRelativePath($user->avatar->path);
     }
 
     public function test_gravatar_fetched_on_user_create()

@@ -6,88 +6,27 @@ use BookStack\Entities\Models\Page;
 use BookStack\Entities\Repos\PageRepo;
 use BookStack\Entities\Tools\TrashCan;
 use BookStack\Uploads\Attachment;
-use BookStack\Uploads\AttachmentService;
-use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class AttachmentTest extends TestCase
 {
-    /**
-     * Get a test file that can be uploaded.
-     */
-    protected function getTestFile(string $fileName): UploadedFile
-    {
-        return new UploadedFile(base_path('tests/test-data/test-file.txt'), $fileName, 'text/plain', null, true);
-    }
-
-    /**
-     * Uploads a file with the given name.
-     */
-    protected function uploadFile(string $name, int $uploadedTo = 0): \Illuminate\Testing\TestResponse
-    {
-        $file = $this->getTestFile($name);
-
-        return $this->call('POST', '/attachments/upload', ['uploaded_to' => $uploadedTo], [], ['file' => $file], []);
-    }
-
-    /**
-     * Create a new attachment.
-     */
-    protected function createAttachment(Page $page): Attachment
-    {
-        $this->post('attachments/link', [
-            'attachment_link_url'         => 'https://example.com',
-            'attachment_link_name'        => 'Example Attachment Link',
-            'attachment_link_uploaded_to' => $page->id,
-        ]);
-
-        return Attachment::query()->latest()->first();
-    }
-
-    /**
-     * Create a new upload attachment from the given data.
-     */
-    protected function createUploadAttachment(Page $page, string $filename, string $content, string $mimeType): Attachment
-    {
-        $file = tmpfile();
-        $filePath = stream_get_meta_data($file)['uri'];
-        file_put_contents($filePath, $content);
-        $upload = new UploadedFile($filePath, $filename, $mimeType, null, true);
-
-        $this->call('POST', '/attachments/upload', ['uploaded_to' => $page->id], [], ['file' => $upload], []);
-
-        return $page->attachments()->latest()->firstOrFail();
-    }
-
-    /**
-     * Delete all uploaded files.
-     * To assist with cleanup.
-     */
-    protected function deleteUploads()
-    {
-        $fileService = $this->app->make(AttachmentService::class);
-        foreach (Attachment::all() as $file) {
-            $fileService->deleteFile($file);
-        }
-    }
-
     public function test_file_upload()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $this->asAdmin();
-        $admin = $this->getAdmin();
+        $admin = $this->users->admin();
         $fileName = 'upload_test_file.txt';
 
         $expectedResp = [
             'name'       => $fileName,
-            'uploaded_to'=> $page->id,
+            'uploaded_to' => $page->id,
             'extension'  => 'txt',
             'order'      => 1,
             'created_by' => $admin->id,
             'updated_by' => $admin->id,
         ];
 
-        $upload = $this->uploadFile($fileName, $page->id);
+        $upload = $this->files->uploadAttachmentFile($this, $fileName, $page->id);
         $upload->assertStatus(200);
 
         $attachment = Attachment::query()->orderBy('id', 'desc')->first();
@@ -96,30 +35,31 @@ class AttachmentTest extends TestCase
         $expectedResp['path'] = $attachment->path;
         $this->assertDatabaseHas('attachments', $expectedResp);
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
     }
 
     public function test_file_upload_does_not_use_filename()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $fileName = 'upload_test_file.txt';
 
-        $upload = $this->asAdmin()->uploadFile($fileName, $page->id);
+        $this->asAdmin();
+        $upload = $this->files->uploadAttachmentFile($this, $fileName, $page->id);
         $upload->assertStatus(200);
 
         $attachment = Attachment::query()->orderBy('id', 'desc')->first();
         $this->assertStringNotContainsString($fileName, $attachment->path);
         $this->assertStringEndsWith('-txt', $attachment->path);
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
     }
 
     public function test_file_display_and_access()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $this->asAdmin();
         $fileName = 'upload_test_file.txt';
 
-        $upload = $this->uploadFile($fileName, $page->id);
+        $upload = $this->files->uploadAttachmentFile($this, $fileName, $page->id);
         $upload->assertStatus(200);
         $attachment = Attachment::orderBy('id', 'desc')->take(1)->first();
 
@@ -131,13 +71,13 @@ class AttachmentTest extends TestCase
         $content = $attachmentGet->streamedContent();
         $this->assertStringContainsString('Hi, This is a test file for testing the upload process.', $content);
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
     }
 
     public function test_attaching_link_to_page()
     {
-        $page = Page::query()->first();
-        $admin = $this->getAdmin();
+        $page = $this->entities->page();
+        $admin = $this->users->admin();
         $this->asAdmin();
 
         $linkReq = $this->call('POST', 'attachments/link', [
@@ -168,15 +108,38 @@ class AttachmentTest extends TestCase
         $attachmentGet = $this->get($attachment->getUrl());
         $attachmentGet->assertRedirect('https://example.com');
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
+    }
+
+    public function test_attaching_long_links_to_a_page()
+    {
+        $page = $this->entities->page();
+
+        $link = 'https://example.com?query=' . str_repeat('catsIScool', 195);
+        $linkReq = $this->asAdmin()->post('attachments/link', [
+            'attachment_link_url'         => $link,
+            'attachment_link_name'        => 'Example Attachment Link',
+            'attachment_link_uploaded_to' => $page->id,
+        ]);
+
+        $linkReq->assertStatus(200);
+        $this->assertDatabaseHas('attachments', [
+            'uploaded_to' => $page->id,
+            'path' => $link,
+            'external' => true,
+        ]);
+
+        $attachment = $page->attachments()->where('external', '=', true)->first();
+        $resp = $this->get($attachment->getUrl());
+        $resp->assertRedirect($link);
     }
 
     public function test_attachment_updating()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $this->asAdmin();
 
-        $attachment = $this->createAttachment($page);
+        $attachment = Attachment::factory()->create(['uploaded_to' => $page->id]);
         $update = $this->call('PUT', 'attachments/' . $attachment->id, [
             'attachment_edit_name' => 'My new attachment name',
             'attachment_edit_url'  => 'https://test.example.com',
@@ -192,15 +155,15 @@ class AttachmentTest extends TestCase
         $update->assertStatus(200);
         $this->assertDatabaseHas('attachments', $expectedData);
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
     }
 
     public function test_file_deletion()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $this->asAdmin();
         $fileName = 'deletion_test.txt';
-        $this->uploadFile($fileName, $page->id);
+        $this->files->uploadAttachmentFile($this, $fileName, $page->id);
 
         $attachment = Attachment::query()->orderBy('id', 'desc')->first();
         $filePath = storage_path($attachment->path);
@@ -214,15 +177,15 @@ class AttachmentTest extends TestCase
         ]);
         $this->assertFalse(file_exists($filePath), 'File at path ' . $filePath . ' was not deleted as expected');
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
     }
 
     public function test_attachment_deletion_on_page_deletion()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $this->asAdmin();
         $fileName = 'deletion_test.txt';
-        $this->uploadFile($fileName, $page->id);
+        $this->files->uploadAttachmentFile($this, $fileName, $page->id);
 
         $attachment = Attachment::query()->orderBy('id', 'desc')->first();
         $filePath = storage_path($attachment->path);
@@ -240,36 +203,32 @@ class AttachmentTest extends TestCase
         ]);
         $this->assertFalse(file_exists($filePath), 'File at path ' . $filePath . ' was not deleted as expected');
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
     }
 
     public function test_attachment_access_without_permission_shows_404()
     {
-        $admin = $this->getAdmin();
-        $viewer = $this->getViewer();
-        $page = Page::query()->first(); /** @var Page $page */
+        $admin = $this->users->admin();
+        $viewer = $this->users->viewer();
+        $page = $this->entities->page(); /** @var Page $page */
         $this->actingAs($admin);
         $fileName = 'permission_test.txt';
-        $this->uploadFile($fileName, $page->id);
+        $this->files->uploadAttachmentFile($this, $fileName, $page->id);
         $attachment = Attachment::orderBy('id', 'desc')->take(1)->first();
 
-        $page->restricted = true;
-        $page->permissions()->delete();
-        $page->save();
-        $page->rebuildPermissions();
-        $page->load('jointPermissions');
+        $this->permissions->setEntityPermissions($page, [], []);
 
         $this->actingAs($viewer);
         $attachmentGet = $this->get($attachment->getUrl());
         $attachmentGet->assertStatus(404);
         $attachmentGet->assertSee('Attachment not found');
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
     }
 
     public function test_data_and_js_links_cannot_be_attached_to_a_page()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $this->asAdmin();
 
         $badLinks = [
@@ -294,7 +253,7 @@ class AttachmentTest extends TestCase
             ]);
         }
 
-        $attachment = $this->createAttachment($page);
+        $attachment = Attachment::factory()->create(['uploaded_to' => $page->id]);
 
         foreach ($badLinks as $badLink) {
             $linkReq = $this->put('attachments/' . $attachment->id, [
@@ -310,11 +269,11 @@ class AttachmentTest extends TestCase
 
     public function test_file_access_with_open_query_param_provides_inline_response_with_correct_content_type()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $this->asAdmin();
         $fileName = 'upload_test_file.txt';
 
-        $upload = $this->uploadFile($fileName, $page->id);
+        $upload = $this->files->uploadAttachmentFile($this, $fileName, $page->id);
         $upload->assertStatus(200);
         $attachment = Attachment::query()->orderBy('id', 'desc')->take(1)->first();
 
@@ -324,21 +283,37 @@ class AttachmentTest extends TestCase
         $attachmentGet->assertHeader('Content-Disposition', 'inline; filename="upload_test_file.txt"');
         $attachmentGet->assertHeader('X-Content-Type-Options', 'nosniff');
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
     }
 
     public function test_html_file_access_with_open_forces_plain_content_type()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $this->asAdmin();
 
-        $attachment = $this->createUploadAttachment($page, 'test_file.html', '<html></html><p>testing</p>', 'text/html');
+        $attachment = $this->files->uploadAttachmentDataToPage($this, $page, 'test_file.html', '<html></html><p>testing</p>', 'text/html');
 
         $attachmentGet = $this->get($attachment->getUrl(true));
         // http-foundation/Response does some 'fixing' of responses to add charsets to text responses.
         $attachmentGet->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
         $attachmentGet->assertHeader('Content-Disposition', 'inline; filename="test_file.html"');
 
-        $this->deleteUploads();
+        $this->files->deleteAllAttachmentFiles();
+    }
+
+    public function test_file_upload_works_when_local_secure_restricted_is_in_use()
+    {
+        config()->set('filesystems.attachments', 'local_secure_restricted');
+
+        $page = $this->entities->page();
+        $fileName = 'upload_test_file.txt';
+
+        $this->asAdmin();
+        $upload = $this->files->uploadAttachmentFile($this, $fileName, $page->id);
+        $upload->assertStatus(200);
+
+        $attachment = Attachment::query()->orderBy('id', 'desc')->where('uploaded_to', '=', $page->id)->first();
+        $this->assertFileExists(storage_path($attachment->path));
+        $this->files->deleteAllAttachmentFiles();
     }
 }

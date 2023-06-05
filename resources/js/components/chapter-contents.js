@@ -1,9 +1,7 @@
-import {slideUp, slideDown} from "../services/animations";
+import {slideUp, slideDown} from '../services/animations';
+import {Component} from './component';
 
-/**
- * @extends {Component}
- */
-class ChapterContents {
+export class ChapterContents extends Component {
 
     setup() {
         this.list = this.$refs.list;
@@ -29,9 +27,11 @@ class ChapterContents {
 
     click(event) {
         event.preventDefault();
-        this.isOpen ?  this.close() : this.open();
+        if (this.isOpen) {
+            this.close();
+        } else {
+            this.open();
+        }
     }
 
 }
-
-export default ChapterContents;

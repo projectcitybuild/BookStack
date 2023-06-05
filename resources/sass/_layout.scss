@@ -144,6 +144,10 @@ body.flexbox {
   flex-direction: column;
 }
 
+.flex-container-row.inline, .flex-container-column.inline {
+  display: inline-flex !important;
+}
+
 .flex-container-column.wrap, .flex-container-row.wrap {
   flex-wrap: wrap;
 }
@@ -156,10 +160,27 @@ body.flexbox {
     flex-basis: auto;
     flex-grow: 0;
   }
+  &.fill-area {
+    flex-grow: 1;
+    flex-shrink: 0;
+    min-width: fit-content;
+  }
 }
 
-.gap-m {
-  gap: $-m;
+.flex-2 {
+  min-height: 0;
+  flex: 2;
+  max-width: 100%;
+}
+
+.flex-3 {
+  min-height: 0;
+  flex: 3;
+  max-width: 100%;
+}
+
+.flex-none {
+  flex: none;
 }
 
 .justify-flex-start {
@@ -177,7 +198,40 @@ body.flexbox {
 .items-center {
   align-items: center;
 }
+.items-stretch {
+  align-items: stretch;
+}
 
+/**
+ * Min width utilities
+ */
+.min-width-xxxxs {
+  min-width: 60px;
+}
+.min-width-xxxs {
+  min-width: 80px;
+}
+.min-width-xxs {
+  min-width: 100px;
+}
+.min-width-xs {
+  min-width: 120px;
+}
+.min-width-s {
+  min-width: 160px;
+}
+.min-width-m {
+  min-width: 200px;
+}
+.min-width-l {
+  min-width: 240px;
+}
+.min-width-xl {
+  min-width: 280px;
+}
+.min-width-xxl {
+  min-width: 320px;
+}
 
 /**
  * Display and float utilities
@@ -199,6 +253,15 @@ body.flexbox {
   position: relative;
 }
 
+.fixed {
+  position: fixed;
+  z-index: 20;
+  &.top-right {
+    top: 0;
+    right: 0;
+  }
+}
+
 .hidden {
   display: none !important;
 }
@@ -212,6 +275,11 @@ body.flexbox {
   &.right {
     float: right;
   }
+}
+
+.sticky-top-m {
+  position: sticky;
+  top: $-m;
 }
 
 /**
@@ -228,6 +296,19 @@ body.flexbox {
       display: none !important;
     }
   }
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.screen-reader-only {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 /**
@@ -374,7 +455,7 @@ body.flexbox {
     display: none;
   }
   .tri-layout-left-contents > *, .tri-layout-right-contents > * {
-    @include lightDark(opacity, 0.6, 0.7);
+    @include lightDark(opacity, 0.6, 0.75);
     transition: opacity ease-in-out 120ms;
     &:hover, &:focus-within {
       opacity: 1 !important;
@@ -383,7 +464,6 @@ body.flexbox {
       opacity: 1 !important;
     }
   }
-
 }
 
 @include smaller-than($m) {

@@ -178,11 +178,19 @@ body.tox-fullscreen, body.markdown-fullscreen {
       white-space: pre-wrap;
     }
   }
+
+  .cm-editor {
+    margin-bottom: 1.375em;
+  }
+
+  video {
+    max-width: 100%;
+  }
 }
 
 // Page content pointers
 .pointer-container {
-  position: relative;
+  position: fixed;
   display: none;
   left: 0;
   z-index: 10;
@@ -190,17 +198,10 @@ body.tox-fullscreen, body.markdown-fullscreen {
 .pointer {
   border: 1px solid #CCC;
   @include lightDark(border-color, #ccc, #000);
-  display: flex;
-  align-items: center;
-  justify-items: center;
-  padding: $-s $-s;
   border-radius: 4px;
   box-shadow: 0 0 12px 1px rgba(0, 0, 0, 0.1);
-  position: absolute;
-  top: -60px;
   @include lightDark(background-color, #fff, #333);
   width: 275px;
-  z-index: 55;
 
   &.is-page-editable {
     width: 328px;
@@ -236,16 +237,12 @@ body.tox-fullscreen, body.markdown-fullscreen {
     border: 1px solid #DDD;
     @include lightDark(border-color, #ddd, #000);
     color: #666;
-    width: 172px;
+    width: 160px;
     z-index: 40;
     padding: 5px 10px;
   }
-  span.icon {
-    fill: #444;
-    cursor: pointer;
-    user-select: none;
-    display: inline-block;
-    line-height: 1;
+  .text-button {
+    @include lightDark(color, #444, #AAA);
   }
   .input-group .button {
     line-height: 1;
@@ -281,16 +278,16 @@ body.tox-fullscreen, body.markdown-fullscreen {
   &.open {
     width: 480px;
   }
-  [toolbox-toggle] svg {
+  .toolbox-toggle svg {
     transition: transform ease-in-out 180ms;
   }
-  [toolbox-toggle] {
+  .toolbox-toggle {
     transition: background-color ease-in-out 180ms;
   }
-  &.open [toolbox-toggle] {
+  &.open .toolbox-toggle {
     background-color: rgba(255, 0, 0, 0.29);
   }
-  &.open [toolbox-toggle] svg {
+  &.open .toolbox-toggle svg {
     transform: rotate(180deg);
   }
   > div {
@@ -320,14 +317,6 @@ body.tox-fullscreen, body.markdown-fullscreen {
   &.open .tabs > button.active {
     @include lightDark(color, #444, #EEE);
     background-color: rgba(0, 0, 0, 0.1);
-  }
-  div[toolbox-tab-content] {
-    padding-bottom: 45px;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
-    overflow-y: scroll;
   }
   h4 {
     font-size: 24px;
@@ -360,8 +349,10 @@ body.tox-fullscreen, body.markdown-fullscreen {
   }
 }
 
-[toolbox-tab-content] {
+.toolbox-tab-content {
   display: none;
+  overflow-y: auto;
+  padding-bottom: 45px;
 }
 
 .suggestion-box {

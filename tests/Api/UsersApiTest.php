@@ -2,11 +2,11 @@
 
 namespace Tests\Api;
 
-use BookStack\Actions\ActivityType;
-use BookStack\Auth\Role;
-use BookStack\Auth\User;
+use BookStack\Activity\ActivityType;
 use BookStack\Entities\Models\Entity;
 use BookStack\Notifications\UserInvite;
+use BookStack\Users\Models\Role;
+use BookStack\Users\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -15,9 +15,9 @@ class UsersApiTest extends TestCase
 {
     use TestsApi;
 
-    protected $baseEndpoint = '/api/users';
+    protected string $baseEndpoint = '/api/users';
 
-    protected $endpointMap = [
+    protected array $endpointMap = [
         ['get', '/api/users'],
         ['post', '/api/users'],
         ['get', '/api/users/1'],
@@ -47,7 +47,7 @@ class UsersApiTest extends TestCase
         }
     }
 
-    public function test_index_endpoint_returns_expected_shelf()
+    public function test_index_endpoint_returns_expected_user()
     {
         $this->actingAsApiAdmin();
         /** @var User $firstUser */
@@ -175,7 +175,7 @@ class UsersApiTest extends TestCase
     {
         $this->actingAsApiAdmin();
         /** @var User $user */
-        $user = $this->getAdmin();
+        $user = $this->users->admin();
         $roles = Role::query()->pluck('id');
         $resp = $this->putJson($this->baseEndpoint . "/{$user->id}", [
             'name'             => 'My updated user',
@@ -204,7 +204,7 @@ class UsersApiTest extends TestCase
     {
         $this->actingAsApiAdmin();
         /** @var User $user */
-        $user = $this->getAdmin();
+        $user = $this->users->admin();
         $roleCount = $user->roles()->count();
         $resp = $this->putJson($this->baseEndpoint . "/{$user->id}", []);
 
@@ -222,7 +222,7 @@ class UsersApiTest extends TestCase
     {
         $this->actingAsApiAdmin();
         /** @var User $user */
-        $user = User::query()->where('id', '!=', $this->getAdmin()->id)
+        $user = User::query()->where('id', '!=', $this->users->admin()->id)
             ->whereNull('system_name')
             ->first();
 
@@ -236,10 +236,10 @@ class UsersApiTest extends TestCase
     {
         $this->actingAsApiAdmin();
         /** @var User $user */
-        $user = User::query()->where('id', '!=', $this->getAdmin()->id)
+        $user = User::query()->where('id', '!=', $this->users->admin()->id)
             ->whereNull('system_name')
             ->first();
-        $entityChain = $this->createEntityChainBelongingToUser($user);
+        $entityChain = $this->entities->createChainBelongingToUser($user);
         /** @var User $newOwner */
         $newOwner = User::query()->where('id', '!=', $user->id)->first();
 

@@ -71,7 +71,7 @@
         <h5>{{ trans('common.details') }}</h5>
         <div class="blended-links">
             @include('entities.meta', ['entity' => $book])
-            @if($book->restricted)
+            @if($book->hasPermissions())
                 <div class="active-restriction">
                     @if(userCan('restrictions-manage', $book))
                         <a href="{{ $book->getUrl('/permissions') }}" class="entity-meta-item">
@@ -91,16 +91,16 @@
 
     <div class="actions mb-xl">
         <h5>{{ trans('common.actions') }}</h5>
-        <div class="icon-list text-primary">
+        <div class="icon-list text-link">
 
             @if(userCan('page-create', $book))
-                <a href="{{ $book->getUrl('/create-page') }}" class="icon-list-item">
+                <a href="{{ $book->getUrl('/create-page') }}" data-shortcut="new" class="icon-list-item">
                     <span>@icon('add')</span>
                     <span>{{ trans('entities.pages_new') }}</span>
                 </a>
             @endif
             @if(userCan('chapter-create', $book))
-                <a href="{{ $book->getUrl('/create-chapter') }}" class="icon-list-item">
+                <a href="{{ $book->getUrl('/create-chapter') }}" data-shortcut="new" class="icon-list-item">
                     <span>@icon('add')</span>
                     <span>{{ trans('entities.chapters_new') }}</span>
                 </a>
@@ -109,29 +109,29 @@
             <hr class="primary-background">
 
             @if(userCan('book-update', $book))
-                <a href="{{ $book->getUrl('/edit') }}" class="icon-list-item">
+                <a href="{{ $book->getUrl('/edit') }}" data-shortcut="edit" class="icon-list-item">
                     <span>@icon('edit')</span>
                     <span>{{ trans('common.edit') }}</span>
                 </a>
-                <a href="{{ $book->getUrl('/sort') }}" class="icon-list-item">
+                <a href="{{ $book->getUrl('/sort') }}" data-shortcut="sort" class="icon-list-item">
                     <span>@icon('sort')</span>
                     <span>{{ trans('common.sort') }}</span>
                 </a>
             @endif
             @if(userCan('book-create-all'))
-                <a href="{{ $book->getUrl('/copy') }}" class="icon-list-item">
+                <a href="{{ $book->getUrl('/copy') }}" data-shortcut="copy" class="icon-list-item">
                     <span>@icon('copy')</span>
                     <span>{{ trans('common.copy') }}</span>
                 </a>
             @endif
             @if(userCan('restrictions-manage', $book))
-                <a href="{{ $book->getUrl('/permissions') }}" class="icon-list-item">
+                <a href="{{ $book->getUrl('/permissions') }}" data-shortcut="permissions" class="icon-list-item">
                     <span>@icon('lock')</span>
                     <span>{{ trans('entities.permissions') }}</span>
                 </a>
             @endif
             @if(userCan('book-delete', $book))
-                <a href="{{ $book->getUrl('/delete') }}" class="icon-list-item">
+                <a href="{{ $book->getUrl('/delete') }}" data-shortcut="delete" class="icon-list-item">
                     <span>@icon('delete')</span>
                     <span>{{ trans('common.delete') }}</span>
                 </a>
@@ -162,7 +162,7 @@
 
     @if(count($bookParentShelves) > 0)
         <div class="actions mb-xl">
-            <h5>{{ trans('entities.shelves_long') }}</h5>
+            <h5>{{ trans('entities.shelves') }}</h5>
             @include('entities.list', ['entities' => $bookParentShelves, 'style' => 'compact'])
         </div>
     @endif

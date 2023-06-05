@@ -19,10 +19,10 @@ class HtmlContentFilter
             return $html;
         }
 
-        $html = '<body>' . $html . '</body>';
+        $html = '<?xml encoding="utf-8" ?><body>' . $html . '</body>';
         libxml_use_internal_errors(true);
         $doc = new DOMDocument();
-        $doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        $doc->loadHTML($html);
         $xPath = new DOMXPath($doc);
 
         // Remove standard script tags
@@ -44,6 +44,12 @@ class HtmlContentFilter
         // Remove data or JavaScript iFrames
         $badIframes = $xPath->query('//*[' . static::xpathContains('@src', 'data:') . '] | //*[' . static::xpathContains('@src', 'javascript:') . '] | //*[@srcdoc]');
         static::removeNodes($badIframes);
+
+        // Remove attributes, within svg children, hiding JavaScript or data uris.
+        // A bunch of svg element and attribute combinations expose xss possibilities.
+        // For example, SVG animate tag can exploit javascript in values.
+        $badValuesAttrs = $xPath->query('//svg//@*[' . static::xpathContains('.', 'data:') . '] | //svg//@*[' . static::xpathContains('.', 'javascript:') . ']');
+        static::removeAttributes($badValuesAttrs);
 
         // Remove elements with a xlink:href attribute
         // Used in SVG but deprecated anyway, so we'll be a bit more heavy-handed here.

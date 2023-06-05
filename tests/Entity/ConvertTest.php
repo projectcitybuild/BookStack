@@ -2,8 +2,8 @@
 
 namespace Tests\Entity;
 
-use BookStack\Actions\ActivityType;
-use BookStack\Actions\Tag;
+use BookStack\Activity\ActivityType;
+use BookStack\Activity\Models\Tag;
 use BookStack\Entities\Models\Book;
 use BookStack\Entities\Models\Bookshelf;
 use BookStack\Entities\Models\Chapter;
@@ -14,8 +14,7 @@ class ConvertTest extends TestCase
 {
     public function test_chapter_edit_view_shows_convert_option()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
 
         $resp = $this->asEditor()->get($chapter->getUrl('/edit'));
         $resp->assertSee('Convert to Book');
@@ -25,8 +24,7 @@ class ConvertTest extends TestCase
 
     public function test_convert_chapter_to_book()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->whereHas('pages')->first();
+        $chapter = $this->entities->chapterHasPages();
         $chapter->tags()->save(new Tag(['name' => 'Category', 'value' => 'Penguins']));
         /** @var Page $childPage */
         $childPage = $chapter->pages()->first();
@@ -50,18 +48,17 @@ class ConvertTest extends TestCase
 
     public function test_convert_chapter_to_book_requires_permissions()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
-        $user = $this->getViewer();
+        $chapter = $this->entities->chapter();
+        $user = $this->users->viewer();
 
         $permissions = ['chapter-delete-all', 'book-create-all', 'chapter-update-all'];
-        $this->giveUserPermissions($user, $permissions);
+        $this->permissions->grantUserRolePermissions($user, $permissions);
 
         foreach ($permissions as $permission) {
-            $this->removePermissionFromUser($user, $permission);
+            $this->permissions->removeUserRolePermissions($user, [$permission]);
             $resp = $this->actingAs($user)->post($chapter->getUrl('/convert-to-book'));
             $this->assertPermissionError($resp);
-            $this->giveUserPermissions($user, [$permission]);
+            $this->permissions->grantUserRolePermissions($user, [$permission]);
         }
 
         $resp = $this->actingAs($user)->post($chapter->getUrl('/convert-to-book'));
@@ -71,7 +68,7 @@ class ConvertTest extends TestCase
 
     public function test_book_edit_view_shows_convert_option()
     {
-        $book = Book::query()->first();
+        $book = $this->entities->book();
 
         $resp = $this->asEditor()->get($book->getUrl('/edit'));
         $resp->assertSee('Convert to Shelf');
@@ -124,18 +121,17 @@ class ConvertTest extends TestCase
 
     public function test_book_convert_to_shelf_requires_permissions()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
-        $user = $this->getViewer();
+        $book = $this->entities->book();
+        $user = $this->users->viewer();
 
         $permissions = ['book-delete-all', 'bookshelf-create-all', 'book-update-all', 'book-create-all'];
-        $this->giveUserPermissions($user, $permissions);
+        $this->permissions->grantUserRolePermissions($user, $permissions);
 
         foreach ($permissions as $permission) {
-            $this->removePermissionFromUser($user, $permission);
+            $this->permissions->removeUserRolePermissions($user, [$permission]);
             $resp = $this->actingAs($user)->post($book->getUrl('/convert-to-shelf'));
             $this->assertPermissionError($resp);
-            $this->giveUserPermissions($user, [$permission]);
+            $this->permissions->grantUserRolePermissions($user, [$permission]);
         }
 
         $resp = $this->actingAs($user)->post($book->getUrl('/convert-to-shelf'));

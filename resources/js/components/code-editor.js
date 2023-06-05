@@ -1,10 +1,26 @@
-import {onChildEvent, onEnterPress, onSelect} from "../services/dom";
+import {onChildEvent, onEnterPress, onSelect} from '../services/dom';
+import {Component} from './component';
 
-/**
- * Code Editor
- * @extends {Component}
- */
-class CodeEditor {
+export class CodeEditor extends Component {
+
+    /**
+     * @type {null|SimpleEditorInterface}
+     */
+    editor = null;
+
+    /**
+     * @type {?Function}
+     */
+    saveCallback = null;
+
+    /**
+     * @type {?Function}
+     */
+    cancelCallback = null;
+
+    history = {};
+
+    historyKey = 'code_history';
 
     setup() {
         this.container = this.$refs.container;
@@ -18,10 +34,6 @@ class CodeEditor {
         this.historyList = this.$refs.historyList;
         this.favourites = new Set(this.$opts.favourites.split(','));
 
-        this.callback = null;
-        this.editor = null;
-        this.history = {};
-        this.historyKey = 'code_history';
         this.setupListeners();
         this.setupFavourites();
     }
@@ -39,15 +51,15 @@ class CodeEditor {
             this.languageInputChange(language);
         });
 
-        onEnterPress(this.languageInput, e => this.save());
-        this.languageInput.addEventListener('input', e => this.languageInputChange(this.languageInput.value));
-        onSelect(this.saveButton, e => this.save());
+        onEnterPress(this.languageInput, () => this.save());
+        this.languageInput.addEventListener('input', () => this.languageInputChange(this.languageInput.value));
+        onSelect(this.saveButton, () => this.save());
 
         onChildEvent(this.historyList, 'button', 'click', (event, elem) => {
             event.preventDefault();
             const historyTime = elem.dataset.time;
             if (this.editor) {
-                this.editor.setValue(this.history[historyTime]);
+                this.editor.setContent(this.history[historyTime]);
             }
         });
     }
@@ -70,17 +82,23 @@ class CodeEditor {
 
         onChildEvent(button.parentElement, '.lang-option-favorite-toggle', 'click', () => {
             isFavorite = !isFavorite;
-            isFavorite ? this.favourites.add(language) : this.favourites.delete(language);
+
+            if (isFavorite) {
+                this.favourites.add(language);
+            } else {
+                this.favourites.delete(language);
+            }
+
             button.setAttribute('data-favourite', isFavorite ? 'true' : 'false');
 
-            window.$http.patch('/settings/users/update-code-language-favourite', {
-                language: language,
-                active: isFavorite
+            window.$http.patch('/preferences/update-code-language-favourite', {
+                language,
+                active: isFavorite,
             });
 
             this.sortLanguageList();
             if (isFavorite) {
-                button.scrollIntoView({block: "center", behavior: "smooth"});
+                button.scrollIntoView({block: 'center', behavior: 'smooth'});
             }
         });
     }
@@ -92,7 +110,7 @@ class CodeEditor {
 
             if (aFav && !bFav) {
                 return -1;
-            } else if (bFav && !aFav) {
+            } if (bFav && !aFav) {
                 return 1;
             }
 
@@ -105,20 +123,20 @@ class CodeEditor {
     }
 
     save() {
-        if (this.callback) {
-            this.callback(this.editor.getValue(), this.languageInput.value);
+        if (this.saveCallback) {
+            this.saveCallback(this.editor.getContent(), this.languageInput.value);
         }
         this.hide();
     }
 
-    open(code, language, callback) {
+    async open(code, language, saveCallback, cancelCallback) {
         this.languageInput.value = language;
-        this.callback = callback;
+        this.saveCallback = saveCallback;
+        this.cancelCallback = cancelCallback;
 
-        this.show()
-            .then(() => this.languageInputChange(language))
-            .then(() => window.importVersioned('code'))
-            .then(Code => Code.setContent(this.editor, code));
+        await this.show();
+        this.languageInputChange(language);
+        this.editor.setContent(code);
     }
 
     async show() {
@@ -128,22 +146,30 @@ class CodeEditor {
         }
 
         this.loadHistory();
-        this.popup.components.popup.show(() => {
-            Code.updateLayout(this.editor);
+        this.getPopup().show(() => {
             this.editor.focus();
         }, () => {
-            this.addHistory()
+            this.addHistory();
+            if (this.cancelCallback) {
+                this.cancelCallback();
+            }
         });
     }
 
     hide() {
-        this.popup.components.popup.hide();
+        this.getPopup().hide();
         this.addHistory();
     }
 
+    /**
+     * @returns {Popup}
+     */
+    getPopup() {
+        return window.$components.firstOnElement(this.popup, 'popup');
+    }
+
     async updateEditorMode(language) {
-        const Code = await window.importVersioned('code');
-        Code.setMode(this.editor, language, this.editor.getValue());
+        this.editor.setMode(language, this.editor.getContent());
     }
 
     languageInputChange(language) {
@@ -155,7 +181,7 @@ class CodeEditor {
             const isMatch = inputLang === lang;
             link.classList.toggle('active', isMatch);
             if (isMatch) {
-                link.scrollIntoView({block: "center", behavior: "smooth"});
+                link.scrollIntoView({block: 'center', behavior: 'smooth'});
             }
         }
     }
@@ -165,14 +191,14 @@ class CodeEditor {
         const historyKeys = Object.keys(this.history).reverse();
         this.historyDropDown.classList.toggle('hidden', historyKeys.length === 0);
         this.historyList.innerHTML = historyKeys.map(key => {
-             const localTime = (new Date(parseInt(key))).toLocaleTimeString();
-             return `<li><button type="button" data-time="${key}" class="text-item">${localTime}</button></li>`;
+            const localTime = (new Date(parseInt(key, 10))).toLocaleTimeString();
+            return `<li><button type="button" data-time="${key}" class="text-item">${localTime}</button></li>`;
         }).join('');
     }
 
     addHistory() {
         if (!this.editor) return;
-        const code = this.editor.getValue();
+        const code = this.editor.getContent();
         if (!code) return;
 
         // Stop if we'd be storing the same as the last item
@@ -185,5 +211,3 @@ class CodeEditor {
     }
 
 }
-
-export default CodeEditor;

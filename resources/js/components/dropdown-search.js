@@ -1,7 +1,8 @@
-import {debounce} from "../services/util";
-import {transitionHeight} from "../services/animations";
+import {debounce} from '../services/util';
+import {transitionHeight} from '../services/animations';
+import {Component} from './component';
 
-class DropdownSearch {
+export class DropdownSearch extends Component {
 
     setup() {
         this.elem = this.$el;
@@ -39,7 +40,7 @@ class DropdownSearch {
 
     runLocalSearch(searchTerm) {
         const listItems = this.listContainerElem.querySelectorAll(this.localSearchSelector);
-        for (let listItem of listItems) {
+        for (const listItem of listItems) {
             const match = !searchTerm || listItem.textContent.toLowerCase().includes(searchTerm);
             listItem.style.display = match ? 'flex' : 'none';
             listItem.classList.toggle('hidden', !match);
@@ -79,5 +80,3 @@ class DropdownSearch {
     }
 
 }
-
-export default DropdownSearch;

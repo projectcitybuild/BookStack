@@ -1,10 +1,11 @@
+import {Component} from './component';
+
 /**
  * Attachments List
  * Adds '?open=true' query to file attachment links
  * when ctrl/cmd is pressed down.
- * @extends {Component}
  */
-class AttachmentsList {
+export class AttachmentsList extends Component {
 
     setup() {
         this.container = this.$el;
@@ -12,11 +13,11 @@ class AttachmentsList {
     }
 
     setupListeners() {
-        const isExpectedKey = (event) => event.key === 'Control' || event.key === 'Meta';
+        const isExpectedKey = event => event.key === 'Control' || event.key === 'Meta';
         window.addEventListener('keydown', event => {
-             if (isExpectedKey(event)) {
+            if (isExpectedKey(event)) {
                 this.addOpenQueryToLinks();
-             }
+            }
         }, {passive: true});
         window.addEventListener('keyup', event => {
             if (isExpectedKey(event)) {
@@ -29,7 +30,7 @@ class AttachmentsList {
         const links = this.container.querySelectorAll('a.attachment-file');
         for (const link of links) {
             if (link.href.split('?')[1] !== 'open=true') {
-                link.href = link.href + '?open=true';
+                link.href += '?open=true';
                 link.setAttribute('target', '_blank');
             }
         }
@@ -42,6 +43,5 @@ class AttachmentsList {
             link.removeAttribute('target');
         }
     }
-}
 
-export default AttachmentsList;
+}

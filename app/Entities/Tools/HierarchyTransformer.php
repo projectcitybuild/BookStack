@@ -2,7 +2,7 @@
 
 namespace BookStack\Entities\Tools;
 
-use BookStack\Actions\ActivityType;
+use BookStack\Activity\ActivityType;
 use BookStack\Entities\Models\Book;
 use BookStack\Entities\Models\Bookshelf;
 use BookStack\Entities\Models\Chapter;
@@ -65,7 +65,7 @@ class HierarchyTransformer
         foreach ($book->chapters as $index => $chapter) {
             $newBook = $this->transformChapterToBook($chapter);
             $shelfBookSyncData[$newBook->id] = ['order' => $index];
-            if (!$newBook->restricted) {
+            if (!$newBook->hasPermissions()) {
                 $this->cloner->copyEntityPermissions($shelf, $newBook);
             }
         }

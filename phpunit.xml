@@ -27,11 +27,13 @@
     <server name="DB_CONNECTION" value="mysql_testing"/>
     <server name="BCRYPT_ROUNDS" value="4"/>
     <server name="MAIL_DRIVER" value="array"/>
+    <server name="MAIL_VERIFY_SSL" value="true"/>
     <server name="LOG_CHANNEL" value="single"/>
     <server name="AUTH_METHOD" value="standard"/>
     <server name="AUTH_AUTO_INITIATE" value="false"/>
     <server name="DISABLE_EXTERNAL_SERVICES" value="true"/>
     <server name="ALLOW_UNTRUSTED_SERVER_FETCHING" value="false"/>
+    <server name="ALLOW_CONTENT_SCRIPTS" value="false"/>
     <server name="AVATAR_URL" value=""/>
     <server name="LDAP_START_TLS" value="false"/>
     <server name="LDAP_VERSION" value="3"/>

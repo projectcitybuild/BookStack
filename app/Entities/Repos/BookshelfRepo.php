@@ -2,7 +2,7 @@
 
 namespace BookStack\Entities\Repos;
 
-use BookStack\Actions\ActivityType;
+use BookStack\Activity\ActivityType;
 use BookStack\Entities\Models\Book;
 use BookStack\Entities\Models\Bookshelf;
 use BookStack\Entities\Tools\TrashCan;
@@ -132,31 +132,6 @@ class BookshelfRepo
             });
 
         $shelf->books()->sync($syncData);
-    }
-
-    /**
-     * Copy down the permissions of the given shelf to all child books.
-     */
-    public function copyDownPermissions(Bookshelf $shelf, $checkUserPermissions = true): int
-    {
-        $shelfPermissions = $shelf->permissions()->get(['role_id', 'action'])->toArray();
-        $shelfBooks = $shelf->books()->get(['id', 'restricted']);
-        $updatedBookCount = 0;
-
-        /** @var Book $book */
-        foreach ($shelfBooks as $book) {
-            if ($checkUserPermissions && !userCan('restrictions-manage', $book)) {
-                continue;
-            }
-            $book->permissions()->delete();
-            $book->restricted = $shelf->restricted;
-            $book->permissions()->createMany($shelfPermissions);
-            $book->save();
-            $book->rebuildPermissions();
-            $updatedBookCount++;
-        }
-
-        return $updatedBookCount;
     }
 
     /**

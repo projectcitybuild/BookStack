@@ -197,7 +197,7 @@
   .chapter-contents-toggle {
     display: block;
     width: 100%;
-    text-align: left;
+    text-align: start;
     padding: $-xxs $-s ($-xxs * 2) $-s;
     border-radius: 0 3px 3px 0;
     line-height: 1;
@@ -232,7 +232,7 @@
 }
 
 // Sortable Lists
-.sortable-page-list, .sortable-page-list ul {
+.sortable-page-list, .sortable-page-sublist {
   list-style: none;
 }
 .sort-box {
@@ -267,7 +267,7 @@
   .entity-list-item > span:first-child {
     align-self: flex-start;
   }
-  .sortable-selected  .entity-list-item, .sortable-selected  .entity-list-item:hover {
+  .sortable-selected, .sortable-selected:hover {
     outline: 1px dotted var(--color-primary);
     background-color: var(--color-primary-light) !important;
   }
@@ -278,13 +278,15 @@
   > ul {
     margin-inline-start: 0;
   }
-  ul {
+  .sortable-page-sublist {
     margin-bottom: $-m;
     margin-top: 0;
     padding-inline-start: $-m;
   }
   li {
-    border: 1px solid #DDD;
+    @include lightDark(background-color, #FFF, #222);
+    border: 1px solid;
+    @include lightDark(border-color, #DDD, #666);
     margin-top: -1px;
     min-height: 38px;
   }
@@ -300,6 +302,36 @@
 }
 .sortable-page-list li.placeholder:before {
   position: absolute;
+}
+.sort-box summary {
+  list-style: none;
+  font-size: .9rem;
+  cursor: pointer;
+}
+.sort-box summary::-webkit-details-marker {
+  display: none;
+}
+details.sort-box summary .caret-container svg {
+  transition: transform ease-in-out 120ms;
+}
+details.sort-box[open] summary .caret-container svg {
+  transform: rotate(90deg);
+}
+.sort-box-actions .icon-button {
+  opacity: .6;
+}
+.sort-box .flex-container-row:hover .sort-box-actions .icon-button,
+.sort-box .flex-container-row:focus-within .sort-box-actions .icon-button {
+  opacity: 1;
+}
+.sort-box-actions .icon-button[disabled] {
+  visibility: hidden;
+}
+.sort-box-actions .dropdown-menu button[disabled] {
+  display: none;
+}
+.sort-list-handle {
+  cursor: grab;
 }
 
 .activity-list-item {
@@ -630,7 +662,7 @@ ul.pagination {
   z-index: 999;
   top: 0;
   list-style: none;
-  right: 0;
+  inset-inline-end: 0;
   margin: $-m 0;
   @include lightDark(background-color, #fff, #333);
   box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.18);
@@ -642,6 +674,10 @@ ul.pagination {
   text-align: start !important;
   max-height: 500px;
   overflow-y: auto;
+  &.anchor-left {
+    inset-inline-end: auto;
+    inset-inline-start: 0;
+  }
   &.wide {
     min-width: 220px;
   }
@@ -715,7 +751,7 @@ ul.pagination {
 // being cut by scrollable container.
 .tri-layout-right .dropdown-menu,
 .tri-layout-left .dropdown-menu {
-  right: $-xs;
+  inset-inline-end: $-xs;
 }
 
 // Books grid view

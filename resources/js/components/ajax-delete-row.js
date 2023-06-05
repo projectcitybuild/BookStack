@@ -1,10 +1,8 @@
-/**
- * AjaxDelete
- * @extends {Component}
- */
-import {onSelect} from "../services/dom";
+import {onSelect} from '../services/dom';
+import {Component} from './component';
 
-class AjaxDeleteRow {
+export class AjaxDeleteRow extends Component {
+
     setup() {
         this.row = this.$el;
         this.url = this.$opts.url;
@@ -22,11 +20,10 @@ class AjaxDeleteRow {
                 window.$events.emit('success', resp.data.message);
             }
             this.row.remove();
-        }).catch(err => {
+        }).catch(() => {
             this.row.style.opacity = null;
             this.row.style.pointerEvents = null;
         });
     }
-}
 
-export default AjaxDeleteRow;
+}

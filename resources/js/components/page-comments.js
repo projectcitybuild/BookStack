@@ -1,9 +1,8 @@
-import {scrollAndHighlightElement} from "../services/util";
+import {scrollAndHighlightElement} from '../services/util';
+import {Component} from './component';
+import {htmlToDom} from '../services/dom';
 
-/**
- * @extends {Component}
- */
-class PageComments {
+export class PageComments extends Component {
 
     setup() {
         this.elem = this.$el;
@@ -37,11 +36,11 @@ class PageComments {
     }
 
     handleAction(event) {
-        let actionElem = event.target.closest('[action]');
+        const actionElem = event.target.closest('[action]');
 
         if (event.target.matches('a[href^="#"]')) {
             const id = event.target.href.split('#')[1];
-            scrollAndHighlightElement(document.querySelector('#' + id));
+            scrollAndHighlightElement(document.querySelector(`#${id}`));
         }
 
         if (actionElem === null) return;
@@ -69,28 +68,28 @@ class PageComments {
         if (this.editingComment) this.closeUpdateForm();
         commentElem.querySelector('[comment-content]').style.display = 'none';
         commentElem.querySelector('[comment-edit-container]').style.display = 'block';
-        let textArea = commentElem.querySelector('[comment-edit-container] textarea');
-        let lineCount = textArea.value.split('\n').length;
-        textArea.style.height = ((lineCount * 20) + 40) + 'px';
+        const textArea = commentElem.querySelector('[comment-edit-container] textarea');
+        const lineCount = textArea.value.split('\n').length;
+        textArea.style.height = `${(lineCount * 20) + 40}px`;
         this.editingComment = commentElem;
     }
 
     updateComment(event) {
-        let form = event.target;
+        const form = event.target;
         event.preventDefault();
-        let text = form.querySelector('textarea').value;
-        let reqData = {
-            text: text,
+        const text = form.querySelector('textarea').value;
+        const reqData = {
+            text,
             parent_id: this.parentId || null,
         };
         this.showLoading(form);
-        let commentId = this.editingComment.getAttribute('comment');
+        const commentId = this.editingComment.getAttribute('comment');
         window.$http.put(`/comment/${commentId}`, reqData).then(resp => {
-            let newComment = document.createElement('div');
+            const newComment = document.createElement('div');
             newComment.innerHTML = resp.data;
             this.editingComment.innerHTML = newComment.children[0].innerHTML;
             window.$events.success(this.updatedText);
-            window.components.init(this.editingComment);
+            window.$components.init(this.editingComment);
             this.closeUpdateForm();
             this.editingComment = null;
         }).catch(window.$events.showValidationErrors).then(() => {
@@ -99,9 +98,9 @@ class PageComments {
     }
 
     deleteComment(commentElem) {
-        let id = commentElem.getAttribute('comment');
+        const id = commentElem.getAttribute('comment');
         this.showLoading(commentElem.querySelector('[comment-content]'));
-        window.$http.delete(`/comment/${id}`).then(resp => {
+        window.$http.delete(`/comment/${id}`).then(() => {
             commentElem.parentNode.removeChild(commentElem);
             window.$events.success(this.deletedText);
             this.updateCount();
@@ -112,18 +111,16 @@ class PageComments {
     saveComment(event) {
         event.preventDefault();
         event.stopPropagation();
-        let text = this.formInput.value;
-        let reqData = {
-            text: text,
+        const text = this.formInput.value;
+        const reqData = {
+            text,
             parent_id: this.parentId || null,
         };
         this.showLoading(this.form);
         window.$http.post(`/comment/${this.pageId}`, reqData).then(resp => {
-            let newComment = document.createElement('div');
-            newComment.innerHTML = resp.data;
-            let newElem = newComment.children[0];
+            const newElem = htmlToDom(resp.data);
             this.container.appendChild(newElem);
-            window.components.init(newElem);
+            window.$components.init(newElem);
             window.$events.success(this.createdText);
             this.resetForm();
             this.updateCount();
@@ -134,7 +131,7 @@ class PageComments {
     }
 
     updateCount() {
-        let count = this.container.children.length;
+        const count = this.container.children.length;
         this.elem.querySelector('[comments-title]').textContent = window.trans_plural(this.countText, count, {count});
     }
 
@@ -151,14 +148,14 @@ class PageComments {
         this.formContainer.parentNode.style.display = 'block';
         this.addButtonContainer.style.display = 'none';
         this.formInput.focus();
-        this.formInput.scrollIntoView({behavior: "smooth"});
+        this.formInput.scrollIntoView({behavior: 'smooth'});
     }
 
     hideForm() {
         this.formContainer.style.display = 'none';
         this.formContainer.parentNode.style.display = 'none';
         if (this.getCommentCount() > 0) {
-            this.elem.appendChild(this.addButtonContainer)
+            this.elem.appendChild(this.addButtonContainer);
         } else {
             this.commentCountBar.appendChild(this.addButtonContainer);
         }
@@ -185,7 +182,7 @@ class PageComments {
 
     showLoading(formElem) {
         const groups = formElem.querySelectorAll('.form-group');
-        for (let group of groups) {
+        for (const group of groups) {
             group.style.display = 'none';
         }
         formElem.querySelector('.form-group.loading').style.display = 'block';
@@ -193,12 +190,10 @@ class PageComments {
 
     hideLoading(formElem) {
         const groups = formElem.querySelectorAll('.form-group');
-        for (let group of groups) {
+        for (const group of groups) {
             group.style.display = 'block';
         }
         formElem.querySelector('.form-group.loading').style.display = 'none';
     }
 
 }
-
-export default PageComments;

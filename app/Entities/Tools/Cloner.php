@@ -2,10 +2,12 @@
 
 namespace BookStack\Entities\Tools;
 
-use BookStack\Actions\Tag;
+use BookStack\Activity\Models\Tag;
 use BookStack\Entities\Models\Book;
+use BookStack\Entities\Models\Bookshelf;
 use BookStack\Entities\Models\Chapter;
 use BookStack\Entities\Models\Entity;
+use BookStack\Entities\Models\HasCoverImage;
 use BookStack\Entities\Models\Page;
 use BookStack\Entities\Repos\BookRepo;
 use BookStack\Entities\Repos\ChapterRepo;
@@ -71,8 +73,10 @@ class Cloner
         $bookDetails = $this->entityToInputData($original);
         $bookDetails['name'] = $newName;
 
+        // Clone book
         $copyBook = $this->bookRepo->create($bookDetails);
 
+        // Clone contents
         $directChildren = $original->getDirectChildren();
         foreach ($directChildren as $child) {
             if ($child instanceof Chapter && userCan('chapter-create', $copyBook)) {
@@ -81,6 +85,14 @@ class Cloner
 
             if ($child instanceof Page && !$child->draft && userCan('page-create', $copyBook)) {
                 $this->clonePage($child, $copyBook, $child->name);
+            }
+        }
+
+        // Clone bookshelf relationships
+        /** @var Bookshelf $shelf */
+        foreach ($original->shelves as $shelf) {
+            if (userCan('bookshelf-update', $shelf)) {
+                $shelf->appendBook($copyBook);
             }
         }
 
@@ -98,9 +110,11 @@ class Cloner
         $inputData['tags'] = $this->entityTagsToInputArray($entity);
 
         // Add a cover to the data if existing on the original entity
-        if ($entity->cover instanceof Image) {
-            $uploadedFile = $this->imageToUploadedFile($entity->cover);
-            $inputData['image'] = $uploadedFile;
+        if ($entity instanceof HasCoverImage) {
+            $cover = $entity->cover()->first();
+            if ($cover) {
+                $inputData['image'] = $this->imageToUploadedFile($cover);
+            }
         }
 
         return $inputData;
@@ -111,8 +125,7 @@ class Cloner
      */
     public function copyEntityPermissions(Entity $sourceEntity, Entity $targetEntity): void
     {
-        $targetEntity->restricted = $sourceEntity->restricted;
-        $permissions = $sourceEntity->permissions()->get(['role_id', 'action'])->toArray();
+        $permissions = $sourceEntity->permissions()->get(['role_id', 'view', 'create', 'update', 'delete'])->toArray();
         $targetEntity->permissions()->delete();
         $targetEntity->permissions()->createMany($permissions);
         $targetEntity->rebuildPermissions();

@@ -4,6 +4,7 @@
 @import "variables";
 @import "mixins";
 @import "spacing";
+@import "opacity";
 @import "html";
 @import "text";
 @import "colors";
@@ -99,43 +100,6 @@ $loadingSize: 10px;
   }
 }
 
-// Back to top link
-$btt-size: 40px;
-[back-to-top] {
-  background-color: var(--color-primary);
-  position: fixed;
-  bottom: $-m;
-  right: $-l;
-  padding: 5px 7px;
-  cursor: pointer;
-  color: #FFF;
-  fill: #FFF;
-  svg {
-    width: math.div($btt-size, 1.5);
-    height: math.div($btt-size, 1.5);
-    margin-inline-end: 4px;
-  }
-  width: $btt-size;
-  height: $btt-size;
-  border-radius: $btt-size;
-  transition: all ease-in-out 180ms;
-  opacity: 0;
-  z-index: 999;
-  overflow: hidden;
-  &:hover {
-    width: $btt-size*3.4;
-    opacity: 1 !important;
-  }
-  .inner {
-    width: $btt-size*3.4;
-  }
-  span {
-    position: relative;
-    vertical-align: top;
-    line-height: 2;
-  }
-}
-
 .skip-to-content-link {
   position: fixed;
   top: -52px;
@@ -149,38 +113,7 @@ $btt-size: 40px;
   &:focus {
     top: $-xl;
     outline-offset: -10px;
-    outline: 2px dotted var(--color-primary);
-  }
-}
-
-.contained-search-box {
-  display: flex;
-  height: 38px;
-  input, button {
-    border-radius: 0;
-    border: 1px solid #ddd;
-    @include lightDark(border-color, #ddd, #000);
-    margin-inline-start: -1px;
-  }
-  input {
-    flex: 5;
-    padding: $-xs $-s;
-    &:focus, &:active {
-      outline: 0;
-    }
-  }
-  button {
-    width: 60px;
-  }
-  button i {
-    padding: 0;
-  }
-  button.cancel.active {
-    background-color: $negative;
-    color: #EEE;
-  }
-  svg {
-    margin: 0;
+    outline: 2px dotted var(--color-link);
   }
 }
 
@@ -223,70 +156,15 @@ $btt-size: 40px;
     height: 400px;
     padding-top: $-l;
   }
-  .entity-selector-add button {
-    margin: 0;
-    display: block;
-    width: 100%;
-    border: 0;
-    border-top: 1px solid #DDD;
-  }
   &.compact {
     font-size: 10px;
     .entity-item-snippet {
       display: none;
     }
-  }
-}
-
-.scroll-box {
-  max-height: 250px;
-  overflow-y: scroll;
-  border: 1px solid;
-  @include lightDark(border-color, #DDD, #000);
-  border-radius: 3px;
-  min-height: 20px;
-  @include lightDark(background-color, #EEE, #000);
-  .scroll-box-item {
-    padding: $-xs $-m;
-    border-bottom: 1px solid;
-    border-top: 1px solid;
-    @include lightDark(border-color, #DDD, #000);
-    margin-top: -1px;
-    @include lightDark(background-color, #FFF, #222);
-    display: flex;
-    gap: $-xs;
-    &:last-child {
-      border-bottom: 0;
-    }
-    &:hover {
-      cursor: pointer;
-      @include lightDark(background-color, #f8f8f8, #333);
-    }
-    .handle {
-      color: #AAA;
-      cursor: grab;
+    h4 {
+      font-size: 14px;
     }
   }
-}
-
-input.scroll-box-search, .scroll-box-header-item {
-  font-size: 0.8rem;
-  padding: $-xs $-m;
-  border: 1px solid;
-  @include lightDark(border-color, #DDD, #000);
-  @include lightDark(background-color, #FFF, #222);
-  margin-bottom: -1px;
-  border-radius: 3px 3px 0 0;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  line-height: 1.4;
-  color: #666;
-}
-
-.scroll-box-search + .scroll-box,
-.scroll-box-header-item + .scroll-box {
-  border-radius: 0 0 3px 3px;
 }
 
 .fullscreen {
@@ -338,15 +216,4 @@ input.scroll-box-search, .scroll-box-header-item {
       transform: rotate(180deg);
     }
   }
-}
-
-table.table .table-user-item {
-  display: grid;
-  grid-template-columns: 42px 1fr;
-  align-items: center;
-}
-table.table .table-entity-item {
-  display: grid;
-  grid-template-columns: 36px 1fr;
-  align-items: center;
 }

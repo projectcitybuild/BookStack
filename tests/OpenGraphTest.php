@@ -2,23 +2,16 @@
 
 namespace Tests;
 
-use BookStack\Entities\Models\Book;
-use BookStack\Entities\Models\Bookshelf;
-use BookStack\Entities\Models\Chapter;
-use BookStack\Entities\Models\Page;
 use BookStack\Entities\Repos\BaseRepo;
 use BookStack\Entities\Repos\BookRepo;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
-use Tests\Uploads\UsesImages;
 
 class OpenGraphTest extends TestCase
 {
-    use UsesImages;
-
     public function test_page_tags()
     {
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $resp = $this->asEditor()->get($page->getUrl());
         $tags = $this->getOpenGraphTags($resp);
 
@@ -29,7 +22,7 @@ class OpenGraphTest extends TestCase
 
     public function test_chapter_tags()
     {
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
         $resp = $this->asEditor()->get($chapter->getUrl());
         $tags = $this->getOpenGraphTags($resp);
 
@@ -40,7 +33,7 @@ class OpenGraphTest extends TestCase
 
     public function test_book_tags()
     {
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $resp = $this->asEditor()->get($book->getUrl());
         $tags = $this->getOpenGraphTags($resp);
 
@@ -51,7 +44,7 @@ class OpenGraphTest extends TestCase
 
         // Test image set if image has cover image
         $bookRepo = app(BookRepo::class);
-        $bookRepo->updateCoverImage($book, $this->getTestImage('image.png'));
+        $bookRepo->updateCoverImage($book, $this->files->uploadedImage('image.png'));
         $resp = $this->asEditor()->get($book->getUrl());
         $tags = $this->getOpenGraphTags($resp);
 
@@ -60,7 +53,7 @@ class OpenGraphTest extends TestCase
 
     public function test_shelf_tags()
     {
-        $shelf = Bookshelf::query()->first();
+        $shelf = $this->entities->shelf();
         $resp = $this->asEditor()->get($shelf->getUrl());
         $tags = $this->getOpenGraphTags($resp);
 
@@ -71,7 +64,7 @@ class OpenGraphTest extends TestCase
 
         // Test image set if image has cover image
         $baseRepo = app(BaseRepo::class);
-        $baseRepo->updateCoverImage($shelf, $this->getTestImage('image.png'));
+        $baseRepo->updateCoverImage($shelf, $this->files->uploadedImage('image.png'));
         $resp = $this->asEditor()->get($shelf->getUrl());
         $tags = $this->getOpenGraphTags($resp);
 

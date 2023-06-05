@@ -2,15 +2,15 @@
 
 namespace Tests;
 
-use BookStack\Actions\ActivityType;
-use BookStack\Actions\DispatchWebhookJob;
-use BookStack\Actions\Webhook;
-use BookStack\Auth\User;
+use BookStack\Activity\ActivityType;
+use BookStack\Activity\DispatchWebhookJob;
+use BookStack\Activity\Models\Webhook;
 use BookStack\Entities\Models\Book;
 use BookStack\Entities\Models\Page;
 use BookStack\Entities\Tools\PageContent;
 use BookStack\Facades\Theme;
 use BookStack\Theming\ThemeEvents;
+use BookStack\Users\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Request as HttpClientRequest;
 use Illuminate\Http\Request;
@@ -19,11 +19,12 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use League\CommonMark\ConfigurableEnvironmentInterface;
+use League\CommonMark\Environment\Environment;
 
 class ThemeTest extends TestCase
 {
-    protected $themeFolderName;
-    protected $themeFolderPath;
+    protected string $themeFolderName;
+    protected string $themeFolderPath;
 
     public function test_translation_text_can_be_overridden_via_theme()
     {
@@ -36,7 +37,7 @@ class ThemeTest extends TestCase
         ';
             file_put_contents($translationPath . '/entities.php', $customTranslations);
 
-            $homeRequest = $this->actingAs($this->getViewer())->get('/');
+            $homeRequest = $this->actingAs($this->users->viewer())->get('/');
             $this->withHtml($homeRequest)->assertElementContains('header nav', 'Sandwiches');
         });
     }
@@ -57,14 +58,14 @@ class ThemeTest extends TestCase
     {
         $callbackCalled = false;
         $callback = function ($environment) use (&$callbackCalled) {
-            $this->assertInstanceOf(ConfigurableEnvironmentInterface::class, $environment);
+            $this->assertInstanceOf(Environment::class, $environment);
             $callbackCalled = true;
 
             return $environment;
         };
         Theme::listen(ThemeEvents::COMMONMARK_ENVIRONMENT_CONFIGURE, $callback);
 
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $content = new PageContent($page);
         $content->setNewMarkdown('# test');
 
@@ -199,7 +200,7 @@ class ThemeTest extends TestCase
 
     public function test_event_activity_logged()
     {
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $args = [];
         $callback = function (...$eventArgs) use (&$args) {
             $args = $eventArgs;
@@ -212,6 +213,37 @@ class ThemeTest extends TestCase
         $this->assertEquals(ActivityType::BOOK_UPDATE, $args[0]);
         $this->assertTrue($args[1] instanceof Book);
         $this->assertEquals($book->id, $args[1]->id);
+    }
+
+    public function test_event_page_include_parse()
+    {
+        /** @var Page $page */
+        /** @var Page $otherPage */
+        $page = $this->entities->page();
+        $otherPage = Page::query()->where('id', '!=', $page->id)->first();
+        $otherPage->html = '<p id="bkmrk-cool">This is a really cool section</p>';
+        $page->html = "<p>{{@{$otherPage->id}#bkmrk-cool}}</p>";
+        $page->save();
+        $otherPage->save();
+
+        $args = [];
+        $callback = function (...$eventArgs) use (&$args) {
+            $args = $eventArgs;
+
+            return '<strong>Big &amp; content replace surprise!</strong>';
+        };
+
+        Theme::listen(ThemeEvents::PAGE_INCLUDE_PARSE, $callback);
+        $resp = $this->asEditor()->get($page->getUrl());
+        $this->withHtml($resp)->assertElementContains('.page-content strong', 'Big & content replace surprise!');
+
+        $this->assertCount(4, $args);
+        $this->assertEquals($otherPage->id . '#bkmrk-cool', $args[0]);
+        $this->assertEquals('This is a really cool section', $args[1]);
+        $this->assertTrue($args[2] instanceof Page);
+        $this->assertTrue($args[3] instanceof Page);
+        $this->assertEquals($page->id, $args[2]->id);
+        $this->assertEquals($otherPage->id, $args[3]->id);
     }
 
     public function test_add_social_driver()
@@ -291,10 +323,9 @@ class ThemeTest extends TestCase
 
     public function test_export_body_start_and_end_template_files_can_be_used()
     {
-        $bodyStartStr = 'barry-fought-against-the-panther';
-        $bodyEndStr = 'barry-lost-his-fight-with-grace';
-        /** @var Page $page */
-        $page = Page::query()->first();
+        $bodyStartStr = 'garry-fought-against-the-panther';
+        $bodyEndStr = 'garry-lost-his-fight-with-grace';
+        $page = $this->entities->page();
 
         $this->usingThemeFolder(function (string $folder) use ($bodyStartStr, $bodyEndStr, $page) {
             $viewDir = theme_path('layouts/parts');
@@ -308,21 +339,38 @@ class ThemeTest extends TestCase
         });
     }
 
+    public function test_login_and_register_message_template_files_can_be_used()
+    {
+        $loginMessage = 'Welcome to this instance, login below you scallywag';
+        $registerMessage = 'You want to register? Enter the deets below you numpty';
+
+        $this->usingThemeFolder(function (string $folder) use ($loginMessage, $registerMessage) {
+            $viewDir = theme_path('auth/parts');
+            mkdir($viewDir, 0777, true);
+            file_put_contents($viewDir . '/login-message.blade.php', $loginMessage);
+            file_put_contents($viewDir . '/register-message.blade.php', $registerMessage);
+            $this->setSettings(['registration-enabled' => 'true']);
+
+            $this->get('/login')->assertSee($loginMessage);
+            $this->get('/register')->assertSee($registerMessage);
+        });
+    }
+
     protected function usingThemeFolder(callable $callback)
     {
         // Create a folder and configure a theme
-        $themeFolderName = 'testing_theme_' . rtrim(base64_encode(time()), '=');
+        $themeFolderName = 'testing_theme_' . str_shuffle(rtrim(base64_encode(time()), '='));
         config()->set('view.theme', $themeFolderName);
         $themeFolderPath = theme_path('');
+
+        // Create theme folder and clean it up on application tear-down
         File::makeDirectory($themeFolderPath);
+        $this->beforeApplicationDestroyed(fn() => File::deleteDirectory($themeFolderPath));
 
         // Run provided callback with theme env option set
         $this->runWithEnv('APP_THEME', $themeFolderName, function () use ($callback, $themeFolderName) {
             call_user_func($callback, $themeFolderName);
         });
-
-        // Cleanup the custom theme folder we created
-        File::deleteDirectory($themeFolderPath);
     }
 }
 

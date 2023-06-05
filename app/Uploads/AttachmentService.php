@@ -9,7 +9,7 @@ use Illuminate\Contracts\Filesystem\Filesystem as Storage;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use League\Flysystem\Util;
+use League\Flysystem\WhitespacePathNormalizer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AttachmentService
@@ -41,7 +41,7 @@ class AttachmentService
 
         // Change to our secure-attachment disk if any of the local options
         // are used to prevent escaping that location.
-        if ($storageType === 'local' || $storageType === 'local_secure') {
+        if ($storageType === 'local' || $storageType === 'local_secure' || $storageType === 'local_secure_restricted') {
             $storageType = 'local_secure_attachments';
         }
 
@@ -54,7 +54,7 @@ class AttachmentService
      */
     protected function adjustPathForStorageDisk(string $path): string
     {
-        $path = Util::normalizePath(str_replace('uploads/files/', '', $path));
+        $path = (new WhitespacePathNormalizer())->normalizePath(str_replace('uploads/files/', '', $path));
 
         if ($this->getStorageDiskName() === 'local_secure_attachments') {
             return $path;

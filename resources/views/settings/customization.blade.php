@@ -53,57 +53,86 @@
                 </div>
             </div>
 
-            <!-- Primary Color -->
             <div class="grid half gap-xl">
                 <div>
-                    <label class="setting-list-label">{{ trans('settings.app_primary_color') }}</label>
-                    <p class="small">{!! trans('settings.app_primary_color_desc') !!}</p>
+                    <label class="setting-list-label">{{ trans('settings.app_icon') }}</label>
+                    <p class="small">{{ trans('settings.app_icon_desc') }}</p>
                 </div>
-                <div setting-app-color-picker class="text-m-right pt-xs">
-                    <input type="color" data-default="#206ea7" data-current="{{ setting('app-color') }}" value="{{ setting('app-color') }}" name="setting-app-color" id="setting-app-color" placeholder="#206ea7">
-                    <input type="hidden" value="{{ setting('app-color-light') }}" name="setting-app-color-light" id="setting-app-color-light">
-                    <div class="pr-s">
-                        <button type="button" class="text-button text-muted mt-s" setting-app-color-picker-default>{{ trans('common.default') }}</button>
-                        <span class="sep">|</span>
-                        <button type="button" class="text-button text-muted mt-s" setting-app-color-picker-reset>{{ trans('common.reset') }}</button>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Entity Color -->
-            <div class="pb-l">
-                <div>
-                    <label class="setting-list-label">{{ trans('settings.content_colors') }}</label>
-                    <p class="small">{!! trans('settings.content_colors_desc') !!}</p>
-                </div>
-                <div class="grid half pt-m">
-                    <div>
-                        @include('settings.parts.setting-entity-color-picker', ['type' => 'bookshelf'])
-                        @include('settings.parts.setting-entity-color-picker', ['type' => 'book'])
-                        @include('settings.parts.setting-entity-color-picker', ['type' => 'chapter'])
-                    </div>
-                    <div>
-                        @include('settings.parts.setting-entity-color-picker', ['type' => 'page'])
-                        @include('settings.parts.setting-entity-color-picker', ['type' => 'page-draft'])
-                    </div>
+                <div class="pt-xs">
+                    @include('form.image-picker', [
+                             'removeValue' => 'none',
+                             'defaultImage' => url('/icon.png'),
+                             'currentImage' => setting('app-icon'),
+                             'name' => 'app_icon',
+                             'imageClass' => 'logo-image',
+                         ])
                 </div>
             </div>
 
-            <div homepage-control id="homepage-control" class="grid half gap-xl items-center">
+            <!-- App Color Scheme -->
+            @php
+                $darkMode = boolval(setting()->getForCurrentUser('dark-mode-enabled'));
+            @endphp
+            <div component="setting-app-color-scheme"
+                 option:setting-app-color-scheme:mode="{{ $darkMode ? 'dark' : 'light' }}"
+                 class="pb-l">
+                <div class="mb-l">
+                    <label class="setting-list-label">{{ trans('settings.color_scheme') }}</label>
+                    <p class="small">{{ trans('settings.color_scheme_desc') }}</p>
+                </div>
+
+                <div component="tabs" class="tab-container">
+                    <div role="tablist" class="controls-card">
+                        <button type="button"
+                                role="tab"
+                                id="color-scheme-tab-light"
+                                aria-selected="{{ $darkMode ? 'false' : 'true' }}"
+                                aria-controls="color-scheme-panel-light">@icon('light-mode'){{ trans('common.light_mode') }}</button>
+                        <button type="button"
+                                role="tab"
+                                id="color-scheme-tab-dark"
+                                aria-selected="{{ $darkMode ? 'true' : 'false' }}"
+                                aria-controls="color-scheme-panel-dark">@icon('dark-mode'){{ trans('common.dark_mode') }}</button>
+                    </div>
+                    <div class="sub-card">
+                        <div id="color-scheme-panel-light"
+                             refs="setting-app-color-scheme@lightContainer"
+                             tabindex="0"
+                             role="tabpanel"
+                             aria-labelledby="color-scheme-tab-light"
+                             @if($darkMode) hidden @endif
+                             class="p-m">
+                            @include('settings.parts.setting-color-scheme', ['mode' => 'light'])
+                        </div>
+                        <div id="color-scheme-panel-dark"
+                             refs="setting-app-color-scheme@darkContainer"
+                             tabindex="0"
+                             role="tabpanel"
+                             aria-labelledby="color-scheme-tab-light"
+                             @if(!$darkMode) hidden @endif
+                             class="p-m">
+                            @include('settings.parts.setting-color-scheme', ['mode' => 'dark'])
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div component="setting-homepage-control" id="homepage-control" class="grid half gap-xl items-center">
                 <div>
                     <label for="setting-app-homepage-type" class="setting-list-label">{{ trans('settings.app_homepage') }}</label>
                     <p class="small">{{ trans('settings.app_homepage_desc') }}</p>
                 </div>
                 <div>
-                    <select name="setting-app-homepage-type" id="setting-app-homepage-type">
+                    <select refs="setting-homepage-control@type-control"
+                            name="setting-app-homepage-type"
+                            id="setting-app-homepage-type">
                         <option @if(setting('app-homepage-type') === 'default') selected @endif value="default">{{ trans('common.default') }}</option>
                         <option @if(setting('app-homepage-type') === 'books') selected @endif value="books">{{ trans('entities.books') }}</option>
                         <option @if(setting('app-homepage-type') === 'bookshelves') selected @endif value="bookshelves">{{ trans('entities.shelves') }}</option>
                         <option @if(setting('app-homepage-type') === 'page') selected @endif value="page">{{ trans('entities.pages_specific') }}</option>
                     </select>
 
-                    <div page-picker-container style="display: none;" class="mt-m">
+                    <div refs="setting-homepage-control@page-picker-container" style="display: none;" class="mt-m">
                         @include('settings.parts.page-picker', ['name' => 'setting-app-homepage', 'placeholder' => trans('settings.app_homepage_select'), 'value' => setting('app-homepage')])
                     </div>
                 </div>

@@ -2,32 +2,27 @@
 
 namespace Tests\Permissions;
 
-use BookStack\Auth\User;
 use BookStack\Entities\Models\Book;
 use BookStack\Entities\Models\Bookshelf;
 use BookStack\Entities\Models\Chapter;
 use BookStack\Entities\Models\Entity;
 use BookStack\Entities\Models\Page;
+use BookStack\Users\Models\Role;
+use BookStack\Users\Models\User;
+use Exception;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class EntityPermissionsTest extends TestCase
 {
-    /**
-     * @var User
-     */
-    protected $user;
-
-    /**
-     * @var User
-     */
-    protected $viewer;
+    protected User $user;
+    protected User $viewer;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->getEditor();
-        $this->viewer = $this->getViewer();
+        $this->user = $this->users->editor();
+        $this->viewer = $this->users->viewer();
     }
 
     protected function setRestrictionsForTestRoles(Entity $entity, array $actions = [])
@@ -36,13 +31,12 @@ class EntityPermissionsTest extends TestCase
             $this->user->roles->first(),
             $this->viewer->roles->first(),
         ];
-        $this->setEntityRestrictions($entity, $actions, $roles);
+        $this->permissions->setEntityPermissions($entity, $actions, $roles);
     }
 
     public function test_bookshelf_view_restriction()
     {
-        /** @var Bookshelf $shelf */
-        $shelf = Bookshelf::query()->first();
+        $shelf = $this->entities->shelf();
 
         $this->actingAs($this->user)
             ->get($shelf->getUrl())
@@ -51,7 +45,7 @@ class EntityPermissionsTest extends TestCase
         $this->setRestrictionsForTestRoles($shelf, []);
 
         $this->followingRedirects()->get($shelf->getUrl())
-            ->assertSee('Bookshelf not found');
+            ->assertSee('Shelf not found');
 
         $this->setRestrictionsForTestRoles($shelf, ['view']);
 
@@ -61,12 +55,11 @@ class EntityPermissionsTest extends TestCase
 
     public function test_bookshelf_update_restriction()
     {
-        /** @var Bookshelf $shelf */
-        $shelf = Bookshelf::query()->first();
+        $shelf = $this->entities->shelf();
 
         $this->actingAs($this->user)
             ->get($shelf->getUrl('/edit'))
-            ->assertSee('Edit Book');
+            ->assertSee('Edit Shelf');
 
         $this->setRestrictionsForTestRoles($shelf, ['view', 'delete']);
 
@@ -82,12 +75,11 @@ class EntityPermissionsTest extends TestCase
 
     public function test_bookshelf_delete_restriction()
     {
-        /** @var Bookshelf $shelf */
-        $shelf = Bookshelf::query()->first();
+        $shelf = $this->entities->shelf();
 
         $this->actingAs($this->user)
             ->get($shelf->getUrl('/delete'))
-            ->assertSee('Delete Book');
+            ->assertSee('Delete Shelf');
 
         $this->setRestrictionsForTestRoles($shelf, ['view', 'update']);
 
@@ -98,13 +90,12 @@ class EntityPermissionsTest extends TestCase
 
         $this->get($shelf->getUrl('/delete'))
             ->assertOk()
-            ->assertSee('Delete Book');
+            ->assertSee('Delete Shelf');
     }
 
     public function test_book_view_restriction()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $bookPage = $book->pages->first();
         $bookChapter = $book->chapters->first();
 
@@ -134,8 +125,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_book_create_restriction()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
 
         $bookUrl = $book->getUrl();
         $resp = $this->actingAs($this->viewer)->get($bookUrl);
@@ -181,8 +171,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_book_update_restriction()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $bookPage = $book->pages->first();
         $bookChapter = $book->chapters->first();
 
@@ -209,8 +198,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_book_delete_restriction()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $bookPage = $book->pages->first();
         $bookChapter = $book->chapters->first();
 
@@ -236,8 +224,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_chapter_view_restriction()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
         $chapterPage = $chapter->pages->first();
 
         $chapterUrl = $chapter->getUrl();
@@ -256,8 +243,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_chapter_create_restriction()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
 
         $chapterUrl = $chapter->getUrl();
         $resp = $this->actingAs($this->user)->get($chapterUrl);
@@ -285,8 +271,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_chapter_update_restriction()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
         $chapterPage = $chapter->pages->first();
 
         $chapterUrl = $chapter->getUrl();
@@ -308,8 +293,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_chapter_delete_restriction()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
         $chapterPage = $chapter->pages->first();
 
         $chapterUrl = $chapter->getUrl();
@@ -332,8 +316,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_page_view_restriction()
     {
-        /** @var Page $page */
-        $page = Page::query()->first();
+        $page = $this->entities->page();
 
         $pageUrl = $page->getUrl();
         $this->actingAs($this->user)->get($pageUrl)->assertOk();
@@ -349,8 +332,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_page_update_restriction()
     {
-        /** @var Page $page */
-        $page = Page::query()->first();
+        $page = $this->entities->page();
 
         $pageUrl = $page->getUrl();
         $resp = $this->actingAs($this->user)
@@ -371,8 +353,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_page_delete_restriction()
     {
-        /** @var Page $page */
-        $page = Page::query()->first();
+        $page = $this->entities->page();
 
         $pageUrl = $page->getUrl();
         $this->actingAs($this->user)
@@ -397,26 +378,24 @@ class EntityPermissionsTest extends TestCase
             ->assertSee($title);
 
         $this->put($modelInstance->getUrl('/permissions'), [
-            'restricted'   => 'true',
-            'restrictions' => [
+            'permissions' => [
                 $roleId => [
                     $permission => 'true',
                 ],
             ],
         ]);
 
-        $this->assertDatabaseHas($modelInstance->getTable(), ['id' => $modelInstance->id, 'restricted' => true]);
         $this->assertDatabaseHas('entity_permissions', [
-            'restrictable_id'   => $modelInstance->id,
-            'restrictable_type' => $modelInstance->getMorphClass(),
-            'role_id'           => $roleId,
-            'action'            => $permission,
+            'entity_id'      => $modelInstance->id,
+            'entity_type'    => $modelInstance->getMorphClass(),
+            'role_id'        => $roleId,
+            $permission => true,
         ]);
     }
 
     public function test_bookshelf_restriction_form()
     {
-        $this->entityRestrictionFormTest(Bookshelf::class, 'Bookshelf Permissions', 'view', '2');
+        $this->entityRestrictionFormTest(Bookshelf::class, 'Shelf Permissions', 'view', '2');
     }
 
     public function test_book_restriction_form()
@@ -436,8 +415,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_restricted_pages_not_visible_in_book_navigation_on_pages()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
         $page = $chapter->pages->first();
         $page2 = $chapter->pages[2];
 
@@ -449,8 +427,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_restricted_pages_not_visible_in_book_navigation_on_chapters()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
         $page = $chapter->pages->first();
 
         $this->setRestrictionsForTestRoles($page, []);
@@ -461,8 +438,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_restricted_pages_not_visible_on_chapter_pages()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
         $page = $chapter->pages->first();
 
         $this->setRestrictionsForTestRoles($page, []);
@@ -474,8 +450,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_restricted_chapter_pages_not_visible_on_book_page()
     {
-        /** @var Chapter $chapter */
-        $chapter = Chapter::query()->first();
+        $chapter = $this->entities->chapter();
         $this->actingAs($this->user)
             ->get($chapter->book->getUrl())
             ->assertSee($chapter->pages->first()->name);
@@ -491,8 +466,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_bookshelf_update_restriction_override()
     {
-        /** @var Bookshelf $shelf */
-        $shelf = Bookshelf::query()->first();
+        $shelf = $this->entities->shelf();
 
         $this->actingAs($this->viewer)
             ->get($shelf->getUrl('/edit'))
@@ -510,8 +484,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_bookshelf_delete_restriction_override()
     {
-        /** @var Bookshelf $shelf */
-        $shelf = Bookshelf::query()->first();
+        $shelf = $this->entities->shelf();
 
         $this->actingAs($this->viewer)
             ->get($shelf->getUrl('/delete'))
@@ -524,13 +497,12 @@ class EntityPermissionsTest extends TestCase
 
         $this->setRestrictionsForTestRoles($shelf, ['view', 'delete']);
 
-        $this->get($shelf->getUrl('/delete'))->assertOk()->assertSee('Delete Book');
+        $this->get($shelf->getUrl('/delete'))->assertOk()->assertSee('Delete Shelf');
     }
 
     public function test_book_create_restriction_override()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
 
         $bookUrl = $book->getUrl();
         $resp = $this->actingAs($this->viewer)->get($bookUrl);
@@ -571,8 +543,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_book_update_restriction_override()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $bookPage = $book->pages->first();
         $bookChapter = $book->chapters->first();
 
@@ -598,8 +569,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_book_delete_restriction_override()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $bookPage = $book->pages->first();
         $bookChapter = $book->chapters->first();
 
@@ -626,8 +596,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_page_visible_if_has_permissions_when_book_not_visible()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $bookChapter = $book->chapters->first();
         $bookPage = $bookChapter->pages->first();
 
@@ -667,8 +636,7 @@ class EntityPermissionsTest extends TestCase
 
     public function test_can_create_page_if_chapter_has_permissions_when_book_not_visible()
     {
-        /** @var Book $book */
-        $book = Book::query()->first();
+        $book = $this->entities->book();
         $this->setRestrictionsForTestRoles($book, []);
         $bookChapter = $book->chapters->first();
         $this->setRestrictionsForTestRoles($bookChapter, ['view']);
@@ -686,5 +654,52 @@ class EntityPermissionsTest extends TestCase
             'html' => 'test content',
         ]);
         $resp->assertRedirect($book->getUrl('/page/test-page'));
+    }
+
+    public function test_access_to_item_prevented_if_inheritance_active_but_permission_prevented_via_role()
+    {
+        $user = $this->users->viewer();
+        $viewerRole = $user->roles->first();
+        $chapter = $this->entities->chapter();
+        $book = $chapter->book;
+
+        $this->permissions->setEntityPermissions($book, ['update'], [$viewerRole], false);
+        $this->permissions->setEntityPermissions($chapter, [], [$viewerRole], true);
+
+        $this->assertFalse(userCan('chapter-update', $chapter));
+    }
+
+    public function test_access_to_item_allowed_if_inheritance_active_and_permission_prevented_via_role_but_allowed_via_parent()
+    {
+        $user = $this->users->viewer();
+        $viewerRole = $user->roles->first();
+        $editorRole = Role::getRole('Editor');
+        $user->attachRole($editorRole);
+        $chapter = $this->entities->chapter();
+        $book = $chapter->book;
+
+        $this->permissions->setEntityPermissions($book, ['update'], [$editorRole], false);
+        $this->permissions->setEntityPermissions($chapter, [], [$viewerRole], true);
+
+        $this->actingAs($user);
+        $this->assertTrue(userCan('chapter-update', $chapter));
+    }
+
+    public function test_book_permissions_can_be_generated_without_error_if_child_chapter_is_in_recycle_bin()
+    {
+        $book = $this->entities->bookHasChaptersAndPages();
+        /** @var Chapter $chapter */
+        $chapter = $book->chapters()->first();
+
+        $this->asAdmin()->delete($chapter->getUrl());
+
+        $error = null;
+        try {
+            $this->permissions->setEntityPermissions($book, ['view'], []);
+        } catch (Exception $e) {
+            $error = $e;
+        }
+
+        $this->assertNull($error);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace BookStack\Theming;
 
+use BookStack\Entities\Models\Page;
+
 /**
  * The ThemeEvents used within BookStack.
  *
@@ -24,7 +26,7 @@ class ThemeEvents
      * the type before making use of this parameter.
      *
      * @param string                                $type
-     * @param string|\BookStack\Interfaces\Loggable $detail
+     * @param string|\BookStack\Activity\Models\Loggable $detail
      */
     const ACTIVITY_LOGGED = 'activity_logged';
 
@@ -32,7 +34,7 @@ class ThemeEvents
      * Application boot-up.
      * After main services are registered.
      *
-     * @param \BookStack\Application $app
+     * @param \BookStack\App\Application $app
      */
     const APP_BOOT = 'app_boot';
 
@@ -43,7 +45,7 @@ class ThemeEvents
      * after registration. This is not emitted upon API usage.
      *
      * @param string               $authSystem
-     * @param \BookStack\Auth\User $user
+     * @param \BookStack\Users\Models\User $user
      */
     const AUTH_LOGIN = 'auth_login';
 
@@ -54,20 +56,47 @@ class ThemeEvents
      * by LDAP, SAML and social systems. It only includes self-registrations.
      *
      * @param string               $authSystem
-     * @param \BookStack\Auth\User $user
+     * @param \BookStack\Users\Models\User $user
      */
     const AUTH_REGISTER = 'auth_register';
 
     /**
      * Commonmark environment configure.
-     * Provides the commonmark library environment for customization
-     * before it's used to render markdown content.
+     * Provides the commonmark library environment for customization before it's used to render markdown content.
      * If the listener returns a non-null value, that will be used as an environment instead.
      *
-     * @param \League\CommonMark\ConfigurableEnvironmentInterface $environment
-     * @returns \League\CommonMark\ConfigurableEnvironmentInterface|null
+     * @param \League\CommonMark\Environment\Environment $environment
+     * @returns \League\CommonMark\Environment\Environment|null
      */
     const COMMONMARK_ENVIRONMENT_CONFIGURE = 'commonmark_environment_configure';
+
+    /**
+     * OIDC ID token pre-validate event.
+     * Runs just before BookStack validates the user ID token data upon login.
+     * Provides the existing found set of claims for the user as a key-value array,
+     * along with an array of the proceeding access token data provided by the identity platform.
+     * If the listener returns a non-null value, that will replace the existing ID token claim data.
+     *
+     * @param array $idTokenData
+     * @param array $accessTokenData
+     * @returns array|null
+     */
+    const OIDC_ID_TOKEN_PRE_VALIDATE = 'oidc_id_token_pre_validate';
+
+    /**
+     * Page include parse event.
+     * Runs when a page include tag is being parsed, typically when page content is being processed for viewing.
+     * Provides the "include tag" reference string, the default BookStack replacement content for the tag,
+     * the current page being processed, and the page that's being referenced by the include tag.
+     * The referenced page may be null where the page does not exist or where permissions prevent visibility.
+     * If the listener returns a non-null value, that will be used as the replacement HTML content instead.
+     *
+     * @param string $tagReference
+     * @param string $replacementHTML
+     * @param Page   $currentPage
+     * @param ?Page  $referencedPage
+     */
+    const PAGE_INCLUDE_PARSE = 'page_include_parse';
 
     /**
      * Web before middleware action.
@@ -104,9 +133,9 @@ class ThemeEvents
      * of the system default.
      *
      * @param string                                $event
-     * @param \BookStack\Actions\Webhook            $webhook
-     * @param string|\BookStack\Interfaces\Loggable $detail
-     * @param \BookStack\Auth\User                  $initiator
+     * @param \BookStack\Activity\Models\Webhook            $webhook
+     * @param string|\BookStack\Activity\Models\Loggable $detail
+     * @param \BookStack\Users\Models\User                  $initiator
      * @param int                                   $initiatedTime
      */
     const WEBHOOK_CALL_BEFORE = 'webhook_call_before';

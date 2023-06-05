@@ -60,18 +60,6 @@
       outline: 0;
     }
   }
-  .markdown-display, .markdown-editor-wrap {
-    flex: 1;
-    position: relative;
-  }
-  .markdown-editor-wrap {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #DDD;
-    @include lightDark(border-color, #ddd, #000);
-    width: 50%;
-    max-width: 50%;
-  }
   &.fullscreen {
     position: fixed;
     top: 0;
@@ -79,6 +67,33 @@
     height: 100%;
     z-index: 2;
   }
+}
+
+.markdown-editor-wrap {
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  @include lightDark(border-color, #ddd, #000);
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.markdown-editor-wrap + .markdown-editor-wrap {
+  flex-basis: 50%;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.markdown-editor-wrap .cm-editor {
+  flex: 1;
+  max-width: 100%;
+  border: 0;
+  margin: 0;
+}
+
+.markdown-panel-divider {
+  width: 2px;
+  @include lightDark(background-color, #ddd, #000);
+  cursor: col-resize;
 }
 
 @include smaller-than($m) {
@@ -89,16 +104,11 @@
     width: 100%;
     max-width: 100%;
     flex-grow: 1;
-  }
-  #markdown-editor .editor-toolbar {
-    padding: 0;
-  }
-  #markdown-editor .editor-toolbar > * {
-    padding: $-xs $-s;
+    flex-basis: auto !important;
   }
   .editor-toolbar-label {
     float: none !important;
-    border-bottom: 1px solid #DDD;
+    @include lightDark(border-color, #DDD, #555);
     display: block;
   }
   .markdown-editor-wrap:not(.active) .editor-toolbar + div,
@@ -111,10 +121,6 @@
     flex: none;
     min-height: 0;
   }
-}
-
-.markdown-display {
-  margin-inline-start: -1px;
 }
 
 .markdown-editor-display {
@@ -138,8 +144,8 @@ html.markdown-editor-display.dark-mode {
 }
 
 .editor-toolbar {
+  height: 32px;
   width: 100%;
-  padding: $-xs $-m;
   font-size: 11px;
   line-height: 1.6;
   border-bottom: 1px solid #DDD;
@@ -147,15 +153,34 @@ html.markdown-editor-display.dark-mode {
   @include lightDark(background-color, #eee, #111);
   @include lightDark(border-color, #ddd, #000);
   flex: none;
-  &:after {
-    content: '';
-    display: block;
-    clear: both;
-  }
   @include whenDark {
     button {
       color: #AAA;
     }
+  }
+}
+
+.editor-toolbar .buttons {
+  font-size: $fs-m;
+  .dropdown-menu {
+    padding: 0;
+  }
+  .toggle-switch {
+    margin: $-s 0;
+  }
+}
+
+.editor-toolbar .buttons button {
+  font-size: .9rem;
+  width: 2rem;
+  text-align: center;
+  border-left: 1px solid;
+  @include lightDark(border-color, #DDD, #555);
+  svg {
+    margin-inline-end: 0;
+  }
+  &:hover {
+    @include lightDark(background-color, #DDD, #222);
   }
 }
 
@@ -207,9 +232,13 @@ select {
   -moz-appearance: none;
   appearance: none;
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23666666'><polygon points='0,0 100,0 50,50'/></svg>");
-  background-size: 12px;
-  background-position: calc(100% - 20px) 70%;
+  background-size: 10px 12px;
+  background-position: calc(100% - 20px) 64%;
   background-repeat: no-repeat;
+
+  @include rtl {
+    background-position: 20px 70%;
+  }
 }
 
 input[type=date] {
@@ -237,7 +266,6 @@ input[type=color] {
     border-radius: 2px;
     display: inline-block;
     border: 2px solid currentColor;
-    opacity: 0.6;
     overflow: hidden;
     fill: currentColor;
     .svg-icon {
@@ -261,6 +289,15 @@ input[type=color] {
   .custom-checkbox:hover {
     background-color: rgba(0, 0, 0, 0.05);
     opacity: 0.8;
+  }
+  input[type=checkbox][disabled] ~ * {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+  input[type=checkbox][disabled] ~ .custom-checkbox {
+    border-color: #999;
+    color: #999 !important;
+    background: #f2f2f2;
   }
 }
 .toggle-switch-list {
@@ -315,7 +352,7 @@ input[type=color] {
   }
 }
 
-.form-group[collapsible] {
+.form-group.collapsible {
   padding: 0 $-m;
   border: 1px solid;
   @include lightDark(border-color, #DDD, #000);
@@ -399,7 +436,7 @@ div[editor-type="markdown"] .title-input.page-title input[type="text"] {
 .search-box {
   max-width: 100%;
   position: relative;
-  button {
+  button[tabindex="-1"] {
     background-color: transparent;
     border: none;
     @include lightDark(color, #666, #AAA);
@@ -427,6 +464,58 @@ div[editor-type="markdown"] .title-input.page-title input[type="text"] {
   .search-box-cancel {
     left: auto;
     right: 0;
+  }
+}
+
+.contained-search-box {
+  display: flex;
+  height: 38px;
+  z-index: -1;
+  &.floating {
+    box-shadow: $bs-med;
+    border-radius: 4px;
+    overflow: hidden;
+    @include whenDark {
+      border: 1px solid #000;
+    }
+  }
+  input, button {
+    height: 100%;
+    border-radius: 0;
+    border: 1px solid #ddd;
+    @include lightDark(border-color, #ddd, #000);
+    margin-inline-start: -1px;
+    &:last-child {
+      border-inline-end: 0;
+    }
+  }
+  input {
+    border: 0;
+    flex: 5;
+    padding: $-xs $-s;
+    &:focus, &:active {
+      outline: 1px dotted var(--color-primary);
+      outline-offset: -2px;
+      border: 0;
+    }
+  }
+  button {
+    border: 0;
+    width: 48px;
+    border-inline-start: 1px solid #DDD;
+    background-color: #FFF;
+    @include lightDark(background-color, #FFF, #333);
+    @include lightDark(color, #444, #AAA);
+  }
+  button:focus {
+    outline: 1px dotted var(--color-primary);
+    outline-offset: -2px;
+  }
+  svg {
+    margin: 0;
+  }
+  @include smaller-than($s) {
+    width: 180px;
   }
 }
 
@@ -460,4 +549,10 @@ div[editor-type="markdown"] .title-input.page-title input[type="text"] {
 .custom-file-input:focus + label {
   border-color: var(--color-primary);
   outline: 1px solid var(--color-primary);
+}
+
+input.shortcut-input {
+  width: auto;
+  max-width: 120px;
+  height: auto;
 }

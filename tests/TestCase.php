@@ -2,36 +2,31 @@
 
 namespace Tests;
 
-use BookStack\Auth\Permissions\JointPermissionBuilder;
-use BookStack\Auth\Permissions\PermissionsRepo;
-use BookStack\Auth\Permissions\RolePermission;
-use BookStack\Auth\Role;
-use BookStack\Auth\User;
-use BookStack\Entities\Models\Book;
-use BookStack\Entities\Models\Bookshelf;
-use BookStack\Entities\Models\Chapter;
 use BookStack\Entities\Models\Entity;
-use BookStack\Entities\Models\Page;
-use BookStack\Entities\Repos\BookRepo;
-use BookStack\Entities\Repos\BookshelfRepo;
-use BookStack\Entities\Repos\ChapterRepo;
-use BookStack\Entities\Repos\PageRepo;
 use BookStack\Settings\SettingService;
 use BookStack\Uploads\HttpFetcher;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Env;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\Assert as PHPUnit;
+use Mockery;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use Psr\Http\Client\ClientInterface;
 use Ssddanbrown\AssertHtml\TestsHtml;
+use Tests\Helpers\EntityProvider;
+use Tests\Helpers\FileProvider;
+use Tests\Helpers\PermissionsProvider;
+use Tests\Helpers\TestServiceProvider;
+use Tests\Helpers\UserRoleProvider;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -39,8 +34,24 @@ abstract class TestCase extends BaseTestCase
     use DatabaseTransactions;
     use TestsHtml;
 
-    protected ?User $admin = null;
-    protected ?User $editor = null;
+    protected EntityProvider $entities;
+    protected UserRoleProvider $users;
+    protected PermissionsProvider $permissions;
+    protected FileProvider $files;
+
+    protected function setUp(): void
+    {
+        $this->entities = new EntityProvider();
+        $this->users = new UserRoleProvider();
+        $this->permissions = new PermissionsProvider($this->users);
+        $this->files = new FileProvider();
+
+        parent::setUp();
+
+        // We can uncomment the below to run tests with failings upon deprecations.
+        // Can't leave on since some deprecations can only be fixed upstream.
+         // $this->withoutDeprecationHandling();
+    }
 
     /**
      * The base URL to use while testing the application.
@@ -48,24 +59,26 @@ abstract class TestCase extends BaseTestCase
     protected string $baseUrl = 'http://localhost';
 
     /**
+     * Creates the application.
+     *
+     * @return \Illuminate\Foundation\Application
+     */
+    public function createApplication()
+    {
+        /** @var \Illuminate\Foundation\Application  $app */
+        $app = require __DIR__ . '/../bootstrap/app.php';
+        $app->register(TestServiceProvider::class);
+        $app->make(Kernel::class)->bootstrap();
+
+        return $app;
+    }
+
+    /**
      * Set the current user context to be an admin.
      */
     public function asAdmin()
     {
-        return $this->actingAs($this->getAdmin());
-    }
-
-    /**
-     * Get the current admin user.
-     */
-    public function getAdmin(): User
-    {
-        if (is_null($this->admin)) {
-            $adminRole = Role::getSystemRole('admin');
-            $this->admin = $adminRole->users->first();
-        }
-
-        return $this->admin;
+        return $this->actingAs($this->users->admin());
     }
 
     /**
@@ -73,86 +86,15 @@ abstract class TestCase extends BaseTestCase
      */
     public function asEditor()
     {
-        return $this->actingAs($this->getEditor());
+        return $this->actingAs($this->users->editor());
     }
 
     /**
-     * Get a editor user.
+     * Set the current user context to be a viewer.
      */
-    protected function getEditor(): User
+    public function asViewer()
     {
-        if ($this->editor === null) {
-            $editorRole = Role::getRole('editor');
-            $this->editor = $editorRole->users->first();
-        }
-
-        return $this->editor;
-    }
-
-    /**
-     * Get an instance of a user with 'viewer' permissions.
-     */
-    protected function getViewer(array $attributes = []): User
-    {
-        $user = Role::getRole('viewer')->users()->first();
-        if (!empty($attributes)) {
-            $user->forceFill($attributes)->save();
-        }
-
-        return $user;
-    }
-
-    /**
-     * Get a user that's not a system user such as the guest user.
-     */
-    public function getNormalUser(): User
-    {
-        return User::query()->where('system_name', '=', null)->get()->last();
-    }
-
-    /**
-     * Regenerate the permission for an entity.
-     */
-    protected function regenEntityPermissions(Entity $entity): void
-    {
-        $entity->rebuildPermissions();
-        $entity->load('jointPermissions');
-    }
-
-    /**
-     * Create and return a new bookshelf.
-     */
-    public function newShelf(array $input = ['name' => 'test shelf', 'description' => 'My new test shelf']): Bookshelf
-    {
-        return app(BookshelfRepo::class)->create($input, []);
-    }
-
-    /**
-     * Create and return a new book.
-     */
-    public function newBook(array $input = ['name' => 'test book', 'description' => 'My new test book']): Book
-    {
-        return app(BookRepo::class)->create($input);
-    }
-
-    /**
-     * Create and return a new test chapter.
-     */
-    public function newChapter(array $input, Book $book): Chapter
-    {
-        return app(ChapterRepo::class)->create($input, $book);
-    }
-
-    /**
-     * Create and return a new test page.
-     */
-    public function newPage(array $input = ['name' => 'test page', 'html' => 'My new test page']): Page
-    {
-        $book = Book::query()->first();
-        $pageRepo = app(PageRepo::class);
-        $draftPage = $pageRepo->getNewDraftPage($book);
-
-        return $pageRepo->publishDraft($draftPage, $input);
+        return $this->actingAs($this->users->viewer());
     }
 
     /**
@@ -164,98 +106,6 @@ abstract class TestCase extends BaseTestCase
         foreach ($settingsArray as $key => $value) {
             $settings->put($key, $value);
         }
-    }
-
-    /**
-     * Manually set some permissions on an entity.
-     */
-    protected function setEntityRestrictions(Entity $entity, array $actions = [], array $roles = []): void
-    {
-        $entity->restricted = true;
-        $entity->permissions()->delete();
-
-        $permissions = [];
-        foreach ($actions as $action) {
-            foreach ($roles as $role) {
-                $permissions[] = [
-                    'role_id' => $role->id,
-                    'action'  => strtolower($action),
-                ];
-            }
-        }
-        $entity->permissions()->createMany($permissions);
-
-        $entity->save();
-        $entity->load('permissions');
-        $this->app->make(JointPermissionBuilder::class)->rebuildForEntity($entity);
-        $entity->load('jointPermissions');
-    }
-
-    /**
-     * Give the given user some permissions.
-     */
-    protected function giveUserPermissions(User $user, array $permissions = []): void
-    {
-        $newRole = $this->createNewRole($permissions);
-        $user->attachRole($newRole);
-        $user->load('roles');
-        $user->clearPermissionCache();
-    }
-
-    /**
-     * Completely remove the given permission name from the given user.
-     */
-    protected function removePermissionFromUser(User $user, string $permissionName)
-    {
-        $permissionBuilder = app()->make(JointPermissionBuilder::class);
-
-        /** @var RolePermission $permission */
-        $permission = RolePermission::query()->where('name', '=', $permissionName)->firstOrFail();
-
-        $roles = $user->roles()->whereHas('permissions', function ($query) use ($permission) {
-            $query->where('id', '=', $permission->id);
-        })->get();
-
-        /** @var Role $role */
-        foreach ($roles as $role) {
-            $role->detachPermission($permission);
-            $permissionBuilder->rebuildForRole($role);
-        }
-
-        $user->clearPermissionCache();
-    }
-
-    /**
-     * Create a new basic role for testing purposes.
-     */
-    protected function createNewRole(array $permissions = []): Role
-    {
-        $permissionRepo = app(PermissionsRepo::class);
-        $roleData = Role::factory()->make()->toArray();
-        $roleData['permissions'] = array_flip($permissions);
-
-        return $permissionRepo->saveNewRole($roleData);
-    }
-
-    /**
-     * Create a group of entities that belong to a specific user.
-     *
-     * @return array{book: Book, chapter: Chapter, page: Page}
-     */
-    protected function createEntityChainBelongingToUser(User $creatorUser, ?User $updaterUser = null): array
-    {
-        if (empty($updaterUser)) {
-            $updaterUser = $creatorUser;
-        }
-
-        $userAttrs = ['created_by' => $creatorUser->id, 'owned_by' => $creatorUser->id, 'updated_by' => $updaterUser->id];
-        $book = Book::factory()->create($userAttrs);
-        $chapter = Chapter::factory()->create(array_merge(['book_id' => $book->id], $userAttrs));
-        $page = Page::factory()->create(array_merge(['book_id' => $book->id, 'chapter_id' => $chapter->id], $userAttrs));
-
-        $this->app->make(JointPermissionBuilder::class)->rebuildForEntity($book);
-
-        return compact('book', 'chapter', 'page');
     }
 
     /**
@@ -291,6 +141,8 @@ abstract class TestCase extends BaseTestCase
     /**
      * Run a set test with the given env variable.
      * Remembers the original and resets the value after test.
+     * Database config is juggled so the value can be restored when
+     * parallel testing are used, where multiple databases exist.
      */
     protected function runWithEnv(string $name, $value, callable $callback)
     {
@@ -303,8 +155,16 @@ abstract class TestCase extends BaseTestCase
             $_SERVER[$name] = $value;
         }
 
+        $database = config('database.connections.mysql_testing.database');
         $this->refreshApplication();
+
+        DB::purge();
+        config()->set('database.connections.mysql_testing.database', $database);
+        DB::beginTransaction();
+
         $callback();
+
+        DB::rollBack();
 
         if (is_null($originalVal)) {
             unset($_SERVER[$name]);
@@ -353,18 +213,14 @@ abstract class TestCase extends BaseTestCase
      */
     private function isPermissionError($response): bool
     {
+        if ($response->status() === 403 && $response instanceof JsonResponse) {
+            $errMessage = $response->getData(true)['error']['message'] ?? '';
+            return $errMessage === 'You do not have permission to perform the requested action.';
+        }
+
         return $response->status() === 302
-            && (
-                (
-                    $response->headers->get('Location') === url('/')
-                    && strpos(session()->pull('error', ''), 'You do not have permission to access') === 0
-                )
-                ||
-                (
-                    $response instanceof JsonResponse &&
-                    $response->json(['error' => 'You do not have permission to perform the requested action.'])
-                )
-            );
+            && $response->headers->get('Location') === url('/')
+            && str_starts_with(session()->pull('error', ''), 'You do not have permission to access');
     }
 
     /**
@@ -388,7 +244,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function assertNotificationContains(\Illuminate\Testing\TestResponse $resp, string $text)
     {
-        return $this->withHtml($resp)->assertElementContains('[notification]', $text);
+        return $this->withHtml($resp)->assertElementContains('.notification[role="alert"]', $text);
     }
 
     /**
@@ -427,18 +283,5 @@ abstract class TestCase extends BaseTestCase
         }
 
         $this->assertDatabaseHas('activities', $detailsToCheck);
-    }
-
-    /**
-     * @return Entity[]
-     */
-    protected function getEachEntityType(): array
-    {
-        return [
-            'page'      => Page::query()->first(),
-            'chapter'   => Chapter::query()->first(),
-            'book'      => Book::query()->first(),
-            'bookshelf' => Bookshelf::query()->first(),
-        ];
     }
 }

@@ -1,13 +1,11 @@
-import {onChildEvent, onSelect, removeLoading, showLoading} from "../services/dom";
+import {
+    onChildEvent, onSelect, removeLoading, showLoading,
+} from '../services/dom';
+import {Component} from './component';
 
-/**
- * ImageManager
- * @extends {Component}
- */
-class ImageManager {
+export class ImageManager extends Component {
 
     setup() {
-
         // Options
         this.uploadedTo = this.$opts.uploadedTo;
 
@@ -20,8 +18,12 @@ class ImageManager {
         this.listContainer = this.$refs.listContainer;
         this.filterTabs = this.$manyRefs.filterTabs;
         this.selectButton = this.$refs.selectButton;
+        this.uploadButton = this.$refs.uploadButton;
+        this.uploadHint = this.$refs.uploadHint;
         this.formContainer = this.$refs.formContainer;
+        this.formContainerPlaceholder = this.$refs.formContainerPlaceholder;
         this.dropzoneContainer = this.$refs.dropzoneContainer;
+        this.loadMore = this.$refs.loadMore;
 
         // Instance data
         this.type = 'gallery';
@@ -36,11 +38,10 @@ class ImageManager {
         this.resetState();
 
         this.setupListeners();
-
-        window.ImageManager = this;
     }
 
     setupListeners() {
+        // Filter tab click
         onSelect(this.filterTabs, e => {
             this.resetAll();
             this.filter = e.target.dataset.filter;
@@ -48,36 +49,33 @@ class ImageManager {
             this.loadGallery();
         });
 
+        // Search submit
         this.searchForm.addEventListener('submit', event => {
             this.resetListView();
             this.loadGallery();
+            this.cancelSearch.toggleAttribute('hidden', !this.searchInput.value);
             event.preventDefault();
         });
 
-        onSelect(this.cancelSearch, event => {
+        // Cancel search button
+        onSelect(this.cancelSearch, () => {
             this.resetListView();
             this.resetSearchView();
             this.loadGallery();
-            this.cancelSearch.classList.remove('active');
         });
 
-        this.searchInput.addEventListener('input', event => {
-            this.cancelSearch.classList.toggle('active', this.searchInput.value.trim());
-        });
+        // Load more button click
+        onChildEvent(this.container, '.load-more button', 'click', this.runLoadMore.bind(this));
 
-        onChildEvent(this.listContainer, '.load-more', 'click', async event => {
-            showLoading(event.target);
-            this.page++;
-            await this.loadGallery();
-            event.target.remove();
-        });
-
+        // Select image event
         this.listContainer.addEventListener('event-emit-select-image', this.onImageSelectEvent.bind(this));
 
+        // Image load error handling
         this.listContainer.addEventListener('error', event => {
-            event.target.src = baseUrl('loading_error.png');
+            event.target.src = window.baseUrl('loading_error.png');
         }, true);
 
+        // Footer select button click
         onSelect(this.selectButton, () => {
             if (this.callback) {
                 this.callback(this.lastSelected);
@@ -85,14 +83,39 @@ class ImageManager {
             this.hide();
         });
 
-        onChildEvent(this.formContainer, '#image-manager-delete', 'click', event => {
+        // Delete button click
+        onChildEvent(this.formContainer, '#image-manager-delete', 'click', () => {
             if (this.lastSelected) {
                 this.loadImageEditForm(this.lastSelected.id, true);
             }
         });
 
-        this.formContainer.addEventListener('ajax-form-success', this.refreshGallery.bind(this));
-        this.container.addEventListener('dropzone-success', this.refreshGallery.bind(this));
+        // Edit form submit
+        this.formContainer.addEventListener('ajax-form-success', () => {
+            this.refreshGallery();
+            this.resetEditForm();
+        });
+
+        // Image upload success
+        this.container.addEventListener('dropzone-upload-success', this.refreshGallery.bind(this));
+
+        // Auto load-more on scroll
+        const scrollZone = this.listContainer.parentElement;
+        let scrollEvents = [];
+        scrollZone.addEventListener('wheel', event => {
+            const scrollOffset = Math.ceil(scrollZone.scrollHeight - scrollZone.scrollTop);
+            const bottomedOut = scrollOffset === scrollZone.clientHeight;
+            if (!bottomedOut || event.deltaY < 1) {
+                return;
+            }
+
+            const secondAgo = Date.now() - 1000;
+            scrollEvents.push(Date.now());
+            scrollEvents = scrollEvents.filter(d => d >= secondAgo);
+            if (scrollEvents.length > 5 && this.canLoadMore()) {
+                this.runLoadMore();
+            }
+        });
     }
 
     show(callback, type = 'gallery') {
@@ -100,8 +123,16 @@ class ImageManager {
 
         this.callback = callback;
         this.type = type;
-        this.popupEl.components.popup.show();
-        this.dropzoneContainer.classList.toggle('hidden', type !== 'gallery');
+        this.getPopup().show();
+
+        const hideUploads = type !== 'gallery';
+        this.dropzoneContainer.classList.toggle('hidden', hideUploads);
+        this.uploadButton.classList.toggle('hidden', hideUploads);
+        this.uploadHint.classList.toggle('hidden', hideUploads);
+
+        /** @var {Dropzone} * */
+        const dropzone = window.$components.firstOnElement(this.container, 'dropzone');
+        dropzone.toggleActive(!hideUploads);
 
         if (!this.hasData) {
             this.loadGallery();
@@ -110,7 +141,14 @@ class ImageManager {
     }
 
     hide() {
-        this.popupEl.components.popup.hide();
+        this.getPopup().hide();
+    }
+
+    /**
+     * @returns {Popup}
+     */
+    getPopup() {
+        return window.$components.firstOnElement(this.popupEl, 'popup');
     }
 
     async loadGallery() {
@@ -132,17 +170,24 @@ class ImageManager {
     addReturnedHtmlElementsToList(html) {
         const el = document.createElement('div');
         el.innerHTML = html;
-        window.components.init(el);
+
+        const loadMore = el.querySelector('.load-more');
+        if (loadMore) {
+            loadMore.remove();
+            this.loadMore.innerHTML = loadMore.innerHTML;
+        }
+        this.loadMore.toggleAttribute('hidden', !loadMore);
+
+        window.$components.init(el);
         for (const child of [...el.children]) {
             this.listContainer.appendChild(child);
         }
     }
 
     setActiveFilterTab(filterName) {
-        this.filterTabs.forEach(t => t.classList.remove('selected'));
-        const activeTab = this.filterTabs.find(t => t.dataset.filter === filterName);
-        if (activeTab) {
-            activeTab.classList.add('selected');
+        for (const tab of this.filterTabs) {
+            const selected = tab.dataset.filter === filterName;
+            tab.setAttribute('aria-selected', selected ? 'true' : 'false');
         }
     }
 
@@ -157,10 +202,12 @@ class ImageManager {
 
     resetSearchView() {
         this.searchInput.value = '';
+        this.cancelSearch.toggleAttribute('hidden', true);
     }
 
     resetEditForm() {
         this.formContainer.innerHTML = '';
+        this.formContainerPlaceholder.removeAttribute('hidden');
     }
 
     resetListView() {
@@ -207,9 +254,18 @@ class ImageManager {
         const params = requestDelete ? {delete: true} : {};
         const {data: formHtml} = await window.$http.get(`/images/edit/${imageId}`, params);
         this.formContainer.innerHTML = formHtml;
-        window.components.init(this.formContainer);
+        this.formContainerPlaceholder.setAttribute('hidden', '');
+        window.$components.init(this.formContainer);
+    }
+
+    runLoadMore() {
+        showLoading(this.loadMore);
+        this.page += 1;
+        this.loadGallery();
+    }
+
+    canLoadMore() {
+        return this.loadMore.querySelector('button') && !this.loadMore.hasAttribute('hidden');
     }
 
 }
-
-export default ImageManager;

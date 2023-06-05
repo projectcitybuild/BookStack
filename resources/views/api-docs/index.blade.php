@@ -16,6 +16,7 @@
                         <div class="mb-xs"><a href="#listing-endpoints">Listing Endpoints</a></div>
                         <div class="mb-xs"><a href="#error-handling">Error Handling</a></div>
                         <div class="mb-xs"><a href="#rate-limits">Rate Limits</a></div>
+                        <div class="mb-xs"><a href="#content-security">Content Security</a></div>
                     </div>
 
                     @foreach($docs as $model => $endpoints)
@@ -37,7 +38,7 @@
 
             <div style="overflow: auto;">
 
-                <section code-highlighter class="card content-wrap auto-height">
+                <section component="code-highlighter" class="card content-wrap auto-height">
                     @include('api-docs.parts.getting-started')
                 </section>
 

@@ -1,18 +1,16 @@
 <?php
 
-use BookStack\Actions\Favourite;
-use BookStack\Entities\Models\Book;
-use BookStack\Entities\Models\Bookshelf;
-use BookStack\Entities\Models\Chapter;
-use BookStack\Entities\Models\Page;
-use Tests\TestCase;
+namespace Tests;
+
+use BookStack\Activity\Models\Favourite;
+use BookStack\Users\Models\User;
 
 class FavouriteTest extends TestCase
 {
     public function test_page_add_favourite_flow()
     {
-        $page = Page::query()->first();
-        $editor = $this->getEditor();
+        $page = $this->entities->page();
+        $editor = $this->users->editor();
 
         $resp = $this->actingAs($editor)->get($page->getUrl());
         $this->withHtml($resp)->assertElementContains('button', 'Favourite');
@@ -34,8 +32,8 @@ class FavouriteTest extends TestCase
 
     public function test_page_remove_favourite_flow()
     {
-        $page = Page::query()->first();
-        $editor = $this->getEditor();
+        $page = $this->entities->page();
+        $editor = $this->users->editor();
         Favourite::query()->forceCreate([
             'user_id'           => $editor->id,
             'favouritable_id'   => $page->id,
@@ -58,16 +56,34 @@ class FavouriteTest extends TestCase
         ]);
     }
 
-    public function test_book_chapter_shelf_pages_contain_favourite_button()
+    public function test_favourite_flow_with_own_permissions()
     {
-        $entities = [
-            Bookshelf::query()->first(),
-            Book::query()->first(),
-            Chapter::query()->first(),
-        ];
-        $this->actingAs($this->getEditor());
+        $book = $this->entities->book();
+        $user = User::factory()->create();
+        $book->owned_by = $user->id;
+        $book->save();
 
-        foreach ($entities as $entity) {
+        $this->permissions->grantUserRolePermissions($user, ['book-view-own']);
+
+        $this->actingAs($user)->get($book->getUrl());
+        $resp = $this->post('/favourites/add', [
+            'type' => get_class($book),
+            'id'   => $book->id,
+        ]);
+        $resp->assertRedirect($book->getUrl());
+
+        $this->assertDatabaseHas('favourites', [
+            'user_id'           => $user->id,
+            'favouritable_type' => $book->getMorphClass(),
+            'favouritable_id'   => $book->id,
+        ]);
+    }
+
+    public function test_each_entity_type_shows_favourite_button()
+    {
+        $this->actingAs($this->users->editor());
+
+        foreach ($this->entities->all() as $entity) {
             $resp = $this->get($entity->getUrl());
             $this->withHtml($resp)->assertElementExists('form[method="POST"][action$="/favourites/add"]');
         }
@@ -78,19 +94,18 @@ class FavouriteTest extends TestCase
         $this->setSettings(['app-public' => 'true']);
         $resp = $this->get('/');
         $this->withHtml($resp)->assertElementNotContains('header', 'My Favourites');
-        $resp = $this->actingAs($this->getViewer())->get('/');
+        $resp = $this->actingAs($this->users->viewer())->get('/');
         $this->withHtml($resp)->assertElementContains('header a', 'My Favourites');
     }
 
     public function test_favourites_shown_on_homepage()
     {
-        $editor = $this->getEditor();
+        $editor = $this->users->editor();
 
         $resp = $this->actingAs($editor)->get('/');
         $this->withHtml($resp)->assertElementNotExists('#top-favourites');
 
-        /** @var Page $page */
-        $page = Page::query()->first();
+        $page = $this->entities->page();
         $page->favourites()->save((new Favourite())->forceFill(['user_id' => $editor->id]));
 
         $resp = $this->get('/');
@@ -100,9 +115,8 @@ class FavouriteTest extends TestCase
 
     public function test_favourites_list_page_shows_favourites_and_has_working_pagination()
     {
-        /** @var Page $page */
-        $page = Page::query()->first();
-        $editor = $this->getEditor();
+        $page = $this->entities->page();
+        $editor = $this->users->editor();
 
         $resp = $this->actingAs($editor)->get('/favourites');
         $resp->assertDontSee($page->name);

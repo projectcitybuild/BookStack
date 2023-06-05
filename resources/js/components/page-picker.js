@@ -1,14 +1,18 @@
+import {Component} from './component';
 
-class PagePicker {
+function toggleElem(elem, show) {
+    elem.style.display = show ? null : 'none';
+}
 
-    constructor(elem) {
-        this.elem = elem;
-        this.input = elem.querySelector('input');
-        this.resetButton = elem.querySelector('[page-picker-reset]');
-        this.selectButton = elem.querySelector('[page-picker-select]');
-        this.display = elem.querySelector('[page-picker-display]');
-        this.defaultDisplay = elem.querySelector('[page-picker-default]');
-        this.buttonSep = elem.querySelector('span.sep');
+export class PagePicker extends Component {
+
+    setup() {
+        this.input = this.$refs.input;
+        this.resetButton = this.$refs.resetButton;
+        this.selectButton = this.$refs.selectButton;
+        this.display = this.$refs.display;
+        this.defaultDisplay = this.$refs.defaultDisplay;
+        this.buttonSep = this.$refs.buttonSeperator;
 
         this.value = this.input.value;
         this.setupListeners();
@@ -18,13 +22,15 @@ class PagePicker {
         this.selectButton.addEventListener('click', this.showPopup.bind(this));
         this.display.parentElement.addEventListener('click', this.showPopup.bind(this));
 
-        this.resetButton.addEventListener('click', event => {
+        this.resetButton.addEventListener('click', () => {
             this.setValue('', '');
         });
     }
 
     showPopup() {
-        window.EntitySelectorPopup.show(entity => {
+        /** @type {EntitySelectorPopup} * */
+        const selectorPopup = window.$components.first('entity-selector-popup');
+        selectorPopup.show(entity => {
             this.setValue(entity.id, entity.name);
         });
     }
@@ -36,13 +42,13 @@ class PagePicker {
     }
 
     controlView(name) {
-        let hasValue = this.value && this.value !== 0;
+        const hasValue = this.value && this.value !== 0;
         toggleElem(this.resetButton, hasValue);
         toggleElem(this.buttonSep, hasValue);
         toggleElem(this.defaultDisplay, !hasValue);
         toggleElem(this.display, hasValue);
         if (hasValue) {
-            let id = this.getAssetIdFromVal();
+            const id = this.getAssetIdFromVal();
             this.display.textContent = `#${id}, ${name}`;
             this.display.href = window.baseUrl(`/link/${id}`);
         }
@@ -53,10 +59,3 @@ class PagePicker {
     }
 
 }
-
-function toggleElem(elem, show) {
-    let display = (elem.tagName === 'BUTTON' || elem.tagName === 'SPAN') ? 'inline-block' : 'block';
-    elem.style.display = show ? display : 'none';
-}
-
-export default PagePicker;

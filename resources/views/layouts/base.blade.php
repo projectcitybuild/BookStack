@@ -6,10 +6,11 @@
     <title>{{ isset($pageTitle) ? $pageTitle . ' | ' : '' }}{{ setting('app-name') }}</title>
 
     <!-- Meta -->
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <meta name="token" content="{{ csrf_token() }}">
     <meta name="base-url" content="{{ url('/') }}">
-    <meta charset="utf-8">
+    <meta name="theme-color" content="{{ setting('app-color') }}"/>
 
     <!-- Social Cards Meta -->
     <meta property="og:title" content="{{ isset($pageTitle) ? $pageTitle . ' | ' : '' }}{{ setting('app-name') }}">
@@ -19,6 +20,14 @@
     <!-- Styles and Fonts -->
     <link rel="stylesheet" href="{{ versioned_asset('dist/styles.css') }}">
     <link rel="stylesheet" media="print" href="{{ versioned_asset('dist/print-styles.css') }}">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="256x256" href="{{ setting('app-icon') ?: url('/icon.png') }}">
+    <link rel="icon" type="image/png" sizes="180x180" href="{{ setting('app-icon-180') ?: url('/icon-180.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ setting('app-icon-180') ?: url('/icon-180.png') }}">
+    <link rel="icon" type="image/png" sizes="128x128" href="{{ setting('app-icon-128') ?: url('/icon-128.png') }}">
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ setting('app-icon-64') ?: url('/icon-64.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ setting('app-icon-32') ?: url('/icon-32.png') }}">
 
     @yield('head')
 
@@ -31,7 +40,12 @@
     <!-- Translations for JS -->
     @stack('translations')
 </head>
-<body class="@stack('body-class')">
+<body
+    @if(setting()->getForCurrentUser('ui-shortcuts-enabled', false))
+        component="shortcuts"
+        option:shortcuts:key-map="{{ \BookStack\Settings\UserShortcutMap::fromUserPreferences()->toJson() }}"
+    @endif
+      class="@stack('body-class')">
 
     @include('layouts.parts.base-body-start')
     @include('common.skip-to-content')
@@ -44,7 +58,7 @@
 
     @include('common.footer')
 
-    <div back-to-top class="primary-background print-hidden">
+    <div component="back-to-top" class="back-to-top print-hidden">
         <div class="inner">
             @icon('chevron-up') <span>{{ trans('common.back_to_top') }}</span>
         </div>

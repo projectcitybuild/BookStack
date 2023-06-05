@@ -1,12 +1,12 @@
-import {onSelect} from "../services/dom";
+import {onSelect} from '../services/dom';
+import {Component} from './component';
 
 /**
  * Custom equivalent of window.confirm() using our popup component.
  * Is promise based so can be used like so:
  * `const result = await dialog.show()`
- * @extends {Component}
  */
-class ConfirmDialog {
+export class ConfirmDialog extends Component {
 
     setup() {
         this.container = this.$el;
@@ -25,8 +25,8 @@ class ConfirmDialog {
             this.sendResult(false);
         });
 
-        return new Promise((res, rej) => {
-           this.res = res;
+        return new Promise(res => {
+            this.res = res;
         });
     }
 
@@ -34,7 +34,7 @@ class ConfirmDialog {
      * @returns {Popup}
      */
     getPopup() {
-        return this.container.components.popup;
+        return window.$components.firstOnElement(this.container, 'popup');
     }
 
     /**
@@ -42,11 +42,9 @@ class ConfirmDialog {
      */
     sendResult(result) {
         if (this.res) {
-            this.res(result)
+            this.res(result);
             this.res = null;
         }
     }
 
 }
-
-export default ConfirmDialog;

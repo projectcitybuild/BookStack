@@ -2,8 +2,8 @@
 
 namespace Tests\Auth;
 
-use BookStack\Auth\Role;
-use BookStack\Auth\User;
+use BookStack\Users\Models\Role;
+use BookStack\Users\Models\User;
 use Tests\TestCase;
 
 class Saml2Test extends TestCase
@@ -39,6 +39,20 @@ class Saml2Test extends TestCase
         $req->assertHeader('Content-Type', 'text/xml; charset=UTF-8');
         $req->assertSee('md:EntityDescriptor');
         $req->assertSee(url('/saml2/acs'));
+    }
+
+    public function test_metadata_endpoint_loads_when_autoloading_with_bad_url_set()
+    {
+        config()->set([
+            'saml2.autoload_from_metadata' => true,
+            'saml2.onelogin.idp.entityId' => 'http://192.168.1.1:9292',
+            'saml2.onelogin.idp.singleSignOnService.url' => null,
+        ]);
+
+        $req = $this->get('/saml2/metadata');
+        $req->assertOk();
+        $req->assertHeader('Content-Type', 'text/xml; charset=UTF-8');
+        $req->assertSee('md:EntityDescriptor');
     }
 
     public function test_onelogin_overrides_functions_as_expected()
@@ -156,7 +170,7 @@ class Saml2Test extends TestCase
             'saml2.onelogin.strict' => false,
         ]);
 
-        $resp = $this->actingAs($this->getEditor())->get('/');
+        $resp = $this->actingAs($this->users->editor())->get('/');
         $this->withHtml($resp)->assertElementContains('form[action$="/saml2/logout"] button', 'Logout');
     }
 
@@ -179,6 +193,9 @@ class Saml2Test extends TestCase
         $req = $this->post('/saml2/logout');
         $redirect = $req->headers->get('location');
         $this->assertStringStartsWith('http://saml.local/saml2/idp/SingleLogoutService.php', $redirect);
+        $sloData = $this->parseSamlDataFromUrl($redirect, 'SAMLRequest');
+        $this->assertStringContainsString('<samlp:SessionIndex>_4fe7c0d1572d64b27f930aa6f236a6f42e930901cc</samlp:SessionIndex>', $sloData);
+
         $this->withGet(['SAMLResponse' => $this->sloResponseData], $handleLogoutResponse);
     }
 
@@ -365,11 +382,16 @@ class Saml2Test extends TestCase
     {
         $req = $this->post('/saml2/login');
         $location = $req->headers->get('Location');
-        $query = explode('?', $location)[1];
+        return $this->parseSamlDataFromUrl($location, 'SAMLRequest');
+    }
+
+    protected function parseSamlDataFromUrl(string $url, string $paramName): string
+    {
+        $query = explode('?', $url)[1];
         $params = [];
         parse_str($query, $params);
 
-        return gzinflate(base64_decode($params['SAMLRequest']));
+        return gzinflate(base64_decode($params[$paramName]));
     }
 
     protected function withGet(array $options, callable $callback)

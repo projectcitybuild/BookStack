@@ -2,9 +2,9 @@
 
 namespace BookStack\Entities\Models;
 
-use BookStack\Auth\User;
-use BookStack\Interfaces\Loggable;
-use BookStack\Model;
+use BookStack\Activity\Models\Loggable;
+use BookStack\App\Model;
+use BookStack\Users\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PageRevision extends Model implements Loggable
 {
     protected $fillable = ['name', 'text', 'summary'];
-    protected $hidden = ['html', 'markdown', 'restricted', 'text'];
+    protected $hidden = ['html', 'markdown', 'text'];
 
     /**
      * Get the user that created the page revision.
