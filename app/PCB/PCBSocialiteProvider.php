@@ -48,7 +48,7 @@ class PCBSocialiteProvider extends AbstractProvider implements ProviderInterface
         $response = $this->getHttpClient()->get('https://projectcitybuild.com/oauth/me', [
             RequestOptions::HEADERS => [
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer '.$token,
+                'Authorization' => 'Bearer ' . $token,
             ],
         ]);
 
@@ -60,7 +60,7 @@ class PCBSocialiteProvider extends AbstractProvider implements ProviderInterface
      */
     protected function mapUserToObject(array $user)
     {
-        return (new User)->setRaw($user)->map([
+        return (new User())->setRaw($user)->map([
             'id' => Arr::get($user, 'id'),
             'nickname' => Arr::get($user, 'nickname'),
             'name' => Arr::get($user, 'name'),
