@@ -9,6 +9,7 @@
  */
 
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\ServiceProvider;
 
 return [
 
@@ -66,6 +67,15 @@ return [
     // Current host and source for the "DRAWIO" setting will be auto-appended to the sources configured.
     'iframe_sources' => env('ALLOWED_IFRAME_SOURCES', 'https://*.draw.io https://*.youtube.com https://*.youtube-nocookie.com https://*.vimeo.com'),
 
+    // A list of the sources/hostnames that can be reached by application SSR calls.
+    // This is used wherever users can provide URLs/hosts in-platform, like for webhooks.
+    // Host-specific functionality (usually controlled via other options) like auth
+    // or user avatars for example, won't use this list.
+    // Space seperated if multiple. Can use '*' as a wildcard.
+    // Values will be compared prefix-matched, case-insensitive, against called SSR urls.
+    // Defaults to allow all hosts.
+    'ssr_hosts' => env('ALLOWED_SSR_HOSTS', '*'),
+
     // Alter the precision of IP addresses stored by BookStack.
     // Integer value between 0 (IP hidden) to 4 (Full IP usage)
     'ip_address_precision' => env('IP_ADDRESS_PRECISION', 4),
@@ -74,19 +84,16 @@ return [
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     // Default locale to use
+    // A default variant is also stored since Laravel can overwrite
+    // app.locale when dynamically setting the locale in-app.
     'locale' => env('APP_LANG', 'en'),
-
-    // Locales available
-    'locales' => ['en', 'ar', 'bg', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'de_informal', 'el', 'es', 'es_AR', 'et', 'eu', 'fa', 'fr', 'he', 'hr', 'hu', 'id', 'it', 'ja', 'ka', 'ko', 'lt', 'lv', 'nl', 'nb', 'pt', 'pt_BR', 'sk', 'sl', 'sv', 'pl',  'ro', 'ru', 'tr', 'uk', 'uz', 'vi', 'zh_CN', 'zh_TW'],
+    'default_locale' => env('APP_LANG', 'en'),
 
     //  Application Fallback Locale
     'fallback_locale' => 'en',
 
     // Faker Locale
     'faker_locale' => 'en_GB',
-
-    // Enable right-to-left text control.
-    'rtl' => false,
 
     // Auto-detect the locale for public users
     // For public users their locale can be guessed by headers sent by their
@@ -107,56 +114,26 @@ return [
     ],
 
     // Application Service Providers
-    'providers' => [
-
-        // Laravel Framework Service Providers...
-        Illuminate\Auth\AuthServiceProvider::class,
-        Illuminate\Broadcasting\BroadcastServiceProvider::class,
-        Illuminate\Bus\BusServiceProvider::class,
-        Illuminate\Cache\CacheServiceProvider::class,
-        Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
-        Illuminate\Cookie\CookieServiceProvider::class,
-        Illuminate\Database\DatabaseServiceProvider::class,
-        Illuminate\Encryption\EncryptionServiceProvider::class,
-        Illuminate\Filesystem\FilesystemServiceProvider::class,
-        Illuminate\Foundation\Providers\FoundationServiceProvider::class,
-        Illuminate\Hashing\HashServiceProvider::class,
-        Illuminate\Mail\MailServiceProvider::class,
-        Illuminate\Notifications\NotificationServiceProvider::class,
-        Illuminate\Pagination\PaginationServiceProvider::class,
-        Illuminate\Pipeline\PipelineServiceProvider::class,
-        Illuminate\Queue\QueueServiceProvider::class,
-        Illuminate\Redis\RedisServiceProvider::class,
-        Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
-        Illuminate\Session\SessionServiceProvider::class,
-        Illuminate\Validation\ValidationServiceProvider::class,
-        Illuminate\View\ViewServiceProvider::class,
-
+    'providers' => ServiceProvider::defaultProviders()->merge([
         // Third party service providers
-        Barryvdh\DomPDF\ServiceProvider::class,
-        Barryvdh\Snappy\ServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class,
         SocialiteProviders\Manager\ServiceProvider::class,
 
         // BookStack custom service providers
-        \BookStack\App\Providers\ThemeServiceProvider::class,
-        \BookStack\App\Providers\AppServiceProvider::class,
-        \BookStack\App\Providers\AuthServiceProvider::class,
-        \BookStack\App\Providers\EventServiceProvider::class,
-        \BookStack\App\Providers\RouteServiceProvider::class,
-        \BookStack\App\Providers\TranslationServiceProvider::class,
-        \BookStack\App\Providers\ValidationRuleServiceProvider::class,
-        \BookStack\App\Providers\ViewTweaksServiceProvider::class,
-    ],
+        BookStack\App\Providers\ThemeServiceProvider::class,
+        BookStack\App\Providers\AppServiceProvider::class,
+        BookStack\App\Providers\AuthServiceProvider::class,
+        BookStack\App\Providers\EventServiceProvider::class,
+        BookStack\App\Providers\RouteServiceProvider::class,
+        BookStack\App\Providers\TranslationServiceProvider::class,
+        BookStack\App\Providers\ValidationRuleServiceProvider::class,
+        BookStack\App\Providers\ViewTweaksServiceProvider::class,
+    ])->toArray(),
 
     // Class Aliases
     // This array of class aliases to be registered on application start.
     'aliases' => Facade::defaultAliases()->merge([
         // Laravel Packages
         'Socialite'    => Laravel\Socialite\Facades\Socialite::class,
-
-        // Third Party
-        'ImageTool' => Intervention\Image\Facades\Image::class,
 
         // Custom BookStack
         'Activity'    => BookStack\Facades\Activity::class,

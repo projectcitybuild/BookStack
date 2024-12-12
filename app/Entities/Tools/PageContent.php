@@ -3,33 +3,39 @@
 namespace BookStack\Entities\Tools;
 
 use BookStack\Entities\Models\Page;
+use BookStack\Entities\Queries\PageQueries;
 use BookStack\Entities\Tools\Markdown\MarkdownToHtml;
 use BookStack\Exceptions\ImageUploadException;
 use BookStack\Facades\Theme;
 use BookStack\Theming\ThemeEvents;
 use BookStack\Uploads\ImageRepo;
 use BookStack\Uploads\ImageService;
+use BookStack\Users\Models\User;
 use BookStack\Util\HtmlContentFilter;
-use DOMDocument;
+use BookStack\Util\HtmlDocument;
+use BookStack\Util\WebSafeMimeSniffer;
+use Closure;
 use DOMElement;
 use DOMNode;
 use DOMNodeList;
-use DOMXPath;
 use Illuminate\Support\Str;
 
 class PageContent
 {
+    protected PageQueries $pageQueries;
+
     public function __construct(
         protected Page $page
     ) {
+        $this->pageQueries = app()->make(PageQueries::class);
     }
 
     /**
      * Update the content of the page with new provided HTML.
      */
-    public function setNewHTML(string $html): void
+    public function setNewHTML(string $html, User $updater): void
     {
-        $html = $this->extractBase64ImagesFromHtml($html);
+        $html = $this->extractBase64ImagesFromHtml($html, $updater);
         $this->page->html = $this->formatHtml($html);
         $this->page->text = $this->toPlainText();
         $this->page->markdown = '';
@@ -38,9 +44,9 @@ class PageContent
     /**
      * Update the content of the page with new provided Markdown content.
      */
-    public function setNewMarkdown(string $markdown): void
+    public function setNewMarkdown(string $markdown, User $updater): void
     {
-        $markdown = $this->extractBase64ImagesFromMarkdown($markdown);
+        $markdown = $this->extractBase64ImagesFromMarkdown($markdown, $updater);
         $this->page->markdown = $markdown;
         $html = (new MarkdownToHtml($markdown))->convert();
         $this->page->html = $this->formatHtml($html);
@@ -50,33 +56,24 @@ class PageContent
     /**
      * Convert all base64 image data to saved images.
      */
-    protected function extractBase64ImagesFromHtml(string $htmlText): string
+    protected function extractBase64ImagesFromHtml(string $htmlText, User $updater): string
     {
         if (empty($htmlText) || !str_contains($htmlText, 'data:image')) {
             return $htmlText;
         }
 
-        $doc = $this->loadDocumentFromHtml($htmlText);
-        $container = $doc->documentElement;
-        $body = $container->childNodes->item(0);
-        $childNodes = $body->childNodes;
-        $xPath = new DOMXPath($doc);
+        $doc = new HtmlDocument($htmlText);
 
         // Get all img elements with image data blobs
-        $imageNodes = $xPath->query('//img[contains(@src, \'data:image\')]');
+        $imageNodes = $doc->queryXPath('//img[contains(@src, \'data:image\')]');
+        /** @var DOMElement $imageNode */
         foreach ($imageNodes as $imageNode) {
             $imageSrc = $imageNode->getAttribute('src');
-            $newUrl = $this->base64ImageUriToUploadedImageUrl($imageSrc);
+            $newUrl = $this->base64ImageUriToUploadedImageUrl($imageSrc, $updater);
             $imageNode->setAttribute('src', $newUrl);
         }
 
-        // Generate inner html as a string
-        $html = '';
-        foreach ($childNodes as $childNode) {
-            $html .= $doc->saveHTML($childNode);
-        }
-
-        return $html;
+        return $doc->getBodyInnerHtml();
     }
 
     /**
@@ -86,7 +83,7 @@ class PageContent
      * Attempting to capture the whole data uri using regex can cause PHP
      * PCRE limits to be hit with larger, multi-MB, files.
      */
-    protected function extractBase64ImagesFromMarkdown(string $markdown): string
+    protected function extractBase64ImagesFromMarkdown(string $markdown, User $updater): string
     {
         $matches = [];
         $contentLength = strlen($markdown);
@@ -104,7 +101,7 @@ class PageContent
                 $dataUri .= $char;
             }
 
-            $newUrl = $this->base64ImageUriToUploadedImageUrl($dataUri);
+            $newUrl = $this->base64ImageUriToUploadedImageUrl($dataUri, $updater);
             $replacements[] = [$dataUri, $newUrl];
         }
 
@@ -119,13 +116,25 @@ class PageContent
      * Parse the given base64 image URI and return the URL to the created image instance.
      * Returns an empty string if the parsed URI is invalid or causes an error upon upload.
      */
-    protected function base64ImageUriToUploadedImageUrl(string $uri): string
+    protected function base64ImageUriToUploadedImageUrl(string $uri, User $updater): string
     {
         $imageRepo = app()->make(ImageRepo::class);
         $imageInfo = $this->parseBase64ImageUri($uri);
 
+        // Validate user has permission to create images
+        if (!$updater->can('image-create-all')) {
+            return '';
+        }
+
         // Validate extension and content
         if (empty($imageInfo['data']) || !ImageService::isExtensionSupported($imageInfo['extension'])) {
+            return '';
+        }
+
+        // Validate content looks like an image via sniffing mime type
+        $mimeSniffer = new WebSafeMimeSniffer();
+        $mime = $mimeSniffer->sniff($imageInfo['data']);
+        if (!str_starts_with($mime, 'image/')) {
             return '';
         }
 
@@ -172,27 +181,18 @@ class PageContent
             return $htmlText;
         }
 
-        $doc = $this->loadDocumentFromHtml($htmlText);
-        $container = $doc->documentElement;
-        $body = $container->childNodes->item(0);
-        $childNodes = $body->childNodes;
-        $xPath = new DOMXPath($doc);
+        $doc = new HtmlDocument($htmlText);
 
         // Map to hold used ID references
         $idMap = [];
         // Map to hold changing ID references
         $changeMap = [];
 
-        $this->updateIdsRecursively($body, 0, $idMap, $changeMap);
-        $this->updateLinks($xPath, $changeMap);
+        $this->updateIdsRecursively($doc->getBody(), 0, $idMap, $changeMap);
+        $this->updateLinks($doc, $changeMap);
 
-        // Generate inner html as a string
-        $html = '';
-        foreach ($childNodes as $childNode) {
-            $html .= $doc->saveHTML($childNode);
-        }
-
-        // Perform required string-level tweaks
+        // Generate inner html as a string & perform required string-level tweaks
+        $html = $doc->getBodyInnerHtml();
         $html = str_replace(' ', '&nbsp;', $html);
 
         return $html;
@@ -225,13 +225,13 @@ class PageContent
      * Update the all links in the given xpath to apply requires changes within the
      * given $changeMap array.
      */
-    protected function updateLinks(DOMXPath $xpath, array $changeMap): void
+    protected function updateLinks(HtmlDocument $doc, array $changeMap): void
     {
         if (empty($changeMap)) {
             return;
         }
 
-        $links = $xpath->query('//body//*//*[@href]');
+        $links = $doc->queryXPath('//body//*//*[@href]');
         /** @var DOMElement $domElem */
         foreach ($links as $domElem) {
             $href = ltrim($domElem->getAttribute('href'), '#');
@@ -295,21 +295,66 @@ class PageContent
      */
     public function render(bool $blankIncludes = false): string
     {
-        $content = $this->page->html ?? '';
+        $html = $this->page->html ?? '';
+
+        if (empty($html)) {
+            return $html;
+        }
+
+        $doc = new HtmlDocument($html);
+        $contentProvider = $this->getContentProviderClosure($blankIncludes);
+        $parser = new PageIncludeParser($doc, $contentProvider);
+
+        $nodesAdded = 1;
+        for ($includeDepth = 0; $includeDepth < 3 && $nodesAdded !== 0; $includeDepth++) {
+            $nodesAdded = $parser->parse();
+        }
+
+        if ($includeDepth > 1) {
+            $idMap = [];
+            $changeMap = [];
+            $this->updateIdsRecursively($doc->getBody(), 0, $idMap, $changeMap);
+        }
 
         if (!config('app.allow_content_scripts')) {
-            $content = HtmlContentFilter::removeScripts($content);
+            HtmlContentFilter::removeScriptsFromDocument($doc);
         }
 
-        if ($blankIncludes) {
-            $content = $this->blankPageIncludes($content);
-        } else {
-            for ($includeDepth = 0; $includeDepth < 3; $includeDepth++) {
-                $content = $this->parsePageIncludes($content);
+        return $doc->getBodyInnerHtml();
+    }
+
+    /**
+     * Get the closure used to fetch content for page includes.
+     */
+    protected function getContentProviderClosure(bool $blankIncludes): Closure
+    {
+        $contextPage = $this->page;
+        $queries = $this->pageQueries;
+
+        return function (PageIncludeTag $tag) use ($blankIncludes, $contextPage, $queries): PageIncludeContent {
+            if ($blankIncludes) {
+                return PageIncludeContent::fromHtmlAndTag('', $tag);
             }
-        }
 
-        return $content;
+            $matchedPage = $queries->findVisibleById($tag->getPageId());
+            $content = PageIncludeContent::fromHtmlAndTag($matchedPage->html ?? '', $tag);
+
+            if (Theme::hasListeners(ThemeEvents::PAGE_INCLUDE_PARSE)) {
+                $themeReplacement = Theme::dispatch(
+                    ThemeEvents::PAGE_INCLUDE_PARSE,
+                    $tag->tagContent,
+                    $content->toHtml(),
+                    clone $contextPage,
+                    $matchedPage ? (clone $matchedPage) : null,
+                );
+
+                if ($themeReplacement !== null) {
+                    $content = PageIncludeContent::fromInlineHtml(strval($themeReplacement));
+                }
+            }
+
+            return $content;
+        };
     }
 
     /**
@@ -321,11 +366,10 @@ class PageContent
             return [];
         }
 
-        $doc = $this->loadDocumentFromHtml($htmlContent);
-        $xPath = new DOMXPath($doc);
-        $headers = $xPath->query('//h1|//h2|//h3|//h4|//h5|//h6');
+        $doc = new HtmlDocument($htmlContent);
+        $headers = $doc->queryXPath('//h1|//h2|//h3|//h4|//h5|//h6');
 
-        return $headers ? $this->headerNodesToLevelList($headers) : [];
+        return $headers->count() === 0 ? [] : $this->headerNodesToLevelList($headers);
     }
 
     /**
@@ -335,7 +379,7 @@ class PageContent
     protected function headerNodesToLevelList(DOMNodeList $nodeList): array
     {
         $tree = collect($nodeList)->map(function (DOMElement $header) {
-            $text = trim(str_replace("\xc2\xa0", '', $header->nodeValue));
+            $text = trim(str_replace("\xc2\xa0", ' ', $header->nodeValue));
             $text = mb_substr($text, 0, 100);
 
             return [
@@ -357,103 +401,5 @@ class PageContent
         });
 
         return $tree->toArray();
-    }
-
-    /**
-     * Remove any page include tags within the given HTML.
-     */
-    protected function blankPageIncludes(string $html): string
-    {
-        return preg_replace("/{{@\s?([0-9].*?)}}/", '', $html);
-    }
-
-    /**
-     * Parse any include tags "{{@<page_id>#section}}" to be part of the page.
-     */
-    protected function parsePageIncludes(string $html): string
-    {
-        $matches = [];
-        preg_match_all("/{{@\s?([0-9].*?)}}/", $html, $matches);
-
-        foreach ($matches[1] as $index => $includeId) {
-            $fullMatch = $matches[0][$index];
-            $splitInclude = explode('#', $includeId, 2);
-
-            // Get page id from reference
-            $pageId = intval($splitInclude[0]);
-            if (is_nan($pageId)) {
-                continue;
-            }
-
-            // Find page to use, and default replacement to empty string for non-matches.
-            /** @var ?Page $matchedPage */
-            $matchedPage = Page::visible()->find($pageId);
-            $replacement = '';
-
-            if ($matchedPage && count($splitInclude) === 1) {
-                // If we only have page id, just insert all page html and continue.
-                $replacement = $matchedPage->html;
-            } elseif ($matchedPage && count($splitInclude) > 1) {
-                // Otherwise, if our include tag defines a section, load that specific content
-                $innerContent = $this->fetchSectionOfPage($matchedPage, $splitInclude[1]);
-                $replacement = trim($innerContent);
-            }
-
-            $themeReplacement = Theme::dispatch(
-                ThemeEvents::PAGE_INCLUDE_PARSE,
-                $includeId,
-                $replacement,
-                clone $this->page,
-                $matchedPage ? (clone $matchedPage) : null,
-            );
-
-            // Perform the content replacement
-            $html = str_replace($fullMatch, $themeReplacement ?? $replacement, $html);
-        }
-
-        return $html;
-    }
-
-    /**
-     * Fetch the content from a specific section of the given page.
-     */
-    protected function fetchSectionOfPage(Page $page, string $sectionId): string
-    {
-        $topLevelTags = ['table', 'ul', 'ol', 'pre'];
-        $doc = $this->loadDocumentFromHtml($page->html);
-
-        // Search included content for the id given and blank out if not exists.
-        $matchingElem = $doc->getElementById($sectionId);
-        if ($matchingElem === null) {
-            return '';
-        }
-
-        // Otherwise replace the content with the found content
-        // Checks if the top-level wrapper should be included by matching on tag types
-        $innerContent = '';
-        $isTopLevel = in_array(strtolower($matchingElem->nodeName), $topLevelTags);
-        if ($isTopLevel) {
-            $innerContent .= $doc->saveHTML($matchingElem);
-        } else {
-            foreach ($matchingElem->childNodes as $childNode) {
-                $innerContent .= $doc->saveHTML($childNode);
-            }
-        }
-        libxml_clear_errors();
-
-        return $innerContent;
-    }
-
-    /**
-     * Create and load a DOMDocument from the given html content.
-     */
-    protected function loadDocumentFromHtml(string $html): DOMDocument
-    {
-        libxml_use_internal_errors(true);
-        $doc = new DOMDocument();
-        $html = '<?xml encoding="utf-8" ?><body>' . $html . '</body>';
-        $doc->loadHTML($html);
-
-        return $doc;
     }
 }

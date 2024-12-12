@@ -11,7 +11,7 @@ use BookStack\Http\Controller;
 
 class RecycleBinController extends Controller
 {
-    protected $recycleBinBaseUrl = '/settings/recycle-bin';
+    protected string $recycleBinBaseUrl = '/settings/recycle-bin';
 
     /**
      * On each request to a method of this controller check permissions
@@ -116,9 +116,9 @@ class RecycleBinController extends Controller
      *
      * @throws \Exception
      */
-    public function empty()
+    public function empty(TrashCan $trash)
     {
-        $deleteCount = (new TrashCan())->empty();
+        $deleteCount = $trash->empty();
 
         $this->logActivity(ActivityType::RECYCLE_BIN_EMPTY);
         $this->showSuccessNotification(trans('settings.recycle_bin_destroy_notification', ['count' => $deleteCount]));

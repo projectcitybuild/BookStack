@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Ακύρωση',
+    'close' => 'Close',
     'confirm' => 'Οκ',
     'back' => 'Πίσω',
     'save' => 'Αποθήκευση',
@@ -19,7 +20,7 @@ return [
     'description' => 'Περιγραφή',
     'role' => 'Ρόλος',
     'cover_image' => 'Εικόνα εξώφυλλου',
-    'cover_image_description' => 'Αυτή η εικόνα πρέπει να είναι περίπου 440x250px.',
+    'cover_image_description' => 'This image should be approximately 440x250px although it will be flexibly scaled & cropped to fit the user interface in different scenarios as required, so actual dimensions for display will differ.',
 
     // Actions
     'actions' => 'Ενέργειες',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Αφαίρεση',
     'add' => 'Προσθήκη',
     'configure' => 'Διαμόρφωση',
+    'manage' => 'Manage',
     'fullscreen' => 'Πλήρης οθόνη',
     'favourite' => 'Αγαπημένα',
     'unfavourite' => 'Αφαίρεση από Αγαπημένα',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Διαγραφή φίλτρου',
     'download' => 'Λήψη',
     'open_in_tab' => 'Άνοιγμα σε Καρτέλα',
+    'open' => 'Open',
 
     // Sort Options
     'sort_options' => 'Επιλογές ταξινόμησης',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Πολιτική Απορρήτου',
     'terms_of_service' => 'Όροι χρήσης',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

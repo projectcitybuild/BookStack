@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Pengguna dengan email :email sudah ada tetapi dengan kredensial berbeda.',
+    'auth_pre_register_theme_prevention' => 'User account could not be registered for the provided details',
     'email_already_confirmed' => 'Email telah dikonfirmasi, Coba masuk.',
     'email_confirmation_invalid' => 'Token konfirmasi ini tidak valid atau telah digunakan, Silakan coba mendaftar lagi.',
     'email_confirmation_expired' => 'Token konfirmasi telah kedaluwarsa, Email konfirmasi baru telah dikirim.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'Ekstensi LDAP PHP tidak terpasang',
     'ldap_cannot_connect' => 'Tidak dapat terhubung ke server ldap, Koneksi awal gagal',
     'saml_already_logged_in' => 'Telah masuk',
-    'saml_user_not_registered' => 'Pengguna :name tidak terdaftar dan pendaftaran otomatis dinonaktifkan',
     'saml_no_email_address' => 'Tidak dapat menemukan sebuah alamat email untuk pengguna ini, dalam data yang diberikan oleh sistem autentikasi eksternal',
     'saml_invalid_response_id' => 'Permintaan dari sistem otentikasi eksternal tidak dikenali oleh sebuah proses yang dimulai oleh aplikasi ini. Menavigasi kembali setelah masuk dapat menyebabkan masalah ini.',
     'saml_fail_authed' => 'Masuk menggunakan :system gagal, sistem tidak memberikan otorisasi yang berhasil',
     'oidc_already_logged_in' => 'Already logged in',
-    'oidc_user_not_registered' => 'The user :name is not registered and automatic registration is disabled',
     'oidc_no_email_address' => 'Could not find an email address, for this user, in the data provided by the external authentication system',
     'oidc_fail_authed' => 'Login using :system failed, system did not provide successful authorization',
     'social_no_action_defined' => 'Tidak ada tindakan yang ditentukan',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Pengemudi sosial tidak ditemukan',
     'social_driver_not_configured' => 'Pengaturan sosial :socialAccount Anda tidak dikonfigurasi dengan benar.',
     'invite_token_expired' => 'Tautan undangan ini telah kedaluwarsa. Sebagai gantinya, Anda dapat mencoba mengatur ulang kata sandi akun Anda.',
+    'login_user_not_found' => 'A user for this action could not be found.',
 
     // System
     'path_not_writable' => 'Jalur berkas :filePath tidak dapat diunggah. Pastikan berkas tersebut dapat ditulis ke server.',
     'cannot_get_image_from_url' => 'Tidak dapat mengambil gambar dari :url',
     'cannot_create_thumbs' => 'Server tidak dapat membuat thumbnail. Harap periksa apakah Anda telah memasang ekstensi GD PHP.',
     'server_upload_limit' => 'Server tidak mengizinkan unggahan dengan ukuran ini. Harap coba ukuran berkas yang lebih kecil.',
+    'server_post_limit' => 'The server cannot receive the provided amount of data. Try again with less data or a smaller file.',
     'uploaded'  => 'Server tidak mengizinkan unggahan dengan ukuran ini. Harap coba ukuran berkas yang lebih kecil.',
 
     // Drawing & Images
     'image_upload_error' => 'Terjadi kesalahan saat mengunggah gambar',
     'image_upload_type_error' => 'Jenis gambar yang diunggah tidak valid',
+    'image_upload_replace_type' => 'Image file replacements must be of the same type',
+    'image_upload_memory_limit' => 'Failed to handle image upload and/or create thumbnails due to system resource limits.',
+    'image_thumbnail_memory_limit' => 'Failed to create image size variations due to system resource limits.',
+    'image_gallery_thumbnail_memory_limit' => 'Failed to create gallery thumbnails due to system resource limits.',
     'drawing_data_not_found' => 'Drawing data could not be loaded. The drawing file might no longer exist or you may not have permission to access it.',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => 'Gagal menyimpan draf. Pastikan Anda memiliki koneksi internet sebelum menyimpan halaman ini',
+    'page_draft_delete_fail' => 'Failed to delete page draft and fetch current page saved content',
     'page_custom_home_deletion' => 'Tidak dapat menghapus sebuah halaman saat diatur sebagai sebuah halaman beranda',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Anda tidak dapat menghapus satu-satunya admin',
     'users_cannot_delete_guest' => 'Anda tidak dapat menghapus pengguna tamu',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'Peran ini tidak dapat disunting',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Kesalahan dilempar saat mengirim email uji:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'The URL does not match the configured allowed SSR hosts',
 ];

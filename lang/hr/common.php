@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Odustani',
+    'close' => 'Zatvori',
     'confirm' => 'Potvrdi',
     'back' => 'Natrag',
     'save' => 'Spremi',
@@ -19,13 +20,13 @@ return [
     'description' => 'Opis',
     'role' => 'Uloga',
     'cover_image' => 'Naslovna slika',
-    'cover_image_description' => 'Slika treba biti približno 440x250px.',
+    'cover_image_description' => 'This image should be approximately 440x250px although it will be flexibly scaled & cropped to fit the user interface in different scenarios as required, so actual dimensions for display will differ.',
 
     // Actions
     'actions' => 'Aktivnost',
     'view' => 'Pogled',
     'view_all' => 'Pogledaj sve',
-    'new' => 'New',
+    'new' => 'Novi',
     'create' => 'Stvori',
     'update' => 'Ažuriraj',
     'edit' => 'Uredi',
@@ -40,16 +41,18 @@ return [
     'reset' => 'Ponovno postavi',
     'remove' => 'Ukloni',
     'add' => 'Dodaj',
-    'configure' => 'Configure',
+    'configure' => 'Konfiguriraj',
+    'manage' => 'Upravljaj',
     'fullscreen' => 'Cijeli zaslon',
-    'favourite' => 'Favourite',
-    'unfavourite' => 'Unfavourite',
-    'next' => 'Next',
-    'previous' => 'Previous',
-    'filter_active' => 'Active Filter:',
-    'filter_clear' => 'Clear Filter',
-    'download' => 'Download',
-    'open_in_tab' => 'Open in Tab',
+    'favourite' => 'Favorit',
+    'unfavourite' => 'Ukloni iz favorita',
+    'next' => 'Dalje',
+    'previous' => 'Prethodno',
+    'filter_active' => 'Aktivni Filter:',
+    'filter_clear' => 'Poništi Filter',
+    'download' => 'Preuzmi',
+    'open_in_tab' => 'Otvori u Kartici',
+    'open' => 'Open',
 
     // Sort Options
     'sort_options' => 'Razvrstaj opcije',
@@ -59,36 +62,36 @@ return [
     'sort_name' => 'Ime',
     'sort_default' => 'Zadano',
     'sort_created_at' => 'Datum',
-    'sort_updated_at' => 'Ažuriraj datum',
+    'sort_updated_at' => 'Datum Ažuriranja',
 
     // Misc
     'deleted_user' => 'Izbrisani korisnik',
     'no_activity' => 'Nema aktivnosti za pregled',
     'no_items' => 'Nedostupno',
     'back_to_top' => 'Natrag na vrh',
-    'skip_to_main_content' => 'Skip to main content',
+    'skip_to_main_content' => 'Preskoči na glavni sadržaj',
     'toggle_details' => 'Prebaci detalje',
     'toggle_thumbnails' => 'Uključi minijature',
     'details' => 'Detalji',
     'grid_view' => 'Prikaz rešetke',
     'list_view' => 'Prikaz popisa',
     'default' => 'Zadano',
-    'breadcrumb' => 'Breadcrumb',
+    'breadcrumb' => 'Putokaz',
     'status' => 'Status',
-    'status_active' => 'Active',
-    'status_inactive' => 'Inactive',
-    'never' => 'Never',
-    'none' => 'None',
+    'status_active' => 'Aktivno',
+    'status_inactive' => 'Neaktivno',
+    'never' => 'Nikada',
+    'none' => 'Ništa',
 
     // Header
-    'homepage' => 'Homepage',
+    'homepage' => 'Naslovna Stranica',
     'header_menu_expand' => 'Proširi izbornik',
     'profile_menu' => 'Profil',
     'view_profile' => 'Vidi profil',
     'edit_profile' => 'Uredite profil',
     'dark_mode' => 'Tamni način',
     'light_mode' => 'Svijetli način',
-    'global_search' => 'Global Search',
+    'global_search' => 'Globalno Pretraživanje',
 
     // Layout tabs
     'tab_info' => 'Info',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Politika privatnosti',
     'terms_of_service' => 'Uvjeti korištenja',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

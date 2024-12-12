@@ -2,7 +2,8 @@
 
 namespace BookStack\Users\Controllers;
 
-use BookStack\Access\SocialAuthService;
+use BookStack\Access\SocialDriverManager;
+use BookStack\Access\UserInviteException;
 use BookStack\Exceptions\ImageUploadException;
 use BookStack\Exceptions\UserUpdateException;
 use BookStack\Http\Controller;
@@ -14,18 +15,16 @@ use BookStack\Util\SimpleListOptions;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    protected UserRepo $userRepo;
-    protected ImageRepo $imageRepo;
-
-    public function __construct(UserRepo $userRepo, ImageRepo $imageRepo)
-    {
-        $this->userRepo = $userRepo;
-        $this->imageRepo = $imageRepo;
+    public function __construct(
+        protected UserRepo $userRepo,
+        protected ImageRepo $imageRepo
+    ) {
     }
 
     /**
@@ -94,9 +93,15 @@ class UserController extends Controller
 
         $validated = $this->validate($request, array_filter($validationRules));
 
-        DB::transaction(function () use ($validated, $sendInvite) {
-            $this->userRepo->create($validated, $sendInvite);
-        });
+        try {
+            DB::transaction(function () use ($validated, $sendInvite) {
+                $this->userRepo->create($validated, $sendInvite);
+            });
+        } catch (UserInviteException $e) {
+            Log::error("Failed to send user invite with error: {$e->getMessage()}");
+            $this->showErrorNotification(trans('errors.users_could_not_send_invite'));
+            return redirect('/settings/users/create')->withInput();
+        }
 
         return redirect('/settings/users');
     }
@@ -104,15 +109,15 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified user.
      */
-    public function edit(int $id, SocialAuthService $socialAuthService)
+    public function edit(int $id, SocialDriverManager $socialDriverManager)
     {
-        $this->checkPermissionOrCurrentUser('users-manage', $id);
+        $this->checkPermission('users-manage');
 
         $user = $this->userRepo->getById($id);
         $user->load(['apiTokens', 'mfaValues']);
         $authMethod = ($user->system_name) ? 'system' : config('auth.method');
 
-        $activeSocialDrivers = $socialAuthService->getActiveDrivers();
+        $activeSocialDrivers = $socialDriverManager->getActive();
         $mfaMethods = $user->mfaValues->groupBy('method');
         $this->setPageTitle(trans('settings.user_profile'));
         $roles = Role::query()->orderBy('display_name', 'asc')->get();
@@ -136,10 +141,10 @@ class UserController extends Controller
     public function update(Request $request, int $id)
     {
         $this->preventAccessInDemoMode();
-        $this->checkPermissionOrCurrentUser('users-manage', $id);
+        $this->checkPermission('users-manage');
 
         $validated = $this->validate($request, [
-            'name'             => ['min:2', 'max:100'],
+            'name'             => ['min:1', 'max:100'],
             'email'            => ['min:2', 'email', 'unique:users,email,' . $id],
             'password'         => ['required_with:password_confirm', Password::default()],
             'password-confirm' => ['same:password', 'required_with:password'],
@@ -151,7 +156,7 @@ class UserController extends Controller
         ]);
 
         $user = $this->userRepo->getById($id);
-        $this->userRepo->update($user, $validated, userCan('users-manage'));
+        $this->userRepo->update($user, $validated, true);
 
         // Save profile image if in request
         if ($request->hasFile('profile_image')) {
@@ -169,9 +174,7 @@ class UserController extends Controller
             $user->save();
         }
 
-        $redirectUrl = userCan('users-manage') ? '/settings/users' : "/settings/users/{$user->id}";
-
-        return redirect($redirectUrl);
+        return redirect('/settings/users');
     }
 
     /**
@@ -179,7 +182,7 @@ class UserController extends Controller
      */
     public function delete(int $id)
     {
-        $this->checkPermissionOrCurrentUser('users-manage', $id);
+        $this->checkPermission('users-manage');
 
         $user = $this->userRepo->getById($id);
         $this->setPageTitle(trans('settings.users_delete_named', ['userName' => $user->name]));
@@ -195,7 +198,7 @@ class UserController extends Controller
     public function destroy(Request $request, int $id)
     {
         $this->preventAccessInDemoMode();
-        $this->checkPermissionOrCurrentUser('users-manage', $id);
+        $this->checkPermission('users-manage');
 
         $user = $this->userRepo->getById($id);
         $newOwnerId = intval($request->get('new_owner_id')) ?: null;

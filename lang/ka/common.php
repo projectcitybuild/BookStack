@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Cancel',
+    'close' => 'Close',
     'confirm' => 'Confirm',
     'back' => 'Back',
     'save' => 'Save',
@@ -19,7 +20,7 @@ return [
     'description' => 'Description',
     'role' => 'Role',
     'cover_image' => 'Cover image',
-    'cover_image_description' => 'This image should be approx 440x250px.',
+    'cover_image_description' => 'This image should be approximately 440x250px although it will be flexibly scaled & cropped to fit the user interface in different scenarios as required, so actual dimensions for display will differ.',
 
     // Actions
     'actions' => 'Actions',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Remove',
     'add' => 'Add',
     'configure' => 'Configure',
+    'manage' => 'Manage',
     'fullscreen' => 'Fullscreen',
     'favourite' => 'Favourite',
     'unfavourite' => 'Unfavourite',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Clear Filter',
     'download' => 'Download',
     'open_in_tab' => 'Open in Tab',
+    'open' => 'Open',
 
     // Sort Options
     'sort_options' => 'Sort Options',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Privacy Policy',
     'terms_of_service' => 'Terms of Service',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

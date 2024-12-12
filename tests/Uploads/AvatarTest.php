@@ -3,8 +3,11 @@
 namespace Tests\Uploads;
 
 use BookStack\Exceptions\HttpFetchException;
-use BookStack\Uploads\HttpFetcher;
+use BookStack\Uploads\UserAvatars;
 use BookStack\Users\Models\User;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Tests\TestCase;
 
 class AvatarTest extends TestCase
@@ -21,27 +24,16 @@ class AvatarTest extends TestCase
         return User::query()->where('email', '=', $user->email)->first();
     }
 
-    protected function assertImageFetchFrom(string $url)
-    {
-        $http = $this->mock(HttpFetcher::class);
-
-        $http->shouldReceive('fetch')
-            ->once()->with($url)
-            ->andReturn($this->files->pngImageData());
-    }
-
-    protected function deleteUserImage(User $user)
+    protected function deleteUserImage(User $user): void
     {
         $this->files->deleteAtRelativePath($user->avatar->path);
     }
 
     public function test_gravatar_fetched_on_user_create()
     {
-        config()->set([
-            'services.disable_services' => false,
-        ]);
+        $requests = $this->mockHttpClient([new Response(200, ['Content-Type' => 'image/png'], $this->files->pngImageData())]);
+        config()->set(['services.disable_services' => false]);
         $user = User::factory()->make();
-        $this->assertImageFetchFrom('https://www.gravatar.com/avatar/' . md5(strtolower($user->email)) . '?s=500&d=identicon');
 
         $user = $this->createUserRequest($user);
         $this->assertDatabaseHas('images', [
@@ -49,6 +41,9 @@ class AvatarTest extends TestCase
             'created_by' => $user->id,
         ]);
         $this->deleteUserImage($user);
+
+        $expectedUri = 'https://www.gravatar.com/avatar/' . md5(strtolower($user->email)) . '?s=500&d=identicon';
+        $this->assertEquals($expectedUri, $requests->latestRequest()->getUri());
     }
 
     public function test_custom_url_used_if_set()
@@ -60,24 +55,22 @@ class AvatarTest extends TestCase
 
         $user = User::factory()->make();
         $url = 'https://example.com/' . urlencode(strtolower($user->email)) . '/' . md5(strtolower($user->email)) . '/500';
-        $this->assertImageFetchFrom($url);
+        $requests = $this->mockHttpClient([new Response(200, ['Content-Type' => 'image/png'], $this->files->pngImageData())]);
 
         $user = $this->createUserRequest($user);
+        $this->assertEquals($url, $requests->latestRequest()->getUri());
         $this->deleteUserImage($user);
     }
 
     public function test_avatar_not_fetched_if_no_custom_url_and_services_disabled()
     {
-        config()->set([
-            'services.disable_services' => true,
-        ]);
-
+        config()->set(['services.disable_services' => true]);
         $user = User::factory()->make();
-
-        $http = $this->mock(HttpFetcher::class);
-        $http->shouldNotReceive('fetch');
+        $requests = $this->mockHttpClient([new Response()]);
 
         $this->createUserRequest($user);
+
+        $this->assertEquals(0, $requests->requestCount());
     }
 
     public function test_avatar_not_fetched_if_avatar_url_option_set_to_false()
@@ -88,26 +81,46 @@ class AvatarTest extends TestCase
         ]);
 
         $user = User::factory()->make();
-
-        $http = $this->mock(HttpFetcher::class);
-        $http->shouldNotReceive('fetch');
+        $requests = $this->mockHttpClient([new Response()]);
 
         $this->createUserRequest($user);
+
+        $this->assertEquals(0, $requests->requestCount());
     }
 
     public function test_no_failure_but_error_logged_on_failed_avatar_fetch()
     {
-        config()->set([
-            'services.disable_services' => false,
-        ]);
+        config()->set(['services.disable_services' => false]);
 
-        $http = $this->mock(HttpFetcher::class);
-        $http->shouldReceive('fetch')->andThrow(new HttpFetchException());
+        $this->mockHttpClient([new ConnectException('Failed to connect', new Request('GET', ''))]);
 
         $logger = $this->withTestLogger();
 
         $user = User::factory()->make();
         $this->createUserRequest($user);
         $this->assertTrue($logger->hasError('Failed to save user avatar image'));
+    }
+
+    public function test_exception_message_on_failed_fetch()
+    {
+        // set wrong url
+        config()->set([
+            'services.disable_services' => false,
+            'services.avatar_url'       => 'http_malformed_url/${email}/${hash}/${size}',
+        ]);
+
+        $user = User::factory()->make();
+        $avatar = app()->make(UserAvatars::class);
+        $logger = $this->withTestLogger();
+        $this->mockHttpClient([new ConnectException('Could not resolve host http_malformed_url', new Request('GET', ''))]);
+
+        $avatar->fetchAndAssignToUser($user);
+
+        $url = 'http_malformed_url/' . urlencode(strtolower($user->email)) . '/' . md5(strtolower($user->email)) . '/500';
+        $this->assertTrue($logger->hasError('Failed to save user avatar image'));
+        $exception = $logger->getRecords()[0]['context']['exception'];
+        $this->assertInstanceOf(HttpFetchException::class, $exception);
+        $this->assertEquals('Cannot get image from ' . $url, $exception->getMessage());
+        $this->assertEquals('Could not resolve host http_malformed_url', $exception->getPrevious()->getMessage());
     }
 }

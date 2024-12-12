@@ -80,22 +80,22 @@ class ConfigTest extends TestCase
 
     public function test_dompdf_remote_fetching_controlled_by_allow_untrusted_server_fetching_false()
     {
-        $this->checkEnvConfigResult('ALLOW_UNTRUSTED_SERVER_FETCHING', 'false', 'dompdf.options.enable_remote', false);
-        $this->checkEnvConfigResult('ALLOW_UNTRUSTED_SERVER_FETCHING', 'true', 'dompdf.options.enable_remote', true);
+        $this->checkEnvConfigResult('ALLOW_UNTRUSTED_SERVER_FETCHING', 'false', 'exports.dompdf.enable_remote', false);
+        $this->checkEnvConfigResult('ALLOW_UNTRUSTED_SERVER_FETCHING', 'true', 'exports.dompdf.enable_remote', true);
     }
 
     public function test_dompdf_paper_size_options_are_limited()
     {
-        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'cat', 'dompdf.options.default_paper_size', 'a4');
-        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'letter', 'dompdf.options.default_paper_size', 'letter');
-        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'a4', 'dompdf.options.default_paper_size', 'a4');
+        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'cat', 'exports.dompdf.default_paper_size', 'a4');
+        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'letter', 'exports.dompdf.default_paper_size', 'letter');
+        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'a4', 'exports.dompdf.default_paper_size', 'a4');
     }
 
     public function test_snappy_paper_size_options_are_limited()
     {
-        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'cat', 'snappy.pdf.options.page-size', 'A4');
-        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'letter', 'snappy.pdf.options.page-size', 'Letter');
-        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'a4', 'snappy.pdf.options.page-size', 'A4');
+        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'cat', 'exports.snappy.options.page-size', 'A4');
+        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'letter', 'exports.snappy.options.page-size', 'Letter');
+        $this->checkEnvConfigResult('EXPORT_PAGE_SIZE', 'a4', 'exports.snappy.options.page-size', 'A4');
     }
 
     public function test_sendmail_command_is_configurable()
@@ -120,6 +120,44 @@ class ConfigTest extends TestCase
             $this->assertFalse($options['ssl']['verify_peer']);
             $this->assertFalse($options['ssl']['verify_peer_name']);
         });
+    }
+
+    public function test_non_null_mail_encryption_options_enforce_smtp_scheme()
+    {
+        $this->checkEnvConfigResult('MAIL_ENCRYPTION', 'tls', 'mail.mailers.smtp.tls_required', true);
+        $this->checkEnvConfigResult('MAIL_ENCRYPTION', 'ssl', 'mail.mailers.smtp.tls_required', true);
+        $this->checkEnvConfigResult('MAIL_ENCRYPTION', 'null', 'mail.mailers.smtp.tls_required', false);
+    }
+
+    public function test_smtp_scheme_and_certain_port_forces_tls_usage()
+    {
+        $isMailTlsRequired = function () {
+            /** @var EsmtpTransport $transport */
+            $transport = Mail::mailer('smtp')->getSymfonyTransport();
+            Mail::purge('smtp');
+            return $transport->getTlsRequirement();
+        };
+
+        config()->set([
+            'mail.mailers.smtp.tls_required' => null,
+            'mail.mailers.smtp.port' => 587,
+        ]);
+
+        $this->assertFalse($isMailTlsRequired());
+
+        config()->set([
+            'mail.mailers.smtp.tls_required' => 'tls',
+            'mail.mailers.smtp.port' => 587,
+        ]);
+
+        $this->assertTrue($isMailTlsRequired());
+
+        config()->set([
+            'mail.mailers.smtp.tls_required' => null,
+            'mail.mailers.smtp.port' => 465,
+        ]);
+
+        $this->assertTrue($isMailTlsRequired());
     }
 
     /**

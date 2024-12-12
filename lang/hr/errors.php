@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Korisnik s mailom :email već postoji, ali s drugom vjerodajnicom.',
+    'auth_pre_register_theme_prevention' => 'User account could not be registered for the provided details',
     'email_already_confirmed' => 'Email je već potvrđen, pokušajte se logirati.',
     'email_confirmation_invalid' => 'Ova vjerodajnica nije valjana ili je već bila korištena. Pokušajte se ponovno registrirati.',
     'email_confirmation_expired' => 'Ova vjerodajnica je istekla. Poslan je novi email za pristup.',
@@ -19,16 +20,14 @@ return [
     'ldap_extension_not_installed' => 'LDAP PHP ekstenzija nije instalirana',
     'ldap_cannot_connect' => 'Nemoguće pristupiti ldap serveru, problem s mrežom',
     'saml_already_logged_in' => 'Već ste prijavljeni',
-    'saml_user_not_registered' => 'Korisnik :name nije registriran i automatska registracija je onemogućena',
     'saml_no_email_address' => 'Nismo pronašli email adresu za ovog korisnika u vanjskim sustavima',
     'saml_invalid_response_id' => 'Sustav za autentifikaciju nije prepoznat. Ovaj problem možda je nastao zbog vraćanja nakon prijave.',
     'saml_fail_authed' => 'Prijava pomoću :system nije uspjela zbog neuspješne autorizacije',
-    'oidc_already_logged_in' => 'Already logged in',
-    'oidc_user_not_registered' => 'The user :name is not registered and automatic registration is disabled',
-    'oidc_no_email_address' => 'Could not find an email address, for this user, in the data provided by the external authentication system',
-    'oidc_fail_authed' => 'Login using :system failed, system did not provide successful authorization',
+    'oidc_already_logged_in' => 'Već ste prijavljeni',
+    'oidc_no_email_address' => 'Nije moguće pronaći adresu e-pošte za ovog korisnika u podacima koje pruža vanjski sustav za autentifikaciju',
+    'oidc_fail_authed' => 'Prijavljivanje putem :system nije uspjelo. Sustav nije uspješno odobrio autorizaciju',
     'social_no_action_defined' => 'Nije definirana nijedna radnja',
-    'social_login_bad_response' => "Error received during :socialAccount login: \n:error",
+    'social_login_bad_response' => "Greška primljena prilikom prijave putem :socialAccount: :error",
     'social_account_in_use' => 'Ovaj :socialAccount račun se već koristi. Pokušajte se prijaviti pomoću :socialAccount računa.',
     'social_account_email_in_use' => 'Ovaj mail :email se već koristi. Ako već imate naš račun možete se prijaviti pomoću :socialAccount računa u postavkama vašeg profila.',
     'social_account_existing' => 'Ovaj :socialAccount je već dodan u vaš profil.',
@@ -38,30 +37,37 @@ return [
     'social_driver_not_found' => 'Nije pronađeno',
     'social_driver_not_configured' => 'Postavke vašeg :socialAccount računa nisu ispravno postavljene.',
     'invite_token_expired' => 'Vaša pozivnica je istekla. Pokušajte ponovno postaviti lozinku.',
+    'login_user_not_found' => 'A user for this action could not be found.',
 
     // System
     'path_not_writable' => 'Datoteka :filePath ne može se prenijeti. Učinite je lakše prepoznatljivom vašem serveru.',
     'cannot_get_image_from_url' => 'Nemoguće preuzeti sliku sa :url',
     'cannot_create_thumbs' => 'Provjerite imate li instaliranu GD PHP ekstenziju.',
     'server_upload_limit' => 'Prevelika količina za server. Pokušajte prenijeti manju veličinu.',
+    'server_post_limit' => 'The server cannot receive the provided amount of data. Try again with less data or a smaller file.',
     'uploaded'  => 'Prevelika količina za server. Pokušajte prenijeti manju veličinu.',
 
     // Drawing & Images
     'image_upload_error' => 'Problem s prenosom slike',
     'image_upload_type_error' => 'Nepodržani format slike',
-    'drawing_data_not_found' => 'Drawing data could not be loaded. The drawing file might no longer exist or you may not have permission to access it.',
+    'image_upload_replace_type' => 'Zamjene slikovnih datoteka moraju biti iste vrste',
+    'image_upload_memory_limit' => 'Failed to handle image upload and/or create thumbnails due to system resource limits.',
+    'image_thumbnail_memory_limit' => 'Failed to create image size variations due to system resource limits.',
+    'image_gallery_thumbnail_memory_limit' => 'Failed to create gallery thumbnails due to system resource limits.',
+    'drawing_data_not_found' => 'Podaci o crtežu se ne mogu učitati. Datoteka crteža možda više ne postoji ili nemate dozvolu za pristupanje istoj.',
 
     // Attachments
     'attachment_not_found' => 'Prilozi nisu pronađeni',
-    'attachment_upload_error' => 'An error occurred uploading the attachment file',
+    'attachment_upload_error' => 'Došlo je do pogreške prilikom prijenosa datoteke privitka',
 
     // Pages
     'page_draft_autosave_fail' => 'Problem sa spremanjem nacrta. Osigurajte stabilnu internetsku vezu.',
+    'page_draft_delete_fail' => 'Nije uspjelo brisanje privremene verzije stranice i dohvaćanje trenutno spremljenog sadržaja stranice',
     'page_custom_home_deletion' => 'Stranica označena kao naslovnica ne može se izbrisati',
 
     // Entities
     'entity_not_found' => 'Nije pronađeno',
-    'bookshelf_not_found' => 'Shelf not found',
+    'bookshelf_not_found' => 'Polica nije pronađena',
     'book_not_found' => 'Knjiga nije pronađena',
     'page_not_found' => 'Stranica nije pronađena',
     'chapter_not_found' => 'Poglavlje nije pronađeno',
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Ne možete izbrisati',
     'users_cannot_delete_guest' => 'Ne možete izbrisati',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'Ne može se urediti',
@@ -90,9 +97,9 @@ return [
     '404_page_not_found' => 'Stranica nije pronađena',
     'sorry_page_not_found' => 'Žao nam je, stranica koju tražite nije pronađena.',
     'sorry_page_not_found_permission_warning' => 'Ako smatrate da ova stranica još postoji, ali je ne vidite, moguće je da nemate omogućen pristup.',
-    'image_not_found' => 'Image Not Found',
-    'image_not_found_subtitle' => 'Sorry, The image file you were looking for could not be found.',
-    'image_not_found_details' => 'If you expected this image to exist it might have been deleted.',
+    'image_not_found' => 'Slika Nije Pronađena',
+    'image_not_found_subtitle' => 'Žao nam je, slikovna datoteka koju tražite nije pronađena.',
+    'image_not_found_details' => 'Ako ste očekivali da ova slika postoji, moguće je da je izbrisana.',
     'return_home' => 'Povratak na početno',
     'error_occurred' => 'Došlo je do pogreške',
     'app_down' => ':appName trenutno nije dostupna',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Pogreška prilikom slanja testnog email:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'URL se ne podudara s konfiguriranim dozvoljenim SSR domaćinima',
 ];

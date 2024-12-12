@@ -9,8 +9,6 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
-    protected array $settingCategories = ['features', 'customization', 'registration'];
-
     /**
      * Handle requests to the settings index path.
      */
@@ -31,10 +29,10 @@ class SettingController extends Controller
         // Get application version
         $version = trim(file_get_contents(base_path('version')));
 
-        return view('settings.' . $category, [
+        return view('settings.categories.' . $category, [
             'category'  => $category,
             'version'   => $version,
-            'guestUser' => User::getDefault(),
+            'guestUser' => User::getGuest(),
         ]);
     }
 
@@ -52,16 +50,14 @@ class SettingController extends Controller
         ]);
 
         $store->storeFromUpdateRequest($request, $category);
-
         $this->logActivity(ActivityType::SETTINGS_UPDATE, $category);
-        $this->showSuccessNotification(trans('settings.settings_save_success'));
 
         return redirect("/settings/{$category}");
     }
 
     protected function ensureCategoryExists(string $category): void
     {
-        if (!in_array($category, $this->settingCategories)) {
+        if (!view()->exists('settings.categories.' . $category)) {
             abort(404);
         }
     }

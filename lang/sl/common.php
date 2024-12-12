@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Prekliči',
+    'close' => 'Close',
     'confirm' => 'Potrdi',
     'back' => 'Nazaj',
     'save' => 'Shrani',
@@ -19,7 +20,7 @@ return [
     'description' => 'Opis',
     'role' => 'Vloga',
     'cover_image' => 'Naslovna slika',
-    'cover_image_description' => 'Slika naj bo velika približno 440x250px.',
+    'cover_image_description' => 'This image should be approximately 440x250px although it will be flexibly scaled & cropped to fit the user interface in different scenarios as required, so actual dimensions for display will differ.',
 
     // Actions
     'actions' => 'Dejanja',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Odstrani',
     'add' => 'Dodaj',
     'configure' => 'Configure',
+    'manage' => 'Manage',
     'fullscreen' => 'Celozaslonski način',
     'favourite' => 'Favourite',
     'unfavourite' => 'Unfavourite',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Clear Filter',
     'download' => 'Download',
     'open_in_tab' => 'Open in Tab',
+    'open' => 'Open',
 
     // Sort Options
     'sort_options' => 'Možnosti razvrščanja',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Pravilnik o zasebnosti',
     'terms_of_service' => 'Pogoji uporabe',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

@@ -3,18 +3,17 @@
 namespace BookStack\Activity\Controllers;
 
 use BookStack\Activity\CommentRepo;
-use BookStack\Entities\Models\Page;
+use BookStack\Entities\Queries\PageQueries;
 use BookStack\Http\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class CommentController extends Controller
 {
-    protected $commentRepo;
-
-    public function __construct(CommentRepo $commentRepo)
-    {
-        $this->commentRepo = $commentRepo;
+    public function __construct(
+        protected CommentRepo $commentRepo,
+        protected PageQueries $pageQueries,
+    ) {
     }
 
     /**
@@ -24,12 +23,12 @@ class CommentController extends Controller
      */
     public function savePageComment(Request $request, int $pageId)
     {
-        $this->validate($request, [
-            'text'      => ['required', 'string'],
+        $input = $this->validate($request, [
+            'html'      => ['required', 'string'],
             'parent_id' => ['nullable', 'integer'],
         ]);
 
-        $page = Page::visible()->find($pageId);
+        $page = $this->pageQueries->findVisibleById($pageId);
         if ($page === null) {
             return response('Not found', 404);
         }
@@ -41,9 +40,15 @@ class CommentController extends Controller
 
         // Create a new comment.
         $this->checkPermission('comment-create-all');
-        $comment = $this->commentRepo->create($page, $request->get('text'), $request->get('parent_id'));
+        $comment = $this->commentRepo->create($page, $input['html'], $input['parent_id'] ?? null);
 
-        return view('comments.comment', ['comment' => $comment]);
+        return view('comments.comment-branch', [
+            'readOnly' => false,
+            'branch' => [
+                'comment' => $comment,
+                'children' => [],
+            ]
+        ]);
     }
 
     /**
@@ -53,17 +58,20 @@ class CommentController extends Controller
      */
     public function update(Request $request, int $commentId)
     {
-        $this->validate($request, [
-            'text' => ['required', 'string'],
+        $input = $this->validate($request, [
+            'html' => ['required', 'string'],
         ]);
 
         $comment = $this->commentRepo->getById($commentId);
         $this->checkOwnablePermission('page-view', $comment->entity);
         $this->checkOwnablePermission('comment-update', $comment);
 
-        $comment = $this->commentRepo->update($comment, $request->get('text'));
+        $comment = $this->commentRepo->update($comment, $input['html']);
 
-        return view('comments.comment', ['comment' => $comment]);
+        return view('comments.comment', [
+            'comment' => $comment,
+            'readOnly' => false,
+        ]);
     }
 
     /**

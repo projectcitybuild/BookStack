@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Abbrechen',
+    'close' => 'Schließen',
     'confirm' => 'Bestätigen',
     'back' => 'Zurück',
     'save' => 'Speichern',
@@ -19,7 +20,7 @@ return [
     'description' => 'Beschreibung',
     'role' => 'Rolle',
     'cover_image' => 'Titelbild',
-    'cover_image_description' => 'Das Bild sollte eine Auflösung von 440x250px haben.',
+    'cover_image_description' => 'Dieses Bild sollte ungefähr 440 x 250 Pixel groß sein, kann jedoch je nach Bedarf flexibel skaliert und zugeschnitten werden, um es an die Benutzeroberfläche in verschiedenen Szenarien anzupassen, sodass die tatsächlichen Abmessungen für die Anzeige abweichen können.',
 
     // Actions
     'actions' => 'Aktionen',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Entfernen',
     'add' => 'Hinzufügen',
     'configure' => 'Konfigurieren',
+    'manage' => 'Verwalten',
     'fullscreen' => 'Vollbild',
     'favourite' => 'Favoriten',
     'unfavourite' => 'Kein Favorit',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Filter löschen',
     'download' => 'Herunterladen',
     'open_in_tab' => 'In Tab öffnen',
+    'open' => 'Öffnen',
 
     // Sort Options
     'sort_options' => 'Sortieroptionen',
@@ -97,11 +100,14 @@ return [
     'tab_content_label' => 'Tab: Hauptinhalt anzeigen',
 
     // Email Content
-    'email_action_help' => 'Sollte es beim Anklicken der Schaltfläche ":action_text" Probleme geben, öffne die folgende URL in Deinem Browser:',
+    'email_action_help' => 'Sollte es beim Anklicken der Schaltfläche ":actionText" Probleme geben, öffne die folgende URL in Deinem Browser:',
     'email_rights' => 'Alle Rechte vorbehalten',
 
     // Footer Link Options
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Datenschutzerklärung',
     'terms_of_service' => 'Allgemeine Geschäftsbedingungen',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

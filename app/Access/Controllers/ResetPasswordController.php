@@ -15,14 +15,11 @@ use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class ResetPasswordController extends Controller
 {
-    protected LoginService $loginService;
-
-    public function __construct(LoginService $loginService)
-    {
+    public function __construct(
+        protected LoginService $loginService
+    ) {
         $this->middleware('guest');
         $this->middleware('guard:standard');
-
-        $this->loginService = $loginService;
     }
 
     /**
@@ -66,7 +63,7 @@ class ResetPasswordController extends Controller
         // redirect them back to where they came from with their error message.
         return $response === Password::PASSWORD_RESET
             ? $this->sendResetResponse()
-            : $this->sendResetFailedResponse($request, $response);
+            : $this->sendResetFailedResponse($request, $response, $request->get('token'));
     }
 
     /**
@@ -83,7 +80,7 @@ class ResetPasswordController extends Controller
     /**
      * Get the response for a failed password reset.
      */
-    protected function sendResetFailedResponse(Request $request, string $response): RedirectResponse
+    protected function sendResetFailedResponse(Request $request, string $response, string $token): RedirectResponse
     {
         // We show invalid users as invalid tokens as to not leak what
         // users may exist in the system.
@@ -91,7 +88,7 @@ class ResetPasswordController extends Controller
             $response = Password::INVALID_TOKEN;
         }
 
-        return redirect()->back()
+        return redirect("/password/reset/{$token}")
             ->withInput($request->only('email'))
             ->withErrors(['email' => trans($response)]);
     }

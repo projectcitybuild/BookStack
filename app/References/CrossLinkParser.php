@@ -3,14 +3,14 @@
 namespace BookStack\References;
 
 use BookStack\App\Model;
+use BookStack\Entities\Queries\EntityQueries;
 use BookStack\References\ModelResolvers\BookLinkModelResolver;
 use BookStack\References\ModelResolvers\BookshelfLinkModelResolver;
 use BookStack\References\ModelResolvers\ChapterLinkModelResolver;
 use BookStack\References\ModelResolvers\CrossLinkModelResolver;
 use BookStack\References\ModelResolvers\PageLinkModelResolver;
 use BookStack\References\ModelResolvers\PagePermalinkModelResolver;
-use DOMDocument;
-use DOMXPath;
+use BookStack\Util\HtmlDocument;
 
 class CrossLinkParser
 {
@@ -54,13 +54,8 @@ class CrossLinkParser
     {
         $links = [];
 
-        $html = '<?xml encoding="utf-8" ?><body>' . $html . '</body>';
-        libxml_use_internal_errors(true);
-        $doc = new DOMDocument();
-        $doc->loadHTML($html);
-
-        $xPath = new DOMXPath($doc);
-        $anchors = $xPath->query('//a[@href]');
+        $doc = new HtmlDocument($html);
+        $anchors = $doc->queryXPath('//a[@href]');
 
         /** @var \DOMElement $anchor */
         foreach ($anchors as $anchor) {
@@ -91,12 +86,14 @@ class CrossLinkParser
      */
     public static function createWithEntityResolvers(): self
     {
+        $queries = app()->make(EntityQueries::class);
+
         return new self([
-            new PagePermalinkModelResolver(),
-            new PageLinkModelResolver(),
-            new ChapterLinkModelResolver(),
-            new BookLinkModelResolver(),
-            new BookshelfLinkModelResolver(),
+            new PagePermalinkModelResolver($queries->pages),
+            new PageLinkModelResolver($queries->pages),
+            new ChapterLinkModelResolver($queries->chapters),
+            new BookLinkModelResolver($queries->books),
+            new BookshelfLinkModelResolver($queries->shelves),
         ]);
     }
 }

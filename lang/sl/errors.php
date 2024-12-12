@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Uporabnik z e-pošto :email že obstaja, vendar z drugačnimi poverilnicami.',
+    'auth_pre_register_theme_prevention' => 'User account could not be registered for the provided details',
     'email_already_confirmed' => 'E-naslov je že bil potrjen, poskusite se prijaviti.',
     'email_confirmation_invalid' => 'Ta potrditveni žeton ni veljaven ali je že bil uporabljen. Poizkusite znova.',
     'email_confirmation_expired' => 'Potrditveni žeton je potekel. Nova potrditvena e-pošta je bila poslana.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'PHP razširitev za LDAP ni nameščena',
     'ldap_cannot_connect' => 'Ne morem se povezati na LDAP strežnik, neuspešna začetna povezava',
     'saml_already_logged_in' => 'Že prijavljen',
-    'saml_user_not_registered' => 'Uporabniško ime :name ni registrirano in avtomatska registracija je onemogočena',
     'saml_no_email_address' => 'Nisem našel e-naslova za tega uporabnika v podatkih iz zunanjega sistema za preverjanje pristnosti',
     'saml_invalid_response_id' => 'Zahteva iz zunanjega sistema za preverjanje pristnosti ni prepoznana s strani procesa zagnanega s strani te aplikacije. Pomik nazaj po prijavi je lahko vzrok teh težav.',
     'saml_fail_authed' => 'Prijava z uporabo :system ni uspela, sistem ni zagotovil uspešne avtorizacije',
     'oidc_already_logged_in' => 'Already logged in',
-    'oidc_user_not_registered' => 'The user :name is not registered and automatic registration is disabled',
     'oidc_no_email_address' => 'Could not find an email address, for this user, in the data provided by the external authentication system',
     'oidc_fail_authed' => 'Login using :system failed, system did not provide successful authorization',
     'social_no_action_defined' => 'Akcija ni določena',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Socialni vtičnik ni najden',
     'social_driver_not_configured' => 'Vaše nastavitve :socialAccount niso pravilo nastavljene.',
     'invite_token_expired' => 'Ta povezava je potekla. Namesto tega lahko ponastavite vaše geslo računa.',
+    'login_user_not_found' => 'A user for this action could not be found.',
 
     // System
     'path_not_writable' => 'Poti :filePath ni bilo mogoče naložiti. Prepričajte se, da je zapisljiva na strežnik.',
     'cannot_get_image_from_url' => 'Ne morem pridobiti slike z :url',
     'cannot_create_thumbs' => 'Strežnik ne more izdelati sličice. Prosimo preverite če imate GD PHP razširitev nameščeno.',
     'server_upload_limit' => 'Strežnik ne dovoli nalaganj take velikosti. Prosimo poskusite z manjšo velikostjo datoteke.',
+    'server_post_limit' => 'The server cannot receive the provided amount of data. Try again with less data or a smaller file.',
     'uploaded'  => 'Strežnik ne dovoli nalaganj take velikosti. Prosimo poskusite zmanjšati velikost datoteke.',
 
     // Drawing & Images
     'image_upload_error' => 'Prišlo je do napake med nalaganjem slike',
     'image_upload_type_error' => 'Napačen tip (format) slike',
+    'image_upload_replace_type' => 'Image file replacements must be of the same type',
+    'image_upload_memory_limit' => 'Failed to handle image upload and/or create thumbnails due to system resource limits.',
+    'image_thumbnail_memory_limit' => 'Failed to create image size variations due to system resource limits.',
+    'image_gallery_thumbnail_memory_limit' => 'Failed to create gallery thumbnails due to system resource limits.',
     'drawing_data_not_found' => 'Drawing data could not be loaded. The drawing file might no longer exist or you may not have permission to access it.',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => 'Osnutka ni bilo mogoče shraniti. Pred shranjevanjem te strani se prepričajte, da imate internetno povezavo',
+    'page_draft_delete_fail' => 'Failed to delete page draft and fetch current page saved content',
     'page_custom_home_deletion' => 'Ne morem izbrisati strani, ki je nastavljena kot domača stran',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Ne morete odstraniti edinega administratorja',
     'users_cannot_delete_guest' => 'Ne morete odstraniti uporabnika gost',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'Te vloge mi možno urejati',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Napaka se je pojavila pri pošiljanju testne e-pošte:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'The URL does not match the configured allowed SSR hosts',
 ];

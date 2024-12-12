@@ -7,72 +7,118 @@ return [
 
     // Pages
     'page_create'                 => 'ha creat la pàgina',
-    'page_create_notification'    => 'Pàgina creada correctament',
+    'page_create_notification'    => 'S’ha creat la pàgina',
     'page_update'                 => 'ha actualitzat la pàgina',
-    'page_update_notification'    => 'Pàgina actualitzada correctament',
-    'page_delete'                 => 'ha suprimit una pàgina',
-    'page_delete_notification'    => 'Imatge esborrada correctament',
+    'page_update_notification'    => 'S’ha actualitzat la pàgina',
+    'page_delete'                 => 'ha suprimit la pàgina',
+    'page_delete_notification'    => 'S’ha suprimit la pàgina',
     'page_restore'                => 'ha restaurat la pàgina',
-    'page_restore_notification'   => 'Pàgina restaurada correctament',
+    'page_restore_notification'   => 'S’ha restaurat la pàgina',
     'page_move'                   => 'ha mogut la pàgina',
+    'page_move_notification'      => 'S’ha mogut la pàgina',
 
     // Chapters
     'chapter_create'              => 'ha creat el capítol',
-    'chapter_create_notification' => 'Capítol creat correctament',
+    'chapter_create_notification' => 'S’ha creat el capítol',
     'chapter_update'              => 'ha actualitzat el capítol',
-    'chapter_update_notification' => 'Capítol actualitzat correctament',
-    'chapter_delete'              => 'ha suprimit un capítol',
-    'chapter_delete_notification' => 'Capítol esborrat correctament',
+    'chapter_update_notification' => 'S’ha actualitzat el capítol',
+    'chapter_delete'              => 'ha suprimit el capítol',
+    'chapter_delete_notification' => 'S’ha suprimit el capítol',
     'chapter_move'                => 'ha mogut el capítol',
+    'chapter_move_notification' => 'S’ha mogut el capítol',
 
     // Books
     'book_create'                 => 'ha creat el llibre',
-    'book_create_notification'    => 'Llibre creat correctament',
-    'book_create_from_chapter'              => 'converted chapter to book',
-    'book_create_from_chapter_notification' => 'Chapter successfully converted to a book',
+    'book_create_notification'    => 'S’ha creat el llibre',
+    'book_create_from_chapter'              => 'ha convertit el capítol a llibre',
+    'book_create_from_chapter_notification' => 'S’ha convertit el capítol a llibre',
     'book_update'                 => 'ha actualitzat el llibre',
-    'book_update_notification'    => 'Book successfully updated',
-    'book_delete'                 => 'ha suprimit un llibre',
-    'book_delete_notification'    => 'Book successfully deleted',
+    'book_update_notification'    => 'S’ha actualitzat el llibre',
+    'book_delete'                 => 'ha suprimit el llibre',
+    'book_delete_notification'    => 'S’ha suprimit el llibre',
     'book_sort'                   => 'ha ordenat el llibre',
-    'book_sort_notification'      => 'Book successfully re-sorted',
+    'book_sort_notification'      => 'S’ha tornat a ordenar el llibre',
 
     // Bookshelves
-    'bookshelf_create'            => 'created shelf',
-    'bookshelf_create_notification'    => 'Shelf successfully created',
-    'bookshelf_create_from_book'    => 'converted book to shelf',
-    'bookshelf_create_from_book_notification'    => 'Book successfully converted to a shelf',
-    'bookshelf_update'                 => 'updated shelf',
-    'bookshelf_update_notification'    => 'Shelf successfully updated',
-    'bookshelf_delete'                 => 'deleted shelf',
-    'bookshelf_delete_notification'    => 'Shelf successfully deleted',
+    'bookshelf_create'            => 'ha creat el prestatge',
+    'bookshelf_create_notification'    => 'S’ha creat el prestatge',
+    'bookshelf_create_from_book'    => 'ha convertit el llibre a prestatge',
+    'bookshelf_create_from_book_notification'    => 'S’ha convertit el llibre a prestatge',
+    'bookshelf_update'                 => 'ha actualitzat el prestatge',
+    'bookshelf_update_notification'    => 'S’ha actualitzat el prestatge',
+    'bookshelf_delete'                 => 'ha suprimit el prestatge',
+    'bookshelf_delete_notification'    => 'S’ha suprimit el prestatge',
+
+    // Revisions
+    'revision_restore' => 'ha restaurat la revisió',
+    'revision_delete' => 'ha suprimit la revisió',
+    'revision_delete_notification' => 'S’ha suprimit la revisió',
 
     // Favourites
-    'favourite_add_notification' => '":name" has been added to your favourites',
-    'favourite_remove_notification' => '":name" has been removed from your favourites',
+    'favourite_add_notification' => 'S’ha afegit &laquo;:name&raquo; als favorits.',
+    'favourite_remove_notification' => 'S’ha eliminat &laquo;:name&raquo; dels favorits.',
 
-    // MFA
-    'mfa_setup_method_notification' => 'Multi-factor method successfully configured',
-    'mfa_remove_method_notification' => 'Multi-factor method successfully removed',
+    // Watching
+    'watch_update_level_notification' => 'S’han actualitzat les preferències de seguiment',
+
+    // Auth
+    'auth_login' => 'ha iniciat sessió',
+    'auth_register' => 's’ha registrat com a usuari nou',
+    'auth_password_reset_request' => 'ha sol·licitat la reinicialització de la contrasenya',
+    'auth_password_reset_update' => 'ha reinicialitzat la contrasenya',
+    'mfa_setup_method' => 'ha configurat un mètode d’autenticació multifactorial',
+    'mfa_setup_method_notification' => 'S’ha configurat un mètode d’autenticació multifactorial',
+    'mfa_remove_method' => 'ha eliminat un mètode d’autenticació multifactorial',
+    'mfa_remove_method_notification' => 'S’ha eliminat un mètode d’autenticació multifactorial',
+
+    // Settings
+    'settings_update' => 'ha actualitzat la configuració',
+    'settings_update_notification' => 'S’ha actualitzat la configuració',
+    'maintenance_action_run' => 'ha executat una acció de manteniment',
 
     // Webhooks
-    'webhook_create' => 'created webhook',
-    'webhook_create_notification' => 'Webhook successfully created',
-    'webhook_update' => 'updated webhook',
-    'webhook_update_notification' => 'Webhook successfully updated',
-    'webhook_delete' => 'deleted webhook',
-    'webhook_delete_notification' => 'Webhook successfully deleted',
+    'webhook_create' => 'ha creat un webhook',
+    'webhook_create_notification' => 'S’ha creat el webhook',
+    'webhook_update' => 'ha actualitzat el webhook',
+    'webhook_update_notification' => 'S’ha actualitzat el webhook',
+    'webhook_delete' => 'ha suprimit el webhook',
+    'webhook_delete_notification' => 'S’ha suprimit el webhook',
 
     // Users
-    'user_update_notification' => 'User successfully updated',
-    'user_delete_notification' => 'User successfully removed',
+    'user_create' => 'ha creat l’usuari',
+    'user_create_notification' => 'S’ha creat l’usuari',
+    'user_update' => 'ha actualitzat l’usuari',
+    'user_update_notification' => 'S’ha actualitzat l’usuari',
+    'user_delete' => 'ha suprimit l’usuari',
+    'user_delete_notification' => 'S’ha suprimit l’usuari',
+
+    // API Tokens
+    'api_token_create' => 'ha creat el testimoni API',
+    'api_token_create_notification' => 'S’ha creat el testimoni API',
+    'api_token_update' => 'ha actualitzat el testimoni API',
+    'api_token_update_notification' => 'S’ha actualitzat el testimoni API',
+    'api_token_delete' => 'ha suprimit el testimoni API',
+    'api_token_delete_notification' => 'S’ha suprimit el testimoni API',
 
     // Roles
-    'role_create_notification' => 'Role successfully created',
-    'role_update_notification' => 'Role successfully updated',
-    'role_delete_notification' => 'Role successfully deleted',
+    'role_create' => 'ha creat el rol',
+    'role_create_notification' => 'S’ha creat el rol',
+    'role_update' => 'ha actualitzat el rol',
+    'role_update_notification' => 'S’ha actualitzat el rol',
+    'role_delete' => 'ha suprimit el rol',
+    'role_delete_notification' => 'S’ha suprimit el rol',
+
+    // Recycle Bin
+    'recycle_bin_empty' => 'ha buidat la paperera',
+    'recycle_bin_restore' => 'ha restaurat de la paperera',
+    'recycle_bin_destroy' => 'ha eliminat de la paperera',
+
+    // Comments
+    'commented_on'                => 'ha comentat a',
+    'comment_create'              => 'ha afegit un comentari',
+    'comment_update'              => 'ha actualitzat un comentari',
+    'comment_delete'              => 'ha suprimit un comentari',
 
     // Other
-    'commented_on'                => 'ha comentat a',
     'permissions_update'          => 'ha actualitzat els permisos',
 ];

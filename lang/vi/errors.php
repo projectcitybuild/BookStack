@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Đã có người sử dụng email :email nhưng với thông tin định danh khác.',
+    'auth_pre_register_theme_prevention' => 'User account could not be registered for the provided details',
     'email_already_confirmed' => 'Email đã được xác nhận trước đó, Đang đăng nhập.',
     'email_confirmation_invalid' => 'Token xác nhận này không hợp lệ hoặc đã được sử dụng trước đó, Xin hãy thử đăng ký lại.',
     'email_confirmation_expired' => 'Token xác nhận đã hết hạn, Một email xác nhận mới đã được gửi.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'Tiện ích mở rộng LDAP PHP chưa được cài đặt',
     'ldap_cannot_connect' => 'Không thể kết nối đến máy chủ LDAP, mở đầu kết nối thất bại',
     'saml_already_logged_in' => 'Đã đăng nhập',
-    'saml_user_not_registered' => 'Người dùng :name chưa được đăng ký và tự động đăng ký đang bị tắt',
     'saml_no_email_address' => 'Không tìm thấy địa chỉ email cho người dùng này trong dữ liệu được cung cấp bới hệ thống xác thực ngoài',
     'saml_invalid_response_id' => 'Yêu cầu từ hệ thống xác thực bên ngoài không được nhận diện bởi quy trình chạy cho ứng dụng này. Điều hướng trở lại sau khi đăng nhập có thể đã gây ra vấn đề này.',
     'saml_fail_authed' => 'Đăng nhập sử dụng :system thất bại, hệ thống không cung cấp được sự xác thực thành công',
     'oidc_already_logged_in' => 'Đã đăng nhập',
-    'oidc_user_not_registered' => 'Người dùng :name chưa được đăng ký và tự động đăng ký đang bị tắt',
     'oidc_no_email_address' => 'Không tìm thấy địa chỉ email cho người dùng này, trong dữ liệu được cung cấp bới hệ thống xác thực ngoài',
     'oidc_fail_authed' => 'Đăng nhập sử dụng :system thất bại, hệ thống không cung cấp được sự xác thực thành công',
     'social_no_action_defined' => 'Không có hành động được xác định',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Không tìm thấy driver cho MXH',
     'social_driver_not_configured' => 'Cài đặt MXH :socialAccount của bạn đang không được cấu hình hợp lệ.',
     'invite_token_expired' => 'Liên kết mời này đã hết hạn. Bạn có thể thử đặt lại mật khẩu của tài khoản.',
+    'login_user_not_found' => 'A user for this action could not be found.',
 
     // System
     'path_not_writable' => 'Đường dẫn tệp tin :filePath không thể tải đến được. Đảm bảo rằng đường dẫn này có thể ghi được ở trên máy chủ.',
     'cannot_get_image_from_url' => 'Không thể lấy ảnh từ :url',
     'cannot_create_thumbs' => 'Máy chủ không thể tạo ảnh nhỏ. Vui lòng kiểm tra bạn đã cài đặt tiện ích mở rộng GD PHP.',
     'server_upload_limit' => 'Máy chủ không cho phép tải lên kích thước này. Vui lòng thử lại với tệp tin nhỏ hơn.',
+    'server_post_limit' => 'The server cannot receive the provided amount of data. Try again with less data or a smaller file.',
     'uploaded'  => 'Máy chủ không cho phép tải lên kích thước này. Vui lòng thử lại với tệp tin nhỏ hơn.',
 
     // Drawing & Images
     'image_upload_error' => 'Đã xảy ra lỗi khi đang tải lên ảnh',
     'image_upload_type_error' => 'Ảnh đang được tải lên không hợp lệ',
+    'image_upload_replace_type' => 'Image file replacements must be of the same type',
+    'image_upload_memory_limit' => 'Failed to handle image upload and/or create thumbnails due to system resource limits.',
+    'image_thumbnail_memory_limit' => 'Failed to create image size variations due to system resource limits.',
+    'image_gallery_thumbnail_memory_limit' => 'Failed to create gallery thumbnails due to system resource limits.',
     'drawing_data_not_found' => 'Drawing data could not be loaded. The drawing file might no longer exist or you may not have permission to access it.',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => 'Lưu bản nháp thất bại. Đảm bảo rằng bạn có kết nối đến internet trước khi lưu trang này',
+    'page_draft_delete_fail' => 'Failed to delete page draft and fetch current page saved content',
     'page_custom_home_deletion' => 'Không thể xóa trang khi nó đang được đặt là trang chủ',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Bạn không thể xóa quản trị viên duy nhất',
     'users_cannot_delete_guest' => 'Bạn không thể xóa người dùng khách',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'Không thể chỉnh sửa quyền này',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Lỗi khi gửi email thử:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'The URL does not match the configured allowed SSR hosts',
 ];

@@ -9,7 +9,8 @@ return [
     'permissionJson' => 'Nemáte povolení k provedení požadované akce.',
 
     // Auth
-    'error_user_exists_different_creds' => 'Uživatel s emailem :email již existuje ale s jinými přihlašovacími údaji.',
+    'error_user_exists_different_creds' => 'Uživatel s emailem :email již existuje, ale s jinými přihlašovacími údaji.',
+    'auth_pre_register_theme_prevention' => 'Zadané údaje nedovolují zaregistrovat uživatelský účet',
     'email_already_confirmed' => 'Emailová adresa již byla potvrzena. Zkuste se přihlásit.',
     'email_confirmation_invalid' => 'Tento potvrzovací odkaz již neplatí nebo už byl použit. Zkuste prosím registraci znovu.',
     'email_confirmation_expired' => 'Tento potvrzovací odkaz již neplatí, byl Vám odeslán nový potvrzovací e-mail.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'Není nainstalováno rozšíření LDAP pro PHP',
     'ldap_cannot_connect' => 'Nelze se připojit k adresáři LDAP. Prvotní připojení selhalo.',
     'saml_already_logged_in' => 'Již jste přihlášeni',
-    'saml_user_not_registered' => 'Uživatel :name není registrován a automatická registrace je zakázána',
     'saml_no_email_address' => 'Nelze najít e-mailovou adresu pro tohoto uživatele v datech poskytnutých externím přihlašovacím systémem',
     'saml_invalid_response_id' => 'Požadavek z externího ověřovacího systému nebyl rozpoznám procesem, který tato aplikace spustila. Tento problém může způsobit stisknutí tlačítka Zpět po přihlášení.',
     'saml_fail_authed' => 'Přihlášení pomocí :system selhalo, systém neposkytl úspěšnou autorizaci',
     'oidc_already_logged_in' => 'Již jste přihlášeni',
-    'oidc_user_not_registered' => 'Uživatel :name není registrován a automatická registrace je zakázána',
     'oidc_no_email_address' => 'Nelze najít e-mailovou adresu pro tohoto uživatele v datech poskytnutých externím přihlašovacím systémem',
     'oidc_fail_authed' => 'Přihlášení pomocí :system selhalo, systém neposkytl úspěšnou autorizaci',
     'social_no_action_defined' => 'Nebyla zvolena žádá akce',
@@ -38,30 +37,37 @@ return [
     'social_driver_not_found' => 'Doplněk pro tohoto správce identity nebyl nalezen.',
     'social_driver_not_configured' => 'Nastavení vašeho účtu na :socialAccount není správné. :socialAccount musí mít vaše svolení pro naší aplikaci vás přihlásit.',
     'invite_token_expired' => 'Odkaz v pozvánce již bohužel vypršel. Namísto toho ale můžete zkusit resetovat heslo do Vašeho účtu.',
+    'login_user_not_found' => 'Uživatele pro tuto akci se nepodařilo najít.',
 
     // System
     'path_not_writable' => 'Nelze zapisovat na cestu k souboru :filePath. Zajistěte aby se dalo nahrávat na server.',
     'cannot_get_image_from_url' => 'Nelze získat obrázek z adresy :url',
     'cannot_create_thumbs' => 'Server nedokáže udělat náhledy. Zkontrolujte, že rozšíření GD pro PHP je nainstalováno.',
     'server_upload_limit' => 'Server nepovoluje nahrávat tak veliké soubory. Zkuste prosím menší soubor.',
+    'server_post_limit' => 'Server nemůže přijmout takové množství dat. Zkuste to znovu s méně daty nebo menším souborem.',
     'uploaded'  => 'Server nepovoluje nahrávat tak veliké soubory. Zkuste prosím menší soubor.',
 
     // Drawing & Images
     'image_upload_error' => 'Nastala chyba během nahrávání souboru',
     'image_upload_type_error' => 'Typ nahrávaného obrázku je neplatný.',
+    'image_upload_replace_type' => 'Náhrady souboru obrázku musí být stejného typu',
+    'image_upload_memory_limit' => 'Nepodařilo se zpracovat nahrávaný obrázek anebo vytvořit náhledy z důvodu omezených systémových prostředků.',
+    'image_thumbnail_memory_limit' => 'Nepodařilo se vytvořit všechny velikostní varianty obrázku z důvodu omezených systémových prostředků.',
+    'image_gallery_thumbnail_memory_limit' => 'Nepodařilo se vytvořit náhledy alba z důvodu omezených systémových prostředků.',
     'drawing_data_not_found' => 'Data výkresu nelze načíst. Výkresový soubor již nemusí existovat nebo nemusí mít oprávnění k němu přistupovat.',
 
     // Attachments
     'attachment_not_found' => 'Příloha nenalezena',
-    'attachment_upload_error' => 'An error occurred uploading the attachment file',
+    'attachment_upload_error' => 'Nastala chyba během nahrávání přiloženého souboru',
 
     // Pages
     'page_draft_autosave_fail' => 'Nepovedlo se uložit koncept. Než stránku uložíte, ujistěte se, že jste připojeni k internetu.',
+    'page_draft_delete_fail' => 'Nepodařilo se odstranit koncept stránky a načíst její aktuální obsah',
     'page_custom_home_deletion' => 'Nelze odstranit tuto stránku, protože je nastavena jako uvítací stránka',
 
     // Entities
     'entity_not_found' => 'Prvek nenalezen',
-    'bookshelf_not_found' => 'Knihovna nenalezena',
+    'bookshelf_not_found' => 'Police nenalezena',
     'book_not_found' => 'Kniha nenalezena',
     'page_not_found' => 'Stránka nenalezena',
     'chapter_not_found' => 'Kapitola nenalezena',
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Nemůžete odstranit posledního administrátora',
     'users_cannot_delete_guest' => 'Uživatele Host není možno odstranit',
+    'users_could_not_send_invite' => 'Nebylo možné vytvořit uživatele, protože se nepodařilo odeslat email s pozvánkou',
 
     // Roles
     'role_cannot_be_edited' => 'Tuto roli nelze editovat',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Při posílání testovacího e-mailu nastala chyba:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'URL adresa neodpovídá povoleným SSR poskytovatelům',
 ];

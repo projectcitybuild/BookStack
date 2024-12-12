@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'En bruger med email :email eksistere allerede, men med andre legitimationsoplysninger.',
+    'auth_pre_register_theme_prevention' => 'User account could not be registered for the provided details',
     'email_already_confirmed' => 'Email er allerede bekræftet. Prøv at logge ind.',
     'email_confirmation_invalid' => 'Denne bekræftelsestoken er ikke gyldig eller er allerede blevet brugt. Prøv at registrere dig igen.',
     'email_confirmation_expired' => 'Bekræftelsestoken er udløbet. En ny bekræftelsesmail er blevet sendt.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'LDAP PHP udvidelse er ikke installeret',
     'ldap_cannot_connect' => 'Kan ikke forbinde til ldap server. Indledende forbindelse mislykkedes',
     'saml_already_logged_in' => 'Allerede logget ind',
-    'saml_user_not_registered' => 'Brugeren :name er ikke registreret, og automatisk registrering er slået fra',
     'saml_no_email_address' => 'Kunne ikke finde en e-mail-adresse for denne bruger i de data, der leveres af det eksterne godkendelsessystem',
     'saml_invalid_response_id' => 'Anmodningen fra det eksterne godkendelsessystem genkendes ikke af en proces, der er startet af denne applikation. Navigering tilbage efter et login kan forårsage dette problem.',
     'saml_fail_authed' => 'Login ved hjælp af :system failed, systemet har ikke givet tilladelse',
     'oidc_already_logged_in' => 'Allerede logget ind',
-    'oidc_user_not_registered' => 'Brugeren :name er ikke registreret, og automatisk registrering er slået fra',
     'oidc_no_email_address' => 'Kunne ikke finde en e-mailadresse for denne bruger i de data, der leveres af det eksterne godkendelsessystem',
     'oidc_fail_authed' => 'Login ved hjælp af :system fejlede, systemet har ikke givet tilladelse',
     'social_no_action_defined' => 'Ingen handling er defineret',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Socialdriver ikke fundet',
     'social_driver_not_configured' => 'Dine :socialAccount indstillinger er ikke konfigureret korret.',
     'invite_token_expired' => 'Dette invitationslink er udløbet. I stedet kan du prøve at nulstille din kontos kodeord.',
+    'login_user_not_found' => 'A user for this action could not be found.',
 
     // System
     'path_not_writable' => 'Filsti :filePath kunne ikke uploades til. Sørg for at den kan skrives til af webserveren.',
     'cannot_get_image_from_url' => 'Kan ikke finde billede på :url',
     'cannot_create_thumbs' => 'Serveren kan ikke oprette miniaturer. Kontroller, at GD PHP-udvidelsen er installeret.',
     'server_upload_limit' => 'Serveren tillader ikke uploads af denne størrelse. Prøv en mindre filstørrelse.',
+    'server_post_limit' => 'The server cannot receive the provided amount of data. Try again with less data or a smaller file.',
     'uploaded'  => 'Serveren tillader ikke uploads af denne størrelse. Prøv en mindre filstørrelse.',
 
     // Drawing & Images
     'image_upload_error' => 'Der opstod en fejl ved upload af billedet',
     'image_upload_type_error' => 'Billedtypen, der uploades, er ugyldig',
+    'image_upload_replace_type' => 'Image file replacements must be of the same type',
+    'image_upload_memory_limit' => 'Failed to handle image upload and/or create thumbnails due to system resource limits.',
+    'image_thumbnail_memory_limit' => 'Failed to create image size variations due to system resource limits.',
+    'image_gallery_thumbnail_memory_limit' => 'Failed to create gallery thumbnails due to system resource limits.',
     'drawing_data_not_found' => 'Drawing data could not be loaded. The drawing file might no longer exist or you may not have permission to access it.',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => 'Kunne ikke gemme kladde. Tjek at du har internetforbindelse før du gemmer siden',
+    'page_draft_delete_fail' => 'Failed to delete page draft and fetch current page saved content',
     'page_custom_home_deletion' => 'Kan ikke slette en side der er sat som forside',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Du kan ikke slette den eneste admin',
     'users_cannot_delete_guest' => 'Du kan ikke slette gæstebrugeren',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'Denne rolle kan ikke redigeres',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Følgende fejl opstod under afsendelse af testemail:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'The URL does not match the configured allowed SSR hosts',
 ];

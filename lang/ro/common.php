@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Anulează',
+    'close' => 'Închide',
     'confirm' => 'Confirmă',
     'back' => 'Înapoi',
     'save' => 'Salvează',
@@ -19,7 +20,7 @@ return [
     'description' => 'Descriere',
     'role' => 'Rol',
     'cover_image' => 'Imagine copertă',
-    'cover_image_description' => 'Această imagine ar trebui să aibă aproximativ 440x250px.',
+    'cover_image_description' => 'This image should be approximately 440x250px although it will be flexibly scaled & cropped to fit the user interface in different scenarios as required, so actual dimensions for display will differ.',
 
     // Actions
     'actions' => 'Acțiuni',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Elimină',
     'add' => 'Adaugă',
     'configure' => 'Configurează',
+    'manage' => 'Gestionează',
     'fullscreen' => 'Ecran complet',
     'favourite' => 'Adaugă la favorite',
     'unfavourite' => 'Șterge de la favorite',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Șterge filtru',
     'download' => 'Descarcă',
     'open_in_tab' => 'Deschide in tab',
+    'open' => 'Open',
 
     // Sort Options
     'sort_options' => 'Opțiuni ordonare',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Politică de confidențialitate',
     'terms_of_service' => 'Termeni și condiții',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

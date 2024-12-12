@@ -16,7 +16,7 @@
                     <input type="hidden" name="{{ $key }}" value="{{ $val }}">
                 @endforeach
 
-                <div component="dropdown" class="list-sort-type dropdown-container">
+                <div component="dropdown" class="list-sort-type dropdown-container relative">
                     <label for="">{{ trans('settings.audit_event_filter') }}</label>
                     <button refs="dropdown@toggle"
                             type="button"
@@ -94,14 +94,8 @@
                                     class="mr-xs hide-over-m">{{ trans('settings.audit_table_event') }}
                                 :</strong> {{ $activity->type }}</div>
                         <div class="flex-3 px-m py-xxs min-width-l">
-                            @if($activity->entity)
-                                <a href="{{ $activity->entity->getUrl() }}" class="flex-container-row items-center">
-                                    <span role="presentation"
-                                          class="icon flex-none text-{{$activity->entity->getType()}}">@icon($activity->entity->getType())</span>
-                                    <div class="flex text-{{ $activity->entity->getType() }}">
-                                        {{ $activity->entity->name }}
-                                    </div>
-                                </a>
+                            @if($activity->loggable instanceof \BookStack\Entities\Models\Entity)
+                                @include('entities.icon-link', ['entity' => $activity->loggable])
                             @elseif($activity->detail && $activity->isForEntity())
                                 <div>
                                     {{ trans('settings.audit_deleted_item') }} <br>
@@ -111,11 +105,11 @@
                                 <div>{{ $activity->detail }}</div>
                             @endif
                         </div>
-                        <div class="flex-container-row flex-3">
-                            <div class="flex px-m py-xxs min-width-xs"><strong
+                        <div class="flex-container-row flex-3 min-width-m">
+                            <div class="flex-2 px-m py-xxs min-width-xs break-text"><strong
                                         class="mr-xs hide-over-m">{{ trans('settings.audit_table_ip') }}
                                     :<br></strong> {{ $activity->ip }}</div>
-                            <div class="flex-2 px-m py-xxs text-m-right min-width-xs"><strong
+                            <div class="flex-3 px-m py-xxs text-m-right min-width-xs"><strong
                                         class="mr-xs hide-over-m">{{ trans('settings.audit_table_date') }}
                                     :<br></strong> {{ $activity->created_at }}</div>
                         </div>

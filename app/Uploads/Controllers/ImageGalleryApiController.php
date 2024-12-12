@@ -2,10 +2,11 @@
 
 namespace BookStack\Uploads\Controllers;
 
-use BookStack\Entities\Models\Page;
+use BookStack\Entities\Queries\PageQueries;
 use BookStack\Http\ApiController;
 use BookStack\Uploads\Image;
 use BookStack\Uploads\ImageRepo;
+use BookStack\Uploads\ImageResizer;
 use Illuminate\Http\Request;
 
 class ImageGalleryApiController extends ApiController
@@ -15,7 +16,9 @@ class ImageGalleryApiController extends ApiController
     ];
 
     public function __construct(
-        protected ImageRepo $imageRepo
+        protected ImageRepo $imageRepo,
+        protected ImageResizer $imageResizer,
+        protected PageQueries $pageQueries,
     ) {
     }
 
@@ -52,8 +55,10 @@ class ImageGalleryApiController extends ApiController
 
     /**
      * Create a new image in the system.
+     *
      * Since "image" is expected to be a file, this needs to be a 'multipart/form-data' type request.
      * The provided "uploaded_to" should be an existing page ID in the system.
+     *
      * If the "name" parameter is omitted, the filename of the provided image file will be used instead.
      * The "type" parameter should be 'gallery' for page content images, and 'drawio' should only be used
      * when the file is a PNG file with diagrams.net image data embedded within.
@@ -62,9 +67,9 @@ class ImageGalleryApiController extends ApiController
     {
         $this->checkPermission('image-create-all');
         $data = $this->validate($request, $this->rules()['create']);
-        Page::visible()->findOrFail($data['uploaded_to']);
+        $page = $this->pageQueries->findVisibleByIdOrFail($data['uploaded_to']);
 
-        $image = $this->imageRepo->saveNew($data['image'], $data['type'], $data['uploaded_to']);
+        $image = $this->imageRepo->saveNew($data['image'], $data['type'], $page->id);
 
         if (isset($data['name'])) {
             $image->refresh();
@@ -128,14 +133,15 @@ class ImageGalleryApiController extends ApiController
      */
     protected function formatForSingleResponse(Image $image): array
     {
-        $this->imageRepo->loadThumbs($image);
-        $data = $image->getAttributes();
+        $this->imageResizer->loadGalleryThumbnailsForImage($image, false);
+        $data = $image->toArray();
         $data['created_by'] = $image->createdBy;
         $data['updated_by'] = $image->updatedBy;
         $data['content'] = [];
 
         $escapedUrl = htmlentities($image->url);
         $escapedName = htmlentities($image->name);
+
         if ($image->type === 'drawio') {
             $data['content']['html'] = "<div drawio-diagram=\"{$image->id}\"><img src=\"{$escapedUrl}\"></div>";
             $data['content']['markdown'] = $data['content']['html'];

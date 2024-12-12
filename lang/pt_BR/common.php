@@ -5,26 +5,32 @@
 return [
 
     // Buttons
-    'cancel' => 'Cancelar',
-    'confirm' => 'Confirmar',
-    'back' => 'Voltar',
-    'save' => 'Salvar',
-    'continue' => 'Continuar',
-    'select' => 'Selecionar',
-    'toggle_all' => 'Alternar Todos',
-    'more' => 'Mais',
+    'cancel' => 'Cancela',
+    'close' => 'Fecha',
+    'confirm' => 'Confirma',
+    'back' => 'Volta',
+    'save' => 'Salva',
+    'continue' => 'Continua',
+    'select' => 'Seleciona',
+    'toggle_all' => 'Alternar Tudo',
+    'more' => 'Mais
+',
 
     // Form Labels
-    'name' => 'Nome',
-    'description' => 'Descrição',
-    'role' => 'Cargo',
-    'cover_image' => 'Imagem de capa',
-    'cover_image_description' => 'Esta imagem deve ser aproximadamente 440x250px.',
+    'name' => 'Nome
+',
+    'description' => 'Descrição
+',
+    'role' => 'Função',
+    'cover_image' => 'Imagem da capa',
+    'cover_image_description' => 'Esta imagem deve ter cerca de 440x250px, embora seja dimensionada e cortada de forma flexível para se ajustar à "interface" do usuário em diferentes cenários, conforme necessário, portanto, as dimensões reais para exibição serão diferentes.',
 
     // Actions
-    'actions' => 'Ações',
+    'actions' => 'Ações
+',
     'view' => 'Visualizar',
-    'view_all' => 'Visualizar Tudo',
+    'view_all' => 'Visualizar Tudo
+',
     'new' => 'Novo',
     'create' => 'Criar',
     'update' => 'Atualizar',
@@ -41,15 +47,17 @@ return [
     'remove' => 'Remover',
     'add' => 'Adicionar',
     'configure' => 'Configurar',
+    'manage' => 'Administrar',
     'fullscreen' => 'Tela cheia',
-    'favourite' => 'Favoritos',
+    'favourite' => 'Favorito',
     'unfavourite' => 'Remover dos Favoritos',
     'next' => 'Seguinte',
     'previous' => 'Anterior',
     'filter_active' => 'Filtro Ativo:',
     'filter_clear' => 'Limpar Filtro',
-    'download' => 'Baixar',
+    'download' => 'Baixar ',
     'open_in_tab' => 'Abrir na aba',
+    'open' => 'Abrir',
 
     // Sort Options
     'sort_options' => 'Opções de Ordenação',
@@ -104,4 +112,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Políticas de Privacidade',
     'terms_of_service' => 'Termos de Serviço',
+
+    // OpenSearch
+    'opensearch_description' => 'Procurar: nome do aplicativo',
 ];

@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Batal',
+    'close' => 'Close',
     'confirm' => 'Konfirmasi',
     'back' => 'Kembali',
     'save' => 'Simpan',
@@ -19,7 +20,7 @@ return [
     'description' => 'Deskripsi',
     'role' => 'Peran',
     'cover_image' => 'Sampul gambar',
-    'cover_image_description' => 'Gambar ini harus berukuran kira-kira 440x250 piksel.',
+    'cover_image_description' => 'This image should be approximately 440x250px although it will be flexibly scaled & cropped to fit the user interface in different scenarios as required, so actual dimensions for display will differ.',
 
     // Actions
     'actions' => 'Tindakan',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Hapus',
     'add' => 'Tambah',
     'configure' => 'Configure',
+    'manage' => 'Manage',
     'fullscreen' => 'Layar Penuh',
     'favourite' => 'Favorit',
     'unfavourite' => 'Batal favorit',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Clear Filter',
     'download' => 'Download',
     'open_in_tab' => 'Open in Tab',
+    'open' => 'Open',
 
     // Sort Options
     'sort_options' => 'Opsi Sortir',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Kebijakan Privasi',
     'terms_of_service' => 'Ketentuan Layanan',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

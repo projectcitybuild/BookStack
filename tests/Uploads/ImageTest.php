@@ -104,10 +104,44 @@ class ImageTest extends TestCase
         $this->assertFileEquals($this->files->testFilePath('test-image.png'), public_path($relPath));
 
         $imageId = $imgDetails['response']->id;
+        $image = Image::findOrFail($imageId);
+        $image->updated_at = now()->subMonth();
+        $image->save();
+
         $this->call('PUT', "/images/{$imageId}/file", [], [], ['file' => $newUpload])
             ->assertOk();
 
         $this->assertFileEquals($this->files->testFilePath('compressed.png'), public_path($relPath));
+
+        $image->refresh();
+        $this->assertTrue($image->updated_at->gt(now()->subMinute()));
+
+        $this->files->deleteAtRelativePath($relPath);
+    }
+
+    public function test_image_file_update_allows_case_differences()
+    {
+        $page = $this->entities->page();
+        $this->asEditor();
+
+        $imgDetails = $this->files->uploadGalleryImageToPage($this, $page);
+        $relPath = $imgDetails['path'];
+
+        $newUpload = $this->files->uploadedImage('updated-image.PNG', 'compressed.png');
+        $this->assertFileEquals($this->files->testFilePath('test-image.png'), public_path($relPath));
+
+        $imageId = $imgDetails['response']->id;
+        $image = Image::findOrFail($imageId);
+        $image->updated_at = now()->subMonth();
+        $image->save();
+
+        $this->call('PUT', "/images/{$imageId}/file", [], [], ['file' => $newUpload])
+            ->assertOk();
+
+        $this->assertFileEquals($this->files->testFilePath('compressed.png'), public_path($relPath));
+
+        $image->refresh();
+        $this->assertTrue($image->updated_at->gt(now()->subMinute()));
 
         $this->files->deleteAtRelativePath($relPath);
     }
@@ -376,6 +410,29 @@ class ImageTest extends TestCase
         }
     }
 
+    public function test_secure_images_not_tracked_in_session_history()
+    {
+        config()->set('filesystems.images', 'local_secure');
+        $this->asEditor();
+        $page = $this->entities->page();
+        $result = $this->files->uploadGalleryImageToPage($this, $page);
+        $expectedPath = storage_path($result['path']);
+        $this->assertFileExists($expectedPath);
+
+        $this->get('/books');
+        $this->assertEquals(url('/books'), session()->previousUrl());
+
+        $resp = $this->get($result['path']);
+        $resp->assertOk();
+        $resp->assertHeader('Content-Type', 'image/png');
+
+        $this->assertEquals(url('/books'), session()->previousUrl());
+
+        if (file_exists($expectedPath)) {
+            unlink($expectedPath);
+        }
+    }
+
     public function test_system_images_remain_public_with_local_secure_restricted()
     {
         config()->set('filesystems.images', 'local_secure_restricted');
@@ -545,6 +602,64 @@ class ImageTest extends TestCase
         $this->files->deleteAtRelativePath($relPath);
     }
 
+    public function test_image_manager_regen_thumbnails()
+    {
+        $this->asEditor();
+        $imageName = 'first-image.png';
+        $relPath = $this->files->expectedImagePath('gallery', $imageName);
+        $this->files->deleteAtRelativePath($relPath);
+
+        $this->files->uploadGalleryImage($this, $imageName, $this->entities->page()->id);
+        $image = Image::first();
+
+        $resp = $this->get("/images/edit/{$image->id}");
+        $this->withHtml($resp)->assertElementExists('button#image-manager-rebuild-thumbs');
+
+        $expectedThumbPath = dirname($relPath) . '/scaled-1680-/' . basename($relPath);
+        $this->files->deleteAtRelativePath($expectedThumbPath);
+        $this->assertFileDoesNotExist($this->files->relativeToFullPath($expectedThumbPath));
+
+        $resp = $this->put("/images/{$image->id}/rebuild-thumbnails");
+        $resp->assertOk();
+
+        $this->assertFileExists($this->files->relativeToFullPath($expectedThumbPath));
+        $this->files->deleteAtRelativePath($relPath);
+    }
+
+    public function test_gif_thumbnail_generation()
+    {
+        $this->asAdmin();
+        $originalFile = $this->files->testFilePath('animated.gif');
+        $originalFileSize = filesize($originalFile);
+
+        $imgDetails = $this->files->uploadGalleryImageToPage($this, $this->entities->page(), 'animated.gif');
+        $relPath = $imgDetails['path'];
+
+        $this->assertTrue(file_exists(public_path($relPath)), 'Uploaded image found at path: ' . public_path($relPath));
+        $galleryThumb = $imgDetails['response']->thumbs->gallery;
+        $displayThumb = $imgDetails['response']->thumbs->display;
+
+        // Ensure display thumbnail is original image
+        $this->assertStringEndsWith($imgDetails['path'], $displayThumb);
+        $this->assertStringNotContainsString('thumbs', $displayThumb);
+
+        // Ensure gallery thumbnail is reduced image (single frame)
+        $galleryThumbRelPath = implode('/', array_slice(explode('/', $galleryThumb), 3));
+        $galleryThumbPath = public_path($galleryThumbRelPath);
+        $galleryFileSize = filesize($galleryThumbPath);
+
+        // Basic scan of GIF content to check frame count
+        $originalFrameCount = count(explode("\x00\x21\xF9", file_get_contents($originalFile)));
+        $galleryFrameCount = count(explode("\x00\x21\xF9", file_get_contents($galleryThumbPath)));
+
+        $this->files->deleteAtRelativePath($relPath);
+        $this->files->deleteAtRelativePath($galleryThumbRelPath);
+
+        $this->assertNotEquals($originalFileSize, $galleryFileSize);
+        $this->assertEquals(3, $originalFrameCount);
+        $this->assertEquals(1, $galleryFrameCount);
+    }
+
     protected function getTestProfileImage()
     {
         $imageName = 'profile.png';
@@ -576,7 +691,7 @@ class ImageTest extends TestCase
         $this->actingAs($editor);
 
         $file = $this->getTestProfileImage();
-        $this->call('PUT', '/settings/users/' . $editor->id, [], [], ['profile_image' => $file], []);
+        $this->call('PUT', '/my-account/profile', [], [], ['profile_image' => $file], []);
 
         $profileImages = Image::where('type', '=', 'user')->where('created_by', '=', $editor->id)->get();
         $this->assertTrue($profileImages->count() === 1, 'Found profile images does not match upload count');
@@ -584,7 +699,7 @@ class ImageTest extends TestCase
         $imagePath = public_path($profileImages->first()->path);
         $this->assertTrue(file_exists($imagePath));
 
-        $userDelete = $this->asAdmin()->delete("/settings/users/{$editor->id}");
+        $userDelete = $this->asAdmin()->delete($editor->getEditUrl());
         $userDelete->assertStatus(302);
 
         $this->assertDatabaseMissing('images', [

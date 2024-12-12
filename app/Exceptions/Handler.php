@@ -6,10 +6,13 @@ use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\ErrorHandler\Error\FatalError;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -36,6 +39,15 @@ class Handler extends ExceptionHandler
     ];
 
     /**
+     * A function to run upon out of memory.
+     * If it returns a response, that will be provided back to the request
+     * upon an out of memory event.
+     *
+     * @var ?callable(): ?Response
+     */
+    protected $onOutOfMemory = null;
+
+    /**
      * Report or log an exception.
      *
      * @param \Throwable $exception
@@ -59,6 +71,17 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
+        if ($e instanceof FatalError && str_contains($e->getMessage(), 'bytes exhausted (tried to allocate') && $this->onOutOfMemory) {
+            $response = call_user_func($this->onOutOfMemory);
+            if ($response) {
+                return $response;
+            }
+        }
+
+        if ($e instanceof PostTooLargeException) {
+            $e = new NotifyException(trans('errors.server_post_limit'), '/', 413);
+        }
+
         if ($this->isApiRequest($request)) {
             return $this->renderApiException($e);
         }
@@ -67,11 +90,29 @@ class Handler extends ExceptionHandler
     }
 
     /**
+     * Provide a function to be called when an out of memory event occurs.
+     * If the callable returns a response, this response will be returned
+     * to the request upon error.
+     */
+    public function prepareForOutOfMemory(callable $onOutOfMemory)
+    {
+        $this->onOutOfMemory = $onOutOfMemory;
+    }
+
+    /**
+     * Forget the current out of memory handler, if existing.
+     */
+    public function forgetOutOfMemoryHandler()
+    {
+        $this->onOutOfMemory = null;
+    }
+
+    /**
      * Check if the given request is an API request.
      */
     protected function isApiRequest(Request $request): bool
     {
-        return strpos($request->path(), 'api/') === 0;
+        return str_starts_with($request->path(), 'api/');
     }
 
     /**
@@ -82,7 +123,7 @@ class Handler extends ExceptionHandler
         $code = 500;
         $headers = [];
 
-        if ($e instanceof HttpException) {
+        if ($e instanceof HttpExceptionInterface) {
             $code = $e->getStatusCode();
             $headers = $e->getHeaders();
         }
@@ -101,10 +142,6 @@ class Handler extends ExceptionHandler
             $responseData['error']['message'] = 'The given data was invalid.';
             $responseData['error']['validation'] = $e->errors();
             $code = $e->status;
-        }
-
-        if (method_exists($e, 'getStatus')) {
-            $code = $e->getStatus();
         }
 
         $responseData['error']['code'] = $code;

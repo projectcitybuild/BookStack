@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Un usuario con el email :email ya existe pero con credenciales diferentes.',
+    'auth_pre_register_theme_prevention' => 'La cuenta de usuario no pudo ser registrada con los detalles proporcionados',
     'email_already_confirmed' => 'El email ya ha sido confirmado, Intente loguearse en la aplicación.',
     'email_confirmation_invalid' => 'Este token de confirmación no e válido o ya ha sido usado,Intente registrar uno nuevamente.',
     'email_confirmation_expired' => 'El token de confirmación ha expirado, Un nuevo email de confirmacón ha sido enviado.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'La extensión LDAP PHP no se encuentra instalada',
     'ldap_cannot_connect' => 'No se puede conectar con el servidor ldap, la conexión inicial ha fallado',
     'saml_already_logged_in' => 'Ya estás conectado',
-    'saml_user_not_registered' => 'El usuario :name no está registrado y el registro automático está deshabilitado',
     'saml_no_email_address' => 'No se pudo encontrar una dirección de correo electrónico, para este usuario, en los datos proporcionados por el sistema de autenticación externo',
     'saml_invalid_response_id' => 'La solicitud del sistema de autenticación externo no está reconocida por un proceso iniciado por esta aplicación. Navegar hacia atrás después de un inicio de sesión podría causar este problema.',
     'saml_fail_authed' => 'El inicio de sesión con :system falló, el sistema no proporcionó una autorización correcta',
     'oidc_already_logged_in' => 'Ya está conectado',
-    'oidc_user_not_registered' => 'El usuario :name no está registrado y el registro automático está deshabilitado',
     'oidc_no_email_address' => 'No se pudo encontrar una dirección de correo electrónico para este usuario en los datos proporcionados por el sistema de autenticación externo',
     'oidc_fail_authed' => 'El inicio de sesión con :system falló, el sistema no proporcionó una autorización correcta',
     'social_no_action_defined' => 'Acción no definida',
@@ -38,25 +37,32 @@ return [
     'social_driver_not_found' => 'Driver social no encontrado',
     'social_driver_not_configured' => 'Su configuración :socialAccount no es correcta.',
     'invite_token_expired' => 'El enace de la esta invitación expiró. Puede intentar restablecer la contraseña de su cuenta',
+    'login_user_not_found' => 'No se pudo encontrar un usuario para esta acción.',
 
     // System
     'path_not_writable' => 'La ruta :filePath no pudo ser cargada. Asegurese de que es escribible por el servidor.',
     'cannot_get_image_from_url' => 'No se puede obtener la imagen desde :url',
     'cannot_create_thumbs' => 'El servidor no puede crear la imagen miniatura. Por favor chequee que tiene la extensión GD instalada.',
     'server_upload_limit' => 'El servidor no permite la subida de ficheros de este tamañ. Por favor intente con un fichero de menor tamañ.',
+    'server_post_limit' => 'El servidor no puede recibir la cantidad de datos proporcionados. Inténtelo de nuevo con menos datos o un archivo más pequeño.',
     'uploaded'  => 'El servidor no permite subir archivos de este tamaño. Por favor intente un tamaño menor.',
 
     // Drawing & Images
     'image_upload_error' => 'Ha ocurrido un error al subir la imagen',
     'image_upload_type_error' => 'El tipo de imagen subida es inválido.',
-    'drawing_data_not_found' => 'No se han podido cargar los datos del dibujo. Puede que el archivo de dibujo ya no exista o que no tenga permiso para acceder a él.',
+    'image_upload_replace_type' => 'Los reemplazos de archivos de imágenes deben ser del mismo tipo',
+    'image_upload_memory_limit' => 'No se pudo gestionar la subida de imágenes y/o crear miniaturas debido a los límites de recursos del sistema.',
+    'image_thumbnail_memory_limit' => 'Error al crear imágenes de distintos tamaños debido a los límites de los recursos del sistema.',
+    'image_gallery_thumbnail_memory_limit' => 'Error al crear imágenes de previsualización de la galería debido a los límites de los recursos del sistema.',
+    'drawing_data_not_found' => 'No se pudieron cargar los datos del dibujo. Es probable que el archivo de dibujo ya no exista o que no tenga permiso para acceder a él.',
 
     // Attachments
     'attachment_not_found' => 'No se encuentra el objeto adjunto',
-    'attachment_upload_error' => 'Ha ocurrido un error al subir el archivo adjunto',
+    'attachment_upload_error' => 'Ocurrió un error al subir el archivo adjunto',
 
     // Pages
     'page_draft_autosave_fail' => 'Fallo al guardar borrador. Asegurese de que tiene conexión a Internet antes de guardar este borrador',
+    'page_draft_delete_fail' => 'Error al eliminar el borrador de la página y obtener el último contenido guardado',
     'page_custom_home_deletion' => 'No se puede eliminar una página cuando está configurada como página de inicio',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'No se puede borrar el único administrador',
     'users_cannot_delete_guest' => 'No se puede borrar el usuario invitado',
+    'users_could_not_send_invite' => 'No se pudo crear el usuario porque no se pudo enviar el correo de invitación',
 
     // Roles
     'role_cannot_be_edited' => 'Este rol no puede ser editado',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Error al enviar un email de prueba:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'La URL no coincide con los hosts SSR permitidos',
 ];

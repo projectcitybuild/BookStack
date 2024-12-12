@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'En användare med adressen :email finns redan.',
+    'auth_pre_register_theme_prevention' => 'User account could not be registered for the provided details',
     'email_already_confirmed' => 'E-posten har redan bekräftats, prova att logga in.',
     'email_confirmation_invalid' => 'Denna bekräftelsekod är inte giltig eller har redan använts. Vänligen prova att registrera dig på nytt.',
     'email_confirmation_expired' => 'Denna bekräftelsekod har gått ut. Vi har skickat dig en ny.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'LDAP PHP-tillägg inte installerat',
     'ldap_cannot_connect' => 'Kan inte ansluta till ldap-servern. Anslutningen misslyckades',
     'saml_already_logged_in' => 'Redan inloggad',
-    'saml_user_not_registered' => 'Användarnamnet är inte registrerat och automatisk registrering är inaktiverad',
     'saml_no_email_address' => 'Kunde inte hitta en e-postadress för den här användaren i data som tillhandahålls av det externa autentiseringssystemet',
     'saml_invalid_response_id' => 'En begäran från det externa autentiseringssystemet känns inte igen av en process som startats av denna applikation. Att navigera bakåt efter en inloggning kan orsaka detta problem.',
     'saml_fail_authed' => 'Inloggning med :system misslyckades, systemet godkände inte auktoriseringen',
     'oidc_already_logged_in' => 'Redan inloggad',
-    'oidc_user_not_registered' => 'Användaren :name är inte registrerad och automatisk registrering är inaktiverad',
     'oidc_no_email_address' => 'Kunde inte hitta en e-postadress för den här användaren i den data som tillhandahölls av det externa autentiseringssystemet',
     'oidc_fail_authed' => 'Inloggning med :system misslyckades, systemet presenterade inte en godkänd auktorisering',
     'social_no_action_defined' => 'Ingen åtgärd definierad',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Drivrutinen för den här tjänsten hittades inte',
     'social_driver_not_configured' => 'Dina inställningar för :socialAccount är inte korrekta.',
     'invite_token_expired' => 'Denna inbjudningslänk har löpt ut. Du kan istället försöka återställa ditt kontos lösenord.',
+    'login_user_not_found' => 'A user for this action could not be found.',
 
     // System
     'path_not_writable' => 'Kunde inte ladda upp till sökvägen :filePath. Kontrollera att webbservern har skrivåtkomst.',
     'cannot_get_image_from_url' => 'Kan inte hämta bild från :url',
     'cannot_create_thumbs' => 'Servern kan inte skapa miniatyrer. Kontrollera att du har PHPs GD-tillägg aktiverat.',
     'server_upload_limit' => 'Servern tillåter inte så här stora filer. Prova en mindre fil.',
+    'server_post_limit' => 'The server cannot receive the provided amount of data. Try again with less data or a smaller file.',
     'uploaded'  => 'Servern tillåter inte så här stora filer. Prova en mindre fil.',
 
     // Drawing & Images
     'image_upload_error' => 'Ett fel inträffade vid uppladdningen',
     'image_upload_type_error' => 'Filtypen du försöker ladda upp är ogiltig',
+    'image_upload_replace_type' => 'Image file replacements must be of the same type',
+    'image_upload_memory_limit' => 'Failed to handle image upload and/or create thumbnails due to system resource limits.',
+    'image_thumbnail_memory_limit' => 'Failed to create image size variations due to system resource limits.',
+    'image_gallery_thumbnail_memory_limit' => 'Failed to create gallery thumbnails due to system resource limits.',
     'drawing_data_not_found' => 'Drawing data could not be loaded. The drawing file might no longer exist or you may not have permission to access it.',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => 'Kunde inte spara utkastet. Kontrollera att du är ansluten till internet.',
+    'page_draft_delete_fail' => 'Failed to delete page draft and fetch current page saved content',
     'page_custom_home_deletion' => 'Det går inte att ta bort sidan medan den används som startsida',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Du kan inte ta bort den enda admin-användaren',
     'users_cannot_delete_guest' => 'Du kan inte ta bort gästanvändaren',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'Den här rollen kan inte redigeras',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Ett fel uppstod när ett test mail skulle skickas:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'The URL does not match the configured allowed SSR hosts',
 ];

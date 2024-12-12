@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'キャンセル',
+    'close' => '閉じる',
     'confirm' => '確認',
     'back' => '戻る',
     'save' => '保存',
@@ -19,7 +20,7 @@ return [
     'description' => '概要',
     'role' => '権限',
     'cover_image' => 'カバー画像',
-    'cover_image_description' => 'この画像はおよそ440x250pxの大きさが必要です。',
+    'cover_image_description' => 'この画像はおよそ440x250pxであるべきですが、必要に応じてさまざまなシナリオでユーザー・インターフェースに合うように柔軟に拡大・縮小されるため、実際の表示寸法は異なります。',
 
     // Actions
     'actions' => '実行',
@@ -41,6 +42,7 @@ return [
     'remove' => '削除',
     'add' => '追加',
     'configure' => '設定',
+    'manage' => '管理',
     'fullscreen' => '全画面',
     'favourite' => 'お気に入り',
     'unfavourite' => 'お気に入りから削除',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'フィルターを解除',
     'download' => 'ダウンロード',
     'open_in_tab' => 'タブで開く',
+    'open' => '開く',
 
     // Sort Options
     'sort_options' => '並べ替えオプション',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'プライバシーポリシー',
     'terms_of_service' => '利用規約',
+
+    // OpenSearch
+    'opensearch_description' => ':appName を検索',
 ];

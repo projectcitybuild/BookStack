@@ -1,13 +1,21 @@
 name: lint-js
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - '**.js'
+      - '**.json'
+  pull_request:
+    paths:
+      - '**.js'
+      - '**.json'
 
 jobs:
   build:
     if: ${{ github.ref != 'refs/heads/l10n_development' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
     - name: Install NPM deps
       run: npm ci

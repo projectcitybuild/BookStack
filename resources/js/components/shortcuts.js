@@ -25,21 +25,20 @@ export class Shortcuts extends Component {
 
     setupListeners() {
         window.addEventListener('keydown', event => {
-            if (event.target.closest('input, select, textarea, .cm-editor')) {
+            if (event.target.closest('input, select, textarea, .cm-editor, .editor-container')) {
                 return;
             }
 
-            this.handleShortcutPress(event);
-        });
-
-        window.addEventListener('keydown', event => {
             if (event.key === '?') {
                 if (this.hintsShowing) {
                     this.hideHints();
                 } else {
                     this.showHints();
                 }
+                return;
             }
+
+            this.handleShortcutPress(event);
         });
     }
 

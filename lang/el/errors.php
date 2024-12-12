@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Ένας χρήστης με email :email υπάρχει ήδη αλλά με διαφορετικά διαπιστευτήρια.',
+    'auth_pre_register_theme_prevention' => 'User account could not be registered for the provided details',
     'email_already_confirmed' => 'Το email έχει ήδη επιβεβαιωθεί, Δοκιμάστε να συνδεθείτε.',
     'email_confirmation_invalid' => 'Αυτό το διακριτικό επιβεβαίωσης δεν είναι έγκυρο ή έχει ήδη χρησιμοποιηθεί, Παρακαλώ δοκιμάστε να εγγραφείτε ξανά.',
     'email_confirmation_expired' => 'Το διακριτικό επιβεβαίωσης έχει λήξει, έχει σταλεί ένα νέο email επιβεβαίωσης.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'Η επέκταση LDAP PHP δεν εγκαταστάθηκε',
     'ldap_cannot_connect' => 'Αδυναμία σύνδεσης στο διακομιστή ldap, η αρχική σύνδεση απέτυχε',
     'saml_already_logged_in' => 'Ήδη συνδεδεμένος',
-    'saml_user_not_registered' => 'Ο χρήστης :name δεν είναι εγγεγραμμένος και η αυτόματη εγγραφή είναι απενεργοποιημένη',
     'saml_no_email_address' => 'Δεν ήταν δυνατή η εύρεση μιας διεύθυνσης ηλεκτρονικού ταχυδρομείου, για αυτόν τον χρήστη, στα δεδομένα που παρέχονται από το εξωτερικό σύστημα ελέγχου ταυτότητας',
     'saml_invalid_response_id' => 'Το αίτημα από το εξωτερικό σύστημα ελέγχου ταυτότητας δεν αναγνωρίζεται από μια διαδικασία που ξεκίνησε από αυτή την εφαρμογή. Η πλοήγηση πίσω μετά από μια σύνδεση θα μπορούσε να προκαλέσει αυτό το ζήτημα.',
     'saml_fail_authed' => 'Η σύνδεση με τη χρήση :system απέτυχε, το σύστημα δεν παρείχε επιτυχή εξουσιοδότηση',
     'oidc_already_logged_in' => 'Ήδη συνδεδεμένος',
-    'oidc_user_not_registered' => 'Ο χρήστης :name δεν είναι εγγεγραμμένος και η αυτόματη εγγραφή είναι απενεργοποιημένη',
     'oidc_no_email_address' => 'Δεν ήταν δυνατή η εύρεση μιας διεύθυνσης ηλεκτρονικού ταχυδρομείου, για αυτόν τον χρήστη, στα δεδομένα που παρέχονται από το εξωτερικό σύστημα ελέγχου ταυτότητας',
     'oidc_fail_authed' => 'Η σύνδεση με τη χρήση :system απέτυχε, το σύστημα δεν παρείχε επιτυχή εξουσιοδότηση',
     'social_no_action_defined' => 'Καμία ενέργεια δεν ορίστηκε',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Δεν βρέθηκε κοινωνικός οδηγός',
     'social_driver_not_configured' => 'Οι κοινωνικές ρυθμίσεις του :socialAccount δεν έχουν ρυθμιστεί σωστά.',
     'invite_token_expired' => 'Αυτός ο σύνδεσμος πρόσκλησης έχει λήξει. Αντ\' αυτού μπορείτε να προσπαθήσετε να επαναφέρετε τον κωδικό πρόσβασής σας.',
+    'login_user_not_found' => 'A user for this action could not be found.',
 
     // System
     'path_not_writable' => 'Η διαδρομή αρχείου :filePath δεν μπόρεσε να μεταφορτωθεί. Βεβαιωθείτε ότι είναι εγγράψιμη στο διακομιστή.',
     'cannot_get_image_from_url' => 'Αδυναμία λήψης εικόνας από :url',
     'cannot_create_thumbs' => 'Ο διακομιστής δεν μπορεί να δημιουργήσει μικρογραφίες. Παρακαλώ ελέγξτε ότι έχετε την επέκταση GD PHP εγκατεστημένη.',
     'server_upload_limit' => 'Ο διακομιστής δεν επιτρέπει τη μεταφόρτωση αυτού του μεγέθους. Παρακαλώ δοκιμάστε ένα μικρότερο μέγεθος αρχείου.',
+    'server_post_limit' => 'The server cannot receive the provided amount of data. Try again with less data or a smaller file.',
     'uploaded'  => 'Ο διακομιστής δεν επιτρέπει τη μεταφόρτωση αυτού του μεγέθους. Παρακαλώ δοκιμάστε ένα μικρότερο μέγεθος αρχείου.',
 
     // Drawing & Images
     'image_upload_error' => 'Παρουσιάστηκε σφάλμα κατά το ανέβασμα της εικόνας.',
     'image_upload_type_error' => 'Ο τύπος εικόνας που μεταφορτώθηκε δεν είναι έγκυρος',
+    'image_upload_replace_type' => 'Image file replacements must be of the same type',
+    'image_upload_memory_limit' => 'Failed to handle image upload and/or create thumbnails due to system resource limits.',
+    'image_thumbnail_memory_limit' => 'Failed to create image size variations due to system resource limits.',
+    'image_gallery_thumbnail_memory_limit' => 'Failed to create gallery thumbnails due to system resource limits.',
     'drawing_data_not_found' => 'Δεν ήταν δυνατή η φόρτωση δεδομένων σχεδίασης. Το αρχείο σχεδίασης ενδέχεται να μην υπάρχει πλέον ή ενδέχεται να μην έχετε άδεια πρόσβασης σε αυτά.',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => 'Αποτυχία αποθήκευσης προσχέδιου. Βεβαιωθείτε ότι έχετε σύνδεση στο διαδίκτυο πριν την αποθήκευση αυτής της σελίδας',
+    'page_draft_delete_fail' => 'Failed to delete page draft and fetch current page saved content',
     'page_custom_home_deletion' => 'Δεν μπορεί να διαγραφεί μια σελίδα ενώ έχει οριστεί ως αρχική σελίδα',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Δεν μπορείτε να διαγράψετε τον μοναδικό διαχειριστή',
     'users_cannot_delete_guest' => 'Δεν μπορείτε να διαγράψετε τον επισκέπτη',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'Αυτός ο ρόλος δεν μπορεί να επεξεργαστεί',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Σφάλμα κατά την αποστολή δοκιμαστικού email:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'The URL does not match the configured allowed SSR hosts',
 ];

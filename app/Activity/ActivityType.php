@@ -27,6 +27,10 @@ class ActivityType
     const BOOKSHELF_DELETE = 'bookshelf_delete';
 
     const COMMENTED_ON = 'commented_on';
+    const COMMENT_CREATE = 'comment_create';
+    const COMMENT_UPDATE = 'comment_update';
+    const COMMENT_DELETE = 'comment_delete';
+
     const PERMISSIONS_UPDATE = 'permissions_update';
 
     const REVISION_RESTORE = 'revision_restore';
@@ -62,6 +66,10 @@ class ActivityType
     const WEBHOOK_CREATE = 'webhook_create';
     const WEBHOOK_UPDATE = 'webhook_update';
     const WEBHOOK_DELETE = 'webhook_delete';
+
+    const IMPORT_CREATE = 'import_create';
+    const IMPORT_RUN = 'import_run';
+    const IMPORT_DELETE = 'import_delete';
 
     /**
      * Get all the possible values.

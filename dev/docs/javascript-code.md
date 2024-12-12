@@ -85,18 +85,18 @@ Will result with `this.$opts` being:
 A component has the below shown properties & methods available for use. As mentioned above, most of these should be used within the `setup()` function to make the requirements/dependencies of the component clear.
 
 ```javascript
-// The root element that the compontent has been applied to.
+// The root element that the component has been applied to.
 this.$el
 
-// A map of defined element references within the compontent.
+// A map of defined element references within the component.
 // See "Element References" above.
 this.$refs
 
-// A map of defined multi-element references within the compontent.
+// A map of defined multi-element references within the component.
 // See "Element References" above.
 this.$manyRefs
 
-// Options defined for the compontent.
+// Options defined for the component.
 this.$opts
 
 // The registered name of the component, usually kebab-case.
@@ -137,8 +137,8 @@ window.$events.showValidationErrors(error);
 // Translator
 // Take the given plural text and count to decide on what plural option
 // to use, Similar to laravel's trans_choice function but instead
-// takes the direction directly instead of a translation key.
-window.trans_plural(translationString, count, replacements);
+// takes the translation text directly instead of a translation key.
+window.$trans.choice(translationString, count, replacements);
 
 // Component System
 // Parse and initialise any components from the given root el down.

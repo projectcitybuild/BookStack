@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Mae defnyddiwr gyda\'r e-bost :email eisoes yn bodoli ond gyda nodweddion gwahanol.',
+    'auth_pre_register_theme_prevention' => 'Nid oedd modd cofrestru cyfrif defnyddiwr ar gyfer y manylion a ddarparwyd',
     'email_already_confirmed' => 'E-bost eisoes wedi\'i gadarnhau, Ceisiwch fewngofnodi.',
     'email_confirmation_invalid' => 'Nid yw\'r tocyn cadarnhau hwn yn ddilys neu mae eisoes wedi\'i ddefnyddio. Ceisiwch gofrestru eto.',
     'email_confirmation_expired' => 'Mae\'r tocyn cadarnhad wedi dod i ben, Mae e-bost cadarnhau newydd wedi\'i anfon.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'Estyniad PHP LDAP heb ei osod',
     'ldap_cannot_connect' => 'Methu cysylltu i weinydd ldap, cysylltiad cychwynnol wedi methu',
     'saml_already_logged_in' => 'Wedi mewngofnodi yn barod',
-    'saml_user_not_registered' => 'Nid yw\'r defnyddiwr :name wedi\'i gofrestru ac mae cofrestriad awtomatig wedi\'i analluogi',
     'saml_no_email_address' => 'Methu dod o hyd i gyfeiriad e-bost, ar gyfer y defnyddiwr hwn, yn y data a ddarparwyd gan y system ddilysu allanol',
     'saml_invalid_response_id' => 'Nid yw\'r cais o\'r system ddilysu allanol yn cael ei gydnabod gan broses a ddechreuwyd gan y cais hwn. Gallai llywio yn ôl ar ôl mewngofnodi achosi\'r broblem hon.',
     'saml_fail_authed' => 'Wedi methu mewngofnodi gan ddefnyddio :system, ni roddodd y system awdurdodiad llwyddiannus',
     'oidc_already_logged_in' => 'Wedi mewngofnodi yn barod',
-    'oidc_user_not_registered' => 'Nid yw\'r defnyddiwr :name wedi\'i gofrestru ac mae cofrestriad awtomatig wedi\'i analluogi',
     'oidc_no_email_address' => 'Methu dod o hyd i gyfeiriad e-bost, ar gyfer y defnyddiwr hwn, yn y data a ddarparwyd gan y system ddilysu allanol',
     'oidc_fail_authed' => 'Wedi methu mewngofnodi gan ddefnyddio :system, ni roddodd y system awdurdodiad llwyddiannus',
     'social_no_action_defined' => 'Dim gweithred wedi\'i diffinio',
@@ -38,30 +37,37 @@ return [
     'social_driver_not_found' => 'Gyrrwr cymdeithasol heb ei ganfod',
     'social_driver_not_configured' => 'Nid yw eich gosodiadau cymdeithasol :socialAccount wedi\'u ffurfweddu\'n gywir.',
     'invite_token_expired' => 'Mae\'r ddolen wahoddiad hon wedi dod i ben. Yn lle hynny, gallwch chi geisio ailosod cyfrinair eich cyfrif.',
+    'login_user_not_found' => 'Nid oedd modd dod o hyd i ddefnyddiwr ar gyfer y weithred hon.',
 
     // System
     'path_not_writable' => 'Nid oedd modd uwchlwytho llwybr ffeil :filePath. Sicrhewch ei fod yn ysgrifenadwy i\'r gweinydd.',
     'cannot_get_image_from_url' => 'Methu cael delwedd o :url',
     'cannot_create_thumbs' => 'Ni all y gweinydd greu mân-luniau. Gwiriwch fod gennych yr estyniad GD PHP wedi\'i osod.',
     'server_upload_limit' => 'Nid yw\'r gweinydd yn caniatáu uwchlwythiadau o\'r maint hwn. Rhowch gynnig ar faint ffeil llai.',
+    'server_post_limit' => 'Ni all y gweinydd dderbyn y swm o ddata a ddarparwyd. Rhowch gynnig arall arni eto gyda llai o ddata neu ffeil lai.',
     'uploaded'  => 'Nid yw\'r gweinydd yn caniatáu uwchlwythiadau o\'r maint hwn. Rhowch gynnig ar faint ffeil llai.',
 
     // Drawing & Images
     'image_upload_error' => 'Bu gwall wrth uwchlwytho\'r ddelwedd',
     'image_upload_type_error' => 'Mae\'r math o ddelwedd sy\'n cael ei huwchlwytho yn annilys',
-    'drawing_data_not_found' => 'Drawing data could not be loaded. The drawing file might no longer exist or you may not have permission to access it.',
+    'image_upload_replace_type' => 'Rhaid i ffeiliau delwedd a newidir fod o\'r un math',
+    'image_upload_memory_limit' => 'Methwyd â thrin y llun a uwchlwythwyd a/neu greu mân-luniau oherwydd cyfyngiadau i adnoddau’r system.',
+    'image_thumbnail_memory_limit' => 'Methwyd â chreu amrywiadau i faint y llun oherwydd cyfyngiadau i adnoddau’r system.',
+    'image_gallery_thumbnail_memory_limit' => 'Methwyd â chreu oriel o fân-luniau oherwydd cyfyngiadau i adnoddau’r system.',
+    'drawing_data_not_found' => 'Nid oedd modd llwytho\'r data dylunio. Efallai nad yw’r ffeil ddylunio yn bodoli mwyach neu efallai nad oes gennych ganiatâd i\'w defnyddio.',
 
     // Attachments
     'attachment_not_found' => 'Ni chanfuwyd yr atodiad',
-    'attachment_upload_error' => 'An error occurred uploading the attachment file',
+    'attachment_upload_error' => 'Digwyddodd gwall wrth uwchlwytho’r ffeil atodiad',
 
     // Pages
     'page_draft_autosave_fail' => 'Wedi methu cadw\'r drafft. Sicrhewch fod gennych gysylltiad rhyngrwyd cyn cadw\'r dudalen hon',
+    'page_draft_delete_fail' => 'Methwyd â dileu’r dudalen ddrafft a chyrchu cynnwys y dudalen gyfredol',
     'page_custom_home_deletion' => 'Methu dileu tudalen tra ei bod wedi\'i gosod fel hafan',
 
     // Entities
     'entity_not_found' => 'Endid heb ei ganfod',
-    'bookshelf_not_found' => 'Shelf not found',
+    'bookshelf_not_found' => 'Ni chanfuwyd y silff',
     'book_not_found' => 'Ni chanfuwyd y llyfr',
     'page_not_found' => 'Heb ganfod y dudalen',
     'chapter_not_found' => 'Pennod heb ei chanfod',
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Ni allwch ddileu\'r unig weinyddwr',
     'users_cannot_delete_guest' => 'Ni allwch ddileu\'r defnyddiwr gwadd',
+    'users_could_not_send_invite' => 'Methu creu defnyddiwr oherwydd ni fu modd anfon e-bost gwahodd',
 
     // Roles
     'role_cannot_be_edited' => 'Nid oes modd golygu\'r rôl hon',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Gwall a daflwyd wrth anfon e-bost prawf:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'Nid yw\'r URL yn cyd-fynd â\'r gwesteion SSR ffurfweddu a ganiateir',
 ];

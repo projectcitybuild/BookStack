@@ -16,22 +16,12 @@ use Laravel\Socialite\Contracts\User as SocialUser;
 
 class SocialController extends Controller
 {
-    protected SocialAuthService $socialAuthService;
-    protected RegistrationService $registrationService;
-    protected LoginService $loginService;
-
-    /**
-     * SocialController constructor.
-     */
     public function __construct(
-        SocialAuthService $socialAuthService,
-        RegistrationService $registrationService,
-        LoginService $loginService
+        protected SocialAuthService $socialAuthService,
+        protected RegistrationService $registrationService,
+        protected LoginService $loginService,
     ) {
         $this->middleware('guest')->only(['register']);
-        $this->socialAuthService = $socialAuthService;
-        $this->registrationService = $registrationService;
-        $this->loginService = $loginService;
     }
 
     /**
@@ -89,7 +79,7 @@ class SocialController extends Controller
             try {
                 return $this->socialAuthService->handleLoginCallback($socialDriver, $socialUser);
             } catch (SocialSignInAccountNotUsed $exception) {
-                if ($this->socialAuthService->driverAutoRegisterEnabled($socialDriver)) {
+                if ($this->socialAuthService->drivers()->isAutoRegisterEnabled($socialDriver)) {
                     return $this->socialRegisterCallback($socialDriver, $socialUser);
                 }
 
@@ -101,7 +91,7 @@ class SocialController extends Controller
             return $this->socialRegisterCallback($socialDriver, $socialUser);
         }
 
-        return redirect()->back();
+        return redirect('/');
     }
 
     /**
@@ -112,7 +102,7 @@ class SocialController extends Controller
         $this->socialAuthService->detachSocialAccount($socialDriver);
         session()->flash('success', trans('settings.users_social_disconnected', ['socialAccount' => Str::title($socialDriver)]));
 
-        return redirect(user()->getEditUrl());
+        return redirect('/my-account/auth#social-accounts');
     }
 
     /**
@@ -124,7 +114,7 @@ class SocialController extends Controller
     {
         $socialUser = $this->socialAuthService->handleRegistrationCallback($socialDriver, $socialUser);
         $socialAccount = $this->socialAuthService->newSocialAccount($socialDriver, $socialUser);
-        $emailVerified = $this->socialAuthService->driverAutoConfirmEmailEnabled($socialDriver);
+        $emailVerified = $this->socialAuthService->drivers()->isAutoConfirmEmailEnabled($socialDriver);
 
         // Create an array of the user data to create a new user instance
         $userData = [

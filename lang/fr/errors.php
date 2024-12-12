@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Un utilisateur avec l\'adresse :email existe déjà.',
+    'auth_pre_register_theme_prevention' => 'Le compte utilisateur n\'a pas pu être enregistré avec les informations fournies',
     'email_already_confirmed' => 'Cet e-mail a déjà été validé, vous pouvez vous connecter.',
     'email_confirmation_invalid' => 'Cette confirmation est invalide. Veuillez essayer de vous inscrire à nouveau.',
     'email_confirmation_expired' => 'Le jeton de confirmation est périmé. Un nouvel e-mail vous a été envoyé.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'L\'extension PHP LDAP n\'est pas installée',
     'ldap_cannot_connect' => 'Impossible de se connecter au serveur LDAP, la connexion initiale a échoué',
     'saml_already_logged_in' => 'Déjà connecté',
-    'saml_user_not_registered' => 'L\'utilisateur :name n\'est pas enregistré et l\'enregistrement automatique est désactivé',
     'saml_no_email_address' => 'Impossible de trouver une adresse e-mail, pour cet utilisateur, dans les données fournies par le système d\'authentification externe',
     'saml_invalid_response_id' => 'La requête du système d\'authentification externe n\'est pas reconnue par un processus démarré par cette application. Naviguer après une connexion peut causer ce problème.',
     'saml_fail_authed' => 'Connexion avec :system échouée, le système n\'a pas fourni l\'autorisation réussie',
     'oidc_already_logged_in' => 'Déjà connecté',
-    'oidc_user_not_registered' => 'L\'utilisateur :name n\'est pas enregistré et l\'enregistrement automatique est désactivé',
     'oidc_no_email_address' => 'Impossible de trouver une adresse e-mail pour cet utilisateur, dans les données fournies par le système d\'authentification externe',
     'oidc_fail_authed' => 'La connexion en utilisant :system a échoué, le système n\'a pas fourni d\'autorisation avec succès',
     'social_no_action_defined' => 'Pas d\'action définie',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Pilote de compte de réseaux sociaux absent',
     'social_driver_not_configured' => 'Vos préférences pour le compte :socialAccount sont incorrectes.',
     'invite_token_expired' => 'Le lien de cette invitation a expiré. Vous pouvez essayer de réinitialiser votre mot de passe.',
+    'login_user_not_found' => 'Impossible de trouver un utilisateur pour cette action.',
 
     // System
     'path_not_writable' => 'Impossible d\'écrire dans :filePath. Assurez-vous d\'avoir les droits d\'écriture sur le serveur',
     'cannot_get_image_from_url' => 'Impossible de récupérer l\'image depuis :url',
     'cannot_create_thumbs' => 'Le serveur ne peut pas créer de miniature, vérifier que l\'extension PHP GD est installée.',
     'server_upload_limit' => 'La taille du fichier est trop grande.',
+    'server_post_limit' => 'Le serveur ne peut pas recevoir la quantité de données fournie. Réessayez avec moins de données ou un fichier plus petit.',
     'uploaded'  => 'Le serveur n\'autorise pas l\'envoi d\'un fichier de cette taille. Veuillez essayer avec une taille de fichier réduite.',
 
     // Drawing & Images
     'image_upload_error' => 'Une erreur est survenue pendant l\'envoi de l\'image',
     'image_upload_type_error' => 'Le format de l\'image envoyée n\'est pas valide',
+    'image_upload_replace_type' => 'Le fichier image doit être remplacé par une image du même type',
+    'image_upload_memory_limit' => 'Impossible de gérer le chargement de l\'image et/ou la création de miniatures en raison de limitations de ressources du système.',
+    'image_thumbnail_memory_limit' => 'Impossible de créer les variations de taille d\'image en raison des limitations de ressources du système.',
+    'image_gallery_thumbnail_memory_limit' => 'Impossible de créer les vignettes de la galerie en raison de limitations de ressources du système.',
     'drawing_data_not_found' => 'Les données de dessin n\'ont pas pu être chargées. Le fichier de dessin peut ne plus exister ou vous n\'avez pas la permission d\'y accéder.',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => 'Le brouillon n\'a pas pu être enregistré. Vérifiez votre connexion internet',
+    'page_draft_delete_fail' => 'Impossible de supprimer le brouillon et de récupérer le contenu sauvegardé de la page actuelle',
     'page_custom_home_deletion' => 'Impossible de supprimer une page définie comme page d\'accueil',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Vous ne pouvez pas supprimer le dernier administrateur',
     'users_cannot_delete_guest' => 'Vous ne pouvez pas supprimer l\'utilisateur invité',
+    'users_could_not_send_invite' => 'Impossible de créer l\'utilisateur à cause d\'une erreur d\'envoi de l\'email d\'invitation',
 
     // Roles
     'role_cannot_be_edited' => 'Ce rôle ne peut pas être modifié',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Erreur émise lors de l\'envoi d\'un e-mail de test :',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'L\'URL ne correspond pas aux hôtes SSR autorisés configurés',
 ];

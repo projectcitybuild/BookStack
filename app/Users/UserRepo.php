@@ -2,6 +2,7 @@
 
 namespace BookStack\Users;
 
+use BookStack\Access\UserInviteException;
 use BookStack\Access\UserInviteService;
 use BookStack\Activity\ActivityType;
 use BookStack\Entities\EntityProvider;
@@ -18,17 +19,12 @@ use Illuminate\Support\Str;
 
 class UserRepo
 {
-    protected UserAvatars $userAvatar;
-    protected UserInviteService $inviteService;
-
-    /**
-     * UserRepo constructor.
-     */
-    public function __construct(UserAvatars $userAvatar, UserInviteService $inviteService)
-    {
-        $this->userAvatar = $userAvatar;
-        $this->inviteService = $inviteService;
+    public function __construct(
+        protected UserAvatars $userAvatar,
+        protected UserInviteService $inviteService
+    ) {
     }
+
 
     /**
      * Get a user by their email address.
@@ -88,6 +84,7 @@ class UserRepo
      * As per "createWithoutActivity" but records a "create" activity.
      *
      * @param array{name: string, email: string, password: ?string, external_auth_id: ?string, language: ?string, roles: ?array} $data
+     * @throws UserInviteException
      */
     public function create(array $data, bool $sendInvite = false): User
     {
@@ -155,6 +152,7 @@ class UserRepo
         $user->apiTokens()->delete();
         $user->favourites()->delete();
         $user->mfaValues()->delete();
+        $user->watches()->delete();
         $user->delete();
 
         // Delete user profile images

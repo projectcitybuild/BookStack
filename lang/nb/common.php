@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Avbryt',
+    'close' => 'Lukk',
     'confirm' => 'Bekreft',
     'back' => 'Tilbake',
     'save' => 'Lagre',
@@ -19,7 +20,7 @@ return [
     'description' => 'Beskrivelse',
     'role' => 'Rolle',
     'cover_image' => 'Forside',
-    'cover_image_description' => 'Bildet bør være ca. 440x250px.',
+    'cover_image_description' => 'Dette bildet bør være omtrent 440x250px selv om det vil bli fleksibelt skalert og beskjært slik at brukergrensesnittet passer til forskjellige scenarier ved behov. Dette betyr at de faktiske dimensjonene for visning varierer.',
 
     // Actions
     'actions' => 'Handlinger',
@@ -41,15 +42,17 @@ return [
     'remove' => 'Fjern',
     'add' => 'Legg til',
     'configure' => 'Konfigurer',
+    'manage' => 'Administrer',
     'fullscreen' => 'Fullskjerm',
-    'favourite' => 'Favorisér',
-    'unfavourite' => 'Avfavorisér',
+    'favourite' => 'Favoriser',
+    'unfavourite' => 'Avfavoriser',
     'next' => 'Neste',
     'previous' => 'Forrige',
     'filter_active' => 'Aktivt filter:',
     'filter_clear' => 'Tøm filter',
     'download' => 'Last ned',
     'open_in_tab' => 'Åpne i fane',
+    'open' => 'Åpne',
 
     // Sort Options
     'sort_options' => 'Sorteringsalternativer',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Personvernregler',
     'terms_of_service' => 'Bruksvilkår',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

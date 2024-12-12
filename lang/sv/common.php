@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Avbryt',
+    'close' => 'Stäng',
     'confirm' => 'Bekräfta',
     'back' => 'Bakåt',
     'save' => 'Spara',
@@ -19,13 +20,13 @@ return [
     'description' => 'Beskrivning',
     'role' => 'Roll',
     'cover_image' => 'Omslagsbild',
-    'cover_image_description' => 'Bilden bör vara cirka 440x250px.',
+    'cover_image_description' => 'Denna bild bör vara ungefär 440x250px även om den kommer att vara flexibelt skalad och beskuren för att passa användargränssnittet i olika scenarier där så krävs, kommer faktiska visningsmått att skilja sig.',
 
     // Actions
     'actions' => 'Åtgärder',
     'view' => 'Visa',
     'view_all' => 'Visa alla',
-    'new' => 'New',
+    'new' => 'Ny',
     'create' => 'Skapa',
     'update' => 'Uppdatera',
     'edit' => 'Redigera',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Radera',
     'add' => 'Lägg till',
     'configure' => 'Konfigurera',
+    'manage' => 'Hantera',
     'fullscreen' => 'Helskärm',
     'favourite' => 'Favorit',
     'unfavourite' => 'Ta bort favorit',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Rensa filter',
     'download' => 'Ladda ner',
     'open_in_tab' => 'Öppna i flik',
+    'open' => 'Öppna',
 
     // Sort Options
     'sort_options' => 'Sorteringsalternativ',
@@ -81,14 +84,14 @@ return [
     'none' => 'Inga',
 
     // Header
-    'homepage' => 'Homepage',
+    'homepage' => 'Startsida',
     'header_menu_expand' => 'Expandera sidhuvudsmenyn',
     'profile_menu' => 'Profilmeny',
     'view_profile' => 'Visa profil',
     'edit_profile' => 'Redigera profil',
     'dark_mode' => 'Mörkt läge',
     'light_mode' => 'Ljust läge',
-    'global_search' => 'Global Search',
+    'global_search' => 'Global sökning',
 
     // Layout tabs
     'tab_info' => 'Information',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Integritetspolicy',
     'terms_of_service' => 'Användarvillkor',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

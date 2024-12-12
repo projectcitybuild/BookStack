@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Atcelt',
+    'close' => 'Aizvērt',
     'confirm' => 'Apstiprināt',
     'back' => 'Atpakaļ',
     'save' => 'Saglabāt',
@@ -19,7 +20,7 @@ return [
     'description' => 'Apraksts',
     'role' => 'Loma',
     'cover_image' => 'Vāka attēls',
-    'cover_image_description' => 'Šim attēlam būtu jābūt aptuveni 440x250px.',
+    'cover_image_description' => 'Šim attēlam jābūt apmēram 440x250px izmērā, taču tas tiks pielāgots lietotāja saskarnei dažādos scenārijos pēc nepieciešamības, un attēla izmēri tad var atšķirties.',
 
     // Actions
     'actions' => 'Darbības',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Noņemt',
     'add' => 'Pievienot',
     'configure' => 'Mainīt konfigurāciju',
+    'manage' => 'Pārvaldīt',
     'fullscreen' => 'Pilnekrāns',
     'favourite' => 'Pievienot favorītiem',
     'unfavourite' => 'Noņemt no favorītiem',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Notīrīt filtru',
     'download' => 'Lejupielādēt',
     'open_in_tab' => 'Atvērt cilnē',
+    'open' => 'Atvērt',
 
     // Sort Options
     'sort_options' => 'Kārtošanas Opcijas',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Privātuma politika',
     'terms_of_service' => 'Pakalpojuma noteikumi',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];

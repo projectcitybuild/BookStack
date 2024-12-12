@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class PageContentTest extends TestCase
 {
-    protected $base64Jpeg = '/9j/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/yQALCAABAAEBAREA/8wABgAQEAX/2gAIAQEAAD8A0s8g/9k=';
+    protected string $base64Jpeg = '/9j/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/yQALCAABAAEBAREA/8wABgAQEAX/2gAIAQEAAD8A0s8g/9k=';
 
     public function test_page_includes()
     {
@@ -57,38 +57,6 @@ class PageContentTest extends TestCase
         $this->assertEquals('', $page->text);
     }
 
-    public function test_page_includes_do_not_break_tables()
-    {
-        $page = $this->entities->page();
-        $secondPage = $this->entities->page();
-
-        $content = '<table id="table"><tbody><tr><td>test</td></tr></tbody></table>';
-        $secondPage->html = $content;
-        $secondPage->save();
-
-        $page->html = "{{@{$secondPage->id}#table}}";
-        $page->save();
-
-        $pageResp = $this->asEditor()->get($page->getUrl());
-        $pageResp->assertSee($content, false);
-    }
-
-    public function test_page_includes_do_not_break_code()
-    {
-        $page = $this->entities->page();
-        $secondPage = $this->entities->page();
-
-        $content = '<pre id="bkmrk-code"><code>var cat = null;</code></pre>';
-        $secondPage->html = $content;
-        $secondPage->save();
-
-        $page->html = "{{@{$secondPage->id}#bkmrk-code}}";
-        $page->save();
-
-        $pageResp = $this->asEditor()->get($page->getUrl());
-        $pageResp->assertSee($content, false);
-    }
-
     public function test_page_includes_rendered_on_book_export()
     {
         $page = $this->entities->page();
@@ -118,6 +86,19 @@ class PageContentTest extends TestCase
         $pageResp = $this->asEditor()->get($page->getUrl());
         $this->withHtml($pageResp)->assertElementContains('#bkmrk-test', 'Hello Barry Hello Barry Hello Barry Hello Barry ' . $tag);
         $this->withHtml($pageResp)->assertElementNotContains('#bkmrk-test', 'Hello Barry Hello Barry Hello Barry Hello Barry Hello Barry ' . $tag);
+    }
+
+    public function test_page_includes_to_nonexisting_pages_does_not_error()
+    {
+        $page = $this->entities->page();
+        $missingId = Page::query()->max('id') + 1;
+        $tag = "{{@{$missingId}}}";
+        $page->html = '<p id="bkmrk-test">Hello Barry ' . $tag . '</p>';
+        $page->save();
+
+        $pageResp = $this->asEditor()->get($page->getUrl());
+        $pageResp->assertOk();
+        $pageResp->assertSee('Hello Barry');
     }
 
     public function test_page_content_scripts_removed_by_default()
@@ -488,6 +469,20 @@ class PageContentTest extends TestCase
         ], $navMap[2]);
     }
 
+    public function test_get_page_nav_respects_non_breaking_spaces()
+    {
+        $content = '<h1 id="testa">Hello&nbsp;There</h1>';
+        $pageContent = new PageContent(new Page(['html' => $content]));
+        $navMap = $pageContent->getNavigation($content);
+
+        $this->assertEquals([
+            'nodeName' => 'h1',
+            'link'     => '#testa',
+            'text'     => 'Hello There',
+            'level'    => 1,
+        ], $navMap[0]);
+    }
+
     public function test_page_text_decodes_html_entities()
     {
         $page = $this->entities->page();
@@ -649,6 +644,35 @@ class PageContentTest extends TestCase
         }
     }
 
+    public function test_base64_images_within_html_blanked_if_no_image_create_permission()
+    {
+        $editor = $this->users->editor();
+        $page = $this->entities->page();
+        $this->permissions->removeUserRolePermissions($editor, ['image-create-all']);
+
+        $this->actingAs($editor)->put($page->getUrl(), [
+            'name' => $page->name,
+            'html' => '<p>test<img src="data:image/jpeg;base64,' . $this->base64Jpeg . '"/></p>',
+        ]);
+
+        $page->refresh();
+        $this->assertStringMatchesFormat('%A<p%A>test<img src="">%A</p>%A', $page->html);
+    }
+
+    public function test_base64_images_within_html_blanked_if_content_does_not_appear_like_an_image()
+    {
+        $page = $this->entities->page();
+
+        $imgContent = base64_encode('file://test/a/b/c');
+        $this->asEditor()->put($page->getUrl(), [
+            'name' => $page->name,
+            'html' => '<p>test<img src="data:image/jpeg;base64,' . $imgContent . '"/></p>',
+        ]);
+
+        $page->refresh();
+        $this->assertStringMatchesFormat('%A<p%A>test<img src="">%A</p>%A', $page->html);
+    }
+
     public function test_base64_images_get_extracted_from_markdown_page_content()
     {
         $this->asEditor();
@@ -682,7 +706,7 @@ class PageContentTest extends TestCase
         ini_set('pcre.backtrack_limit', '500');
         ini_set('pcre.recursion_limit', '500');
 
-        $content = str_repeat('a', 5000);
+        $content = str_repeat(base64_decode($this->base64Jpeg), 50);
         $base64Content = base64_encode($content);
 
         $this->put($page->getUrl(), [
@@ -713,6 +737,34 @@ class PageContentTest extends TestCase
             'markdown' => 'test ![test](data:image/jiff;base64,' . $this->base64Jpeg . ')',
         ]);
 
+        $this->assertStringContainsString('<img src=""', $page->refresh()->html);
+    }
+
+    public function test_base64_images_within_markdown_blanked_if_no_image_create_permission()
+    {
+        $editor = $this->users->editor();
+        $page = $this->entities->page();
+        $this->permissions->removeUserRolePermissions($editor, ['image-create-all']);
+
+        $this->actingAs($editor)->put($page->getUrl(), [
+            'name' => $page->name,
+            'markdown' => 'test ![test](data:image/jpeg;base64,' . $this->base64Jpeg . ')',
+        ]);
+
+        $this->assertStringContainsString('<img src=""', $page->refresh()->html);
+    }
+
+    public function test_base64_images_within_markdown_blanked_if_content_does_not_appear_like_an_image()
+    {
+        $page = $this->entities->page();
+
+        $imgContent = base64_encode('file://test/a/b/c');
+        $this->asEditor()->put($page->getUrl(), [
+            'name' => $page->name,
+            'markdown' => 'test ![test](data:image/jpeg;base64,' . $imgContent . ')',
+        ]);
+
+        $page->refresh();
         $this->assertStringContainsString('<img src=""', $page->refresh()->html);
     }
 

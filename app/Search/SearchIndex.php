@@ -6,7 +6,7 @@ use BookStack\Activity\Models\Tag;
 use BookStack\Entities\EntityProvider;
 use BookStack\Entities\Models\Entity;
 use BookStack\Entities\Models\Page;
-use DOMDocument;
+use BookStack\Util\HtmlDocument;
 use DOMNode;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -30,7 +30,7 @@ class SearchIndex
     {
         $this->deleteEntityTerms($entity);
         $terms = $this->entityToTermDataArray($entity);
-        SearchTerm::query()->insert($terms);
+        $this->insertTerms($terms);
     }
 
     /**
@@ -46,10 +46,7 @@ class SearchIndex
             array_push($terms, ...$entityTerms);
         }
 
-        $chunkedTerms = array_chunk($terms, 500);
-        foreach ($chunkedTerms as $termChunk) {
-            SearchTerm::query()->insert($termChunk);
-        }
+        $this->insertTerms($terms);
     }
 
     /**
@@ -100,6 +97,19 @@ class SearchIndex
     }
 
     /**
+     * Insert the given terms into the database.
+     * Chunks through the given terms to remain within database limits.
+     * @param array[] $terms
+     */
+    protected function insertTerms(array $terms): void
+    {
+        $chunkedTerms = array_chunk($terms, 500);
+        foreach ($chunkedTerms as $termChunk) {
+            SearchTerm::query()->insert($termChunk);
+        }
+    }
+
+    /**
      * Create a scored term array from the given text, where the keys are the terms
      * and the values are their scores.
      *
@@ -138,16 +148,11 @@ class SearchIndex
             'h6' => 1.5,
         ];
 
-        $html = '<?xml encoding="utf-8" ?><body>' . $html . '</body>';
         $html = str_ireplace(['<br>', '<br />', '<br/>'], "\n", $html);
+        $doc = new HtmlDocument($html);
 
-        libxml_use_internal_errors(true);
-        $doc = new DOMDocument();
-        $doc->loadHTML($html);
-
-        $topElems = $doc->documentElement->childNodes->item(0)->childNodes;
         /** @var DOMNode $child */
-        foreach ($topElems as $child) {
+        foreach ($doc->getBodyChildren() as $child) {
             $nodeName = $child->nodeName;
             $termCounts = $this->textToTermCountMap(trim($child->textContent));
             foreach ($termCounts as $term => $count) {
@@ -168,7 +173,6 @@ class SearchIndex
      */
     protected function generateTermScoreMapFromTags(array $tags): array
     {
-        $scoreMap = [];
         $names = [];
         $values = [];
 

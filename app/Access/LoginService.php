@@ -5,6 +5,7 @@ namespace BookStack\Access;
 use BookStack\Access\Mfa\MfaSession;
 use BookStack\Activity\ActivityType;
 use BookStack\Exceptions\LoginAttemptException;
+use BookStack\Exceptions\LoginAttemptInvalidUserException;
 use BookStack\Exceptions\StoppedAuthenticationException;
 use BookStack\Facades\Activity;
 use BookStack\Facades\Theme;
@@ -16,13 +17,11 @@ class LoginService
 {
     protected const LAST_LOGIN_ATTEMPTED_SESSION_KEY = 'auth-login-last-attempted';
 
-    protected $mfaSession;
-    protected $emailConfirmationService;
-
-    public function __construct(MfaSession $mfaSession, EmailConfirmationService $emailConfirmationService)
-    {
-        $this->mfaSession = $mfaSession;
-        $this->emailConfirmationService = $emailConfirmationService;
+    public function __construct(
+        protected MfaSession $mfaSession,
+        protected EmailConfirmationService $emailConfirmationService,
+        protected SocialDriverManager $socialDriverManager,
+    ) {
     }
 
     /**
@@ -31,10 +30,14 @@ class LoginService
      * a reason to (MFA or Unconfirmed Email).
      * Returns a boolean to indicate the current login result.
      *
-     * @throws StoppedAuthenticationException
+     * @throws StoppedAuthenticationException|LoginAttemptInvalidUserException
      */
     public function login(User $user, string $method, bool $remember = false): void
     {
+        if ($user->isGuest()) {
+            throw new LoginAttemptInvalidUserException('Login not allowed for guest user');
+        }
+
         if ($this->awaitingEmailConfirmation($user) || $this->needsMfaVerification($user)) {
             $this->setLastLoginAttemptedForUser($user, $method, $remember);
 
@@ -60,7 +63,7 @@ class LoginService
      *
      * @throws Exception
      */
-    public function reattemptLoginFor(User $user)
+    public function reattemptLoginFor(User $user): void
     {
         if ($user->id !== ($this->getLastLoginAttemptUser()->id ?? null)) {
             throw new Exception('Login reattempt user does align with current session state');
@@ -154,13 +157,66 @@ class LoginService
      */
     public function attempt(array $credentials, string $method, bool $remember = false): bool
     {
+        if ($this->areCredentialsForGuest($credentials)) {
+            return false;
+        }
+
         $result = auth()->attempt($credentials, $remember);
         if ($result) {
             $user = auth()->user();
             auth()->logout();
-            $this->login($user, $method, $remember);
+            try {
+                $this->login($user, $method, $remember);
+            } catch (LoginAttemptInvalidUserException $e) {
+                // Catch and return false for non-login accounts
+                // so it looks like a normal invalid login.
+                return false;
+            }
         }
 
         return $result;
+    }
+
+    /**
+     * Check if the given credentials are likely for the system guest account.
+     */
+    protected function areCredentialsForGuest(array $credentials): bool
+    {
+        if (isset($credentials['email'])) {
+            return User::query()->where('email', '=', $credentials['email'])
+                ->where('system_name', '=', 'public')
+                ->exists();
+        }
+
+        return false;
+    }
+
+    /**
+     * Logs the current user out of the application.
+     * Returns an app post-redirect path.
+     */
+    public function logout(): string
+    {
+        auth()->logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return $this->shouldAutoInitiate() ? '/login?prevent_auto_init=true' : '/';
+    }
+
+    /**
+     * Check if login auto-initiate should be active based upon authentication config.
+     */
+    public function shouldAutoInitiate(): bool
+    {
+        $autoRedirect = config('auth.auto_initiate');
+        if (!$autoRedirect) {
+            return false;
+        }
+
+        $socialDrivers = $this->socialDriverManager->getActive();
+        $authMethod = config('auth.method');
+
+        return count($socialDrivers) === 0 && in_array($authMethod, ['oidc', 'saml2']);
     }
 }

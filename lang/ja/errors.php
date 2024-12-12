@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => ':emailを持つユーザは既に存在しますが、資格情報が異なります。',
+    'auth_pre_register_theme_prevention' => '指定された内容によるユーザーアカウントの登録はできません。',
     'email_already_confirmed' => 'Eメールは既に確認済みです。ログインしてください。',
     'email_confirmation_invalid' => 'この確認トークンは無効か、または既に使用済みです。登録を再試行してください。',
     'email_confirmation_expired' => '確認トークンは有効期限切れです。確認メールを再送しました。',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'LDAP PHP extensionがインストールされていません',
     'ldap_cannot_connect' => 'LDAPサーバに接続できませんでした',
     'saml_already_logged_in' => '既にログインしています',
-    'saml_user_not_registered' => 'ユーザー :name は登録されておらず、自動登録は無効になっています',
     'saml_no_email_address' => '外部認証システムから提供されたデータに、このユーザーのメールアドレスが見つかりませんでした',
     'saml_invalid_response_id' => '外部認証システムからの要求がアプリケーションによって開始されたプロセスによって認識されません。ログイン後に戻るとこの問題が発生する可能性があります。',
     'saml_fail_authed' => ':systemを利用したログインに失敗しました。システムは正常な認証を提供しませんでした。',
     'oidc_already_logged_in' => '既にログインしています',
-    'oidc_user_not_registered' => 'ユーザー :name は登録されておらず、自動登録は無効になっています',
     'oidc_no_email_address' => '外部認証システムから提供されたデータに、このユーザーのメールアドレスが見つかりませんでした',
     'oidc_fail_authed' => ':systemを利用したログインに失敗しました。システムは正常な認証を提供しませんでした。',
     'social_no_action_defined' => 'アクションが定義されていません',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Social driverが見つかりません',
     'social_driver_not_configured' => 'あなたの:socialAccount設定は正しく構成されていません。',
     'invite_token_expired' => 'この招待リンクの有効期限が切れています。 代わりにアカウントのパスワードをリセットしてみてください。',
+    'login_user_not_found' => 'このアクションのユーザーが見つかりません。',
 
     // System
     'path_not_writable' => 'ファイルパス :filePath へアップロードできませんでした。サーバ上での書き込みが許可されているか確認してください。',
     'cannot_get_image_from_url' => ':url から画像を取得できませんでした。',
     'cannot_create_thumbs' => 'このサーバはサムネイルを作成できません。GD PHP extensionがインストールされていることを確認してください。',
     'server_upload_limit' => 'このサイズの画像をアップロードすることは許可されていません。ファイルサイズを小さくし、再試行してください。',
+    'server_post_limit' => 'サーバーは提供されたデータ量を受け取ることができません。少ないデータまたは小さいファイルでもう一度お試しください。',
     'uploaded'  => 'このサイズの画像をアップロードすることは許可されていません。ファイルサイズを小さくし、再試行してください。',
 
     // Drawing & Images
     'image_upload_error' => '画像アップロード時にエラーが発生しました。',
     'image_upload_type_error' => 'アップロード中の画像の種類が無効です',
+    'image_upload_replace_type' => '画像ファイルの置き換えは同じ種類でなければなりません',
+    'image_upload_memory_limit' => 'システムリソースの制限により、画像のアップロードやサムネイルの作成に失敗しました。',
+    'image_thumbnail_memory_limit' => 'システムリソース制限のため、画像サイズのバリエーションを作成できませんでした。',
+    'image_gallery_thumbnail_memory_limit' => 'システムリソース制限のため、ギャラリーのサムネイルを作成できませんでした。',
     'drawing_data_not_found' => '描画データを読み込めませんでした。描画ファイルが存在しないか、アクセス権限がありません。',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => '下書きの保存に失敗しました。インターネットへ接続してください。',
+    'page_draft_delete_fail' => '下書きページの削除および現在ページ内容の取得に失敗しました。',
     'page_custom_home_deletion' => 'ホームページに設定されているページは削除できません',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => '唯一の管理者を削除することはできません',
     'users_cannot_delete_guest' => 'ゲストユーザを削除することはできません',
+    'users_could_not_send_invite' => '招待メールの送信に失敗したため、ユーザーを作成できませんでした。',
 
     // Roles
     'role_cannot_be_edited' => 'この役割は編集できません',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'テストメール送信時にエラーが発生しました:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'URLはサーバサイドリクエストが許可されたホストではありません。',
 ];

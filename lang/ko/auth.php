@@ -29,7 +29,7 @@ return [
     'already_have_account' => '계정이 있나요?',
     'dont_have_account' => '계정이 없나요?',
     'social_login' => '소셜 로그인',
-    'social_registration' => '소셜 가입',
+    'social_registration' => '소셜 계정으로 가입',
     'social_registration_text' => '소셜 계정으로 가입하고 로그인합니다.',
 
     'register_thanks' => '가입해 주셔서 감사합니다!',
@@ -91,7 +91,7 @@ return [
     'mfa_option_totp_title' => '모바일 앱',
     'mfa_option_totp_desc' => '다중 인증에는 Google Authenticator, Authy나 Microsoft Authenticator와 같은 TOTP 지원 모바일 앱이 필요합니다.',
     'mfa_option_backup_codes_title' => '백업 코드',
-    'mfa_option_backup_codes_desc' => '일회성 백업 코드를 안전한 장소에 보관하세요.',
+    'mfa_option_backup_codes_desc' => '로그인 시 인증에 사용되는 일회용 백업 코드를 만듭니다. 이 백업 코드는 안전한 곳에 보관하세요.',
     'mfa_gen_confirm_and_enable' => '확인 및 활성화',
     'mfa_gen_backup_codes_title' => '백업 코드 설정',
     'mfa_gen_backup_codes_desc' => '코드 목록을 안전한 장소에 보관하세요. 코드 중 하나를 2FA에 쓸 수 있습니다.',

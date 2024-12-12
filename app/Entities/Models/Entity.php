@@ -10,6 +10,7 @@ use BookStack\Activity\Models\Loggable;
 use BookStack\Activity\Models\Tag;
 use BookStack\Activity\Models\View;
 use BookStack\Activity\Models\Viewable;
+use BookStack\Activity\Models\Watch;
 use BookStack\App\Model;
 use BookStack\App\Sluggable;
 use BookStack\Entities\Tools\SlugGenerator;
@@ -56,12 +57,17 @@ abstract class Entity extends Model implements Sluggable, Favouritable, Viewable
     /**
      * @var string - Name of property where the main text content is found
      */
-    public $textField = 'description';
+    public string $textField = 'description';
+
+    /**
+     * @var string - Name of the property where the main HTML content is found
+     */
+    public string $htmlField = 'description_html';
 
     /**
      * @var float - Multiplier for search indexing.
      */
-    public $searchFactor = 1.0;
+    public float $searchFactor = 1.0;
 
     /**
      * Get the entities that are visible to the current user.
@@ -131,7 +137,7 @@ abstract class Entity extends Model implements Sluggable, Favouritable, Viewable
      */
     public function activity(): MorphMany
     {
-        return $this->morphMany(Activity::class, 'entity')
+        return $this->morphMany(Activity::class, 'loggable')
             ->orderBy('created_at', 'desc');
     }
 
@@ -328,6 +334,14 @@ abstract class Entity extends Model implements Sluggable, Favouritable, Viewable
         return $this->favourites()
             ->where('user_id', '=', user()->id)
             ->exists();
+    }
+
+    /**
+     * Get the related watches for this entity.
+     */
+    public function watches(): MorphMany
+    {
+        return $this->morphMany(Watch::class, 'watchable');
     }
 
     /**

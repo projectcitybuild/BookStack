@@ -39,9 +39,9 @@ return [
     'register_success' => 'Kaydolduğunuz için teşekkürler! Artık kayıtlı bir kullanıcı olarak giriş yaptınız.',
 
     // Login auto-initiation
-    'auto_init_starting' => 'Attempting Login',
-    'auto_init_starting_desc' => 'We\'re contacting your authentication system to start the login process. If there\'s no progress after 5 seconds you can try clicking the link below.',
-    'auto_init_start_link' => 'Proceed with authentication',
+    'auto_init_starting' => 'Oturum açılmaya çalışılıyor',
+    'auto_init_starting_desc' => 'Oturum açma işlemini başlatmak için kimlik doğrulama sisteminizle iletişime geçiyoruz. Eğer 5 saniye sonra herhangi bir ilerleme olmazsa aşağıdaki bağlantıya tıklamayı deneyebilirsiniz.',
+    'auto_init_start_link' => 'Kimlik doğrulama ile devam edin',
 
     // Password Reset
     'reset_password' => 'Şifreyi Sıfırla',
@@ -61,8 +61,8 @@ return [
     'email_confirm_send_error' => 'E-posta adresinin doğrulanması gerekiyor fakat sistem, doğrulama bağlantısını göndermeyi başaramadı. E-posta adresinin doğru bir şekilde ayarlığından emin olmak için yöneticiyle iletişime geçin.',
     'email_confirm_success' => 'Email hesabınız onaylandı. Email adresinizi kullanarak giriş yapabilirsiniz.',
     'email_confirm_resent' => 'Doğrulama e-postası tekrar gönderildi, lütfen gelen kutunuzu kontrol ediniz.',
-    'email_confirm_thanks' => 'Thanks for confirming!',
-    'email_confirm_thanks_desc' => 'Please wait a moment while your confirmation is handled. If you are not redirected after 3 seconds press the "Continue" link below to proceed.',
+    'email_confirm_thanks' => 'Onayladığınız için teşekkürler!',
+    'email_confirm_thanks_desc' => 'Lütfen onayınız işlenirken bir dakika bekleyin. Eğer 3 saniye sonra yönlendirilmediyseniz; devam etmek için aşağıdaki "Devam" linkine basınız.',
 
     'email_not_confirmed' => 'E-posta Adresi Doğrulanmadı',
     'email_not_confirmed_text' => 'E-posta adresiniz henüz doğrulanmadı.',
@@ -91,7 +91,7 @@ return [
     'mfa_option_totp_title' => 'Mobil Uygulama',
     'mfa_option_totp_desc' => 'Çok aşamalı kimlik doğrulamayı kullanabilmek için Google Authenticator, Authy veya Microsoft Authenticator gibi TOTP destekleyen bir mobil uygulamaya ihtiyacınız olacaktır.',
     'mfa_option_backup_codes_title' => 'Yedekleme Kodları',
-    'mfa_option_backup_codes_desc' => 'Kimliğini doğrulamak için kullanabileceğin aşağıdaki tek kullanımlık yedek kodlarını güvenli bir yerde sakla.',
+    'mfa_option_backup_codes_desc' => 'Generates a set of one-time-use backup codes which you\'ll enter on login to verify your identity. Make sure to store these in a safe & secure place.',
     'mfa_gen_confirm_and_enable' => 'Onayla ve aktive et',
     'mfa_gen_backup_codes_title' => 'Yedekleme Kodları Kurulumu',
     'mfa_gen_backup_codes_desc' => 'Aşağıdaki kod listesini güvenli bir yerde sakla. Sisteme giriş yaparken kodlardan birini ikinci bir kimlik doğrulama mekanizması olarak kullanabileceksin.',

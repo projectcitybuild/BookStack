@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => 'Tühista',
+    'close' => 'Sulge',
     'confirm' => 'Kinnita',
     'back' => 'Tagasi',
     'save' => 'Salvesta',
@@ -19,7 +20,7 @@ return [
     'description' => 'Kirjeldus',
     'role' => 'Roll',
     'cover_image' => 'Kaanepilt',
-    'cover_image_description' => 'See pilt peaks olema umbes 440x250 pikslit.',
+    'cover_image_description' => 'See pildifail peaks olema umbes 440x250px, ehkki seda skaleeritakse ja lõigatakse vastavalt vajadusele, et see mahuks erinevatesse kasutajaliidestesse, seega tegelikud kuvamõõdud võivad erineda.',
 
     // Actions
     'actions' => 'Tegevused',
@@ -41,6 +42,7 @@ return [
     'remove' => 'Eemalda',
     'add' => 'Lisa',
     'configure' => 'Seadista',
+    'manage' => 'Halda',
     'fullscreen' => 'Täisekraan',
     'favourite' => 'Lemmik',
     'unfavourite' => 'Eemalda lemmik',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => 'Tühjenda filter',
     'download' => 'Laadi alla',
     'open_in_tab' => 'Ava vahelehel',
+    'open' => 'Ava',
 
     // Sort Options
     'sort_options' => 'Sorteerimise valikud',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => 'Privaatsus',
     'terms_of_service' => 'Kasutustingimused',
+
+    // OpenSearch
+    'opensearch_description' => 'Otsi :appName',
 ];

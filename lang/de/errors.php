@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'Ein Benutzer mit der E-Mail-Adresse :email ist bereits mit anderen Anmeldedaten registriert.',
+    'auth_pre_register_theme_prevention' => 'Benutzerkonto konnte für die angegebenen Details nicht registriert werden',
     'email_already_confirmed' => 'Die E-Mail-Adresse ist bereits bestätigt. Bitte melden Sie sich an.',
     'email_confirmation_invalid' => 'Der Bestätigungslink ist nicht gültig oder wurde bereits verwendet. Bitte registrieren Sie sich erneut.',
     'email_confirmation_expired' => 'Der Bestätigungslink ist abgelaufen. Es wurde eine neue Bestätigungs-E-Mail gesendet.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'LDAP-PHP-Erweiterung ist nicht installiert.',
     'ldap_cannot_connect' => 'Die Verbindung zum LDAP-Server ist fehlgeschlagen. Beim initialen Verbindungsaufbau trat ein Fehler auf.',
     'saml_already_logged_in' => 'Sie sind bereits angemeldet',
-    'saml_user_not_registered' => 'Es ist kein Benutzer mit ID :name registriert und die automatische Registrierung ist deaktiviert',
     'saml_no_email_address' => 'Es konnte keine E-Mail-Adresse für diesen Benutzer in den vom externen Authentifizierungssystem zur Verfügung gestellten Daten gefunden werden',
     'saml_invalid_response_id' => 'Die Anfrage vom externen Authentifizierungssystem wird von einem von dieser Anwendung gestarteten Prozess nicht erkannt. Das Zurückgehen nach einer Anmeldung könnte dieses Problem verursachen.',
     'saml_fail_authed' => 'Anmeldung mit :system fehlgeschlagen, System konnte keine erfolgreiche Autorisierung bereitstellen',
     'oidc_already_logged_in' => 'Bereits angemeldet',
-    'oidc_user_not_registered' => 'Der Benutzer :name ist nicht registriert und die automatische Registrierung ist deaktiviert',
     'oidc_no_email_address' => 'Es konnte keine E-Mail-Adresse für diesen Benutzer in den vom externen Authentifizierungssystem zur Verfügung gestellten Daten gefunden werden',
     'oidc_fail_authed' => 'Anmeldung mit :system fehlgeschlagen, System konnte keine erfolgreiche Autorisierung bereitstellen',
     'social_no_action_defined' => 'Es ist keine Aktion definiert',
@@ -38,17 +37,23 @@ return [
     'social_driver_not_found' => 'Treiber für Social-Media-Konten nicht gefunden',
     'social_driver_not_configured' => 'Ihr :socialAccount-Konto ist nicht korrekt konfiguriert.',
     'invite_token_expired' => 'Dieser Einladungslink ist abgelaufen. Sie können stattdessen versuchen Ihr Passwort zurückzusetzen.',
+    'login_user_not_found' => 'Ein Benutzer für diese Aktion konnte nicht gefunden werden.',
 
     // System
     'path_not_writable' => 'Die Datei kann nicht in den angegebenen Pfad :filePath hochgeladen werden. Stellen Sie sicher, dass dieser Ordner auf dem Server beschreibbar ist.',
     'cannot_get_image_from_url' => 'Bild konnte nicht von der URL :url geladen werden.',
     'cannot_create_thumbs' => 'Der Server kann keine Vorschau-Bilder erzeugen. Bitte prüfen Sie, ob die GD PHP-Erweiterung installiert ist.',
     'server_upload_limit' => 'Der Server verbietet das Hochladen von Dateien mit dieser Dateigröße. Bitte versuchen Sie es mit einer kleineren Datei.',
+    'server_post_limit' => 'Der Server kann die angegebene Datenmenge nicht empfangen. Versuchen Sie es erneut mit weniger Daten oder einer kleineren Datei.',
     'uploaded'  => 'Der Server verbietet das Hochladen von Dateien mit dieser Dateigröße. Bitte versuchen Sie es mit einer kleineren Datei.',
 
     // Drawing & Images
     'image_upload_error' => 'Beim Hochladen des Bildes trat ein Fehler auf.',
     'image_upload_type_error' => 'Der Bildtyp der hochgeladenen Datei ist ungültig.',
+    'image_upload_replace_type' => 'Bild-Ersetzungen müssen vom gleichen Typ sein',
+    'image_upload_memory_limit' => 'Bildupload und/oder Thumbnailerstellung konnten aufgrund von Systemressourcenbeschränkungen nicht verarbeitet werden.',
+    'image_thumbnail_memory_limit' => 'Fehler beim Erstellen der Thumbnails aufgrund von Systemressourcenbeschränkungen.',
+    'image_gallery_thumbnail_memory_limit' => 'Fehler beim Erstellen der Galerie Thumbnails aufgrund von Systemressourcenbeschränkungen.',
     'drawing_data_not_found' => 'Zeichnungsdaten konnten nicht geladen werden. Die Zeichnungsdatei existiert möglicherweise nicht mehr oder Sie haben nicht die Berechtigung, darauf zuzugreifen.',
 
     // Attachments
@@ -57,6 +62,7 @@ return [
 
     // Pages
     'page_draft_autosave_fail' => 'Fehler beim Speichern des Entwurfs. Stellen Sie sicher, dass Sie mit dem Internet verbunden sind, bevor Sie den Entwurf dieser Seite speichern.',
+    'page_draft_delete_fail' => 'Fehler beim Löschen des Seitenentwurfs und beim Abrufen des gespeicherten Inhalts der aktuellen Seite',
     'page_custom_home_deletion' => 'Eine als Startseite gesetzte Seite kann nicht gelöscht werden',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'Sie können den einzigen Administrator nicht löschen',
     'users_cannot_delete_guest' => 'Sie können den Gast-Benutzer nicht löschen',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'Diese Rolle kann nicht bearbeitet werden',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'Fehler beim Versenden einer Test E-Mail:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'Die URL stimmt nicht mit den konfigurierten erlaubten SSR-Hosts überein',
 ];

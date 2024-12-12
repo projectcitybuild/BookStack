@@ -12,10 +12,8 @@ class ViewTweaksServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         // Set paginator to use bootstrap-style pagination
         Paginator::useBootstrap();
@@ -25,7 +23,7 @@ class ViewTweaksServiceProvider extends ServiceProvider
 
         // Custom blade view directives
         Blade::directive('icon', function ($expression) {
-            return "<?php echo icon($expression); ?>";
+            return "<?php echo (new \BookStack\Util\SvgIcon($expression))->toHtml(); ?>";
         });
     }
 }

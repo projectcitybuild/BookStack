@@ -10,6 +10,7 @@ return [
 
     // Auth
     'error_user_exists_different_creds' => 'کاربری با ایمیل :email از قبل وجود دارد اما دارای اطلاعات متفاوتی می باشد.',
+    'auth_pre_register_theme_prevention' => 'بر اساس اطلاعات ارائه شده، حساب کاربری نمی‌نواند ایجاد بشود',
     'email_already_confirmed' => 'ایمیل قبلا تایید شده است، وارد سیستم شوید.',
     'email_confirmation_invalid' => 'این کلمه عبور معتبر نمی باشد و یا قبلا استفاده شده است، لطفا دوباره ثبت نام نمایید.',
     'email_confirmation_expired' => 'کلمه عبور منقضی شده است، یک ایمیل تایید جدید ارسال شد.',
@@ -19,12 +20,10 @@ return [
     'ldap_extension_not_installed' => 'افزونه PHP LDAP نصب نشده است',
     'ldap_cannot_connect' => 'اتصال به سرور LDAP امکان پذیر نیست، اتصال اولیه برقرار نشد',
     'saml_already_logged_in' => 'قبلا وارد سیستم شده اید',
-    'saml_user_not_registered' => 'کاربر :name ثبت نشده است و ثبت نام خودکار غیرفعال است',
     'saml_no_email_address' => 'آدرس داده ای برای این کاربر در داده های ارائه شده توسط سیستم احراز هویت خارجی یافت نشد',
     'saml_invalid_response_id' => 'درخواست از سیستم احراز هویت خارجی توسط فرایندی که توسط این نرم افزار آغاز شده است شناخته نمی شود. بازگشت به سیستم پس از ورود به سیستم می تواند باعث این مسئله شود.',
     'saml_fail_authed' => 'ورود به سیستم :system انجام نشد، سیستم مجوز موفقیت آمیز ارائه نکرد',
     'oidc_already_logged_in' => 'قبلا وارد شده اید',
-    'oidc_user_not_registered' => 'کاربر :name ثبت نشده و ثبت نام خودکار غیرفعال است',
     'oidc_no_email_address' => 'آدرس ایمیلی برای این کاربر در داده های ارائه شده توسط سیستم احراز هویت خارجی یافت نشد',
     'oidc_fail_authed' => 'ورود به سیستم با استفاده از :system انجام نشد، سیستم مجوز موفقیت آمیز ارائه نکرد',
     'social_no_action_defined' => 'عملی تعریف نشده است',
@@ -38,25 +37,32 @@ return [
     'social_driver_not_found' => 'درایور شبکه اجتماعی یافت نشد',
     'social_driver_not_configured' => 'تنظیمات شبکه اجتماعی :socialAccount به درستی پیکربندی نشده است.',
     'invite_token_expired' => 'این پیوند دعوت منقضی شده است. در عوض می توانید سعی کنید رمز عبور حساب خود را بازنشانی کنید.',
+    'login_user_not_found' => 'کاربری برای این کار پیدا نمی‌شود.',
 
     // System
     'path_not_writable' => 'مسیر فایل :filePath را نمی توان در آن آپلود کرد. مطمئن شوید که روی سرور قابل نوشتن است.',
     'cannot_get_image_from_url' => 'نمی توان تصویر را از :url دریافت کرد',
     'cannot_create_thumbs' => 'سرور نمی تواند تصاویر کوچک ایجاد کند. لطفاً بررسی کنید که پسوند GD PHP را نصب کرده اید.',
     'server_upload_limit' => 'سرور اجازه آپلود در این اندازه را نمی دهد. لطفا اندازه فایل کوچکتر را امتحان کنید.',
+    'server_post_limit' => 'سرور نمی‌تواند داده مقادیر ارائه شده داده را دریافت کند. با مقدار کمتر و فایل کوچکتر دوباره امتحان کنید.',
     'uploaded'  => 'سرور اجازه آپلود در این اندازه را نمی دهد. لطفا اندازه فایل کوچکتر را امتحان کنید.',
 
     // Drawing & Images
     'image_upload_error' => 'هنگام آپلود تصویر خطایی روی داد',
     'image_upload_type_error' => 'نوع تصویر در حال آپلود نامعتبر است',
+    'image_upload_replace_type' => 'جایگزینی فایل تصویری باید از یک نوع باشد',
+    'image_upload_memory_limit' => 'به دلیل محدودیت منابع سامانه، بارگذاری فایل و/یا ایجاد تصاویر کاور (thumbnails) ناموفق بود.',
+    'image_thumbnail_memory_limit' => 'به دلیل محدودیت منابع سیستم، تصاویر با اندازه گوناگون ایجاد نشدند.',
+    'image_gallery_thumbnail_memory_limit' => 'به دلیل محدودیت منابع سیستم، تصاویر کوچک گالری ایجاد نشد.',
     'drawing_data_not_found' => 'داده های طرح قابل بارگذاری نیستند. ممکن است فایل طرح دیگر وجود نداشته باشد یا شما به آن دسترسی نداشته باشید.',
 
     // Attachments
     'attachment_not_found' => 'پیوست یافت نشد',
-    'attachment_upload_error' => 'An error occurred uploading the attachment file',
+    'attachment_upload_error' => 'هنگام آپلود فایل خطایی روی داد',
 
     // Pages
     'page_draft_autosave_fail' => 'پیش نویس ذخیره نشد. قبل از ذخیره این صفحه مطمئن شوید که به اینترنت متصل هستید',
+    'page_draft_delete_fail' => 'حذف پیش‌نویس و همچنین بازآوری محتوای صفحه فعلی، ناموفق بود',
     'page_custom_home_deletion' => 'وقتی صفحه ای به عنوان صفحه اصلی تنظیم شده است، نمی توان آن را حذف کرد',
 
     // Entities
@@ -72,6 +78,7 @@ return [
     // Users
     'users_cannot_delete_only_admin' => 'شما نمی توانید تنها ادمین را حذف کنید',
     'users_cannot_delete_guest' => 'شما نمی توانید کاربر مهمان را حذف کنید',
+    'users_could_not_send_invite' => 'Could not create user since invite email failed to send',
 
     // Roles
     'role_cannot_be_edited' => 'این نقش قابل ویرایش نیست',
@@ -109,4 +116,6 @@ return [
     // Settings & Maintenance
     'maintenance_test_email_failure' => 'خطا در هنگام ارسال ایمیل آزمایشی:',
 
+    // HTTP errors
+    'http_ssr_url_no_match' => 'URL با میزبان های SSR مجاز پیکربندی شده، مطابقت ندارد',
 ];

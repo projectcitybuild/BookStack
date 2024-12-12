@@ -6,6 +6,7 @@ return [
 
     // Buttons
     'cancel' => '取消',
+    'close' => '关闭',
     'confirm' => '确认',
     'back' => '返回',
     'save' => '保存',
@@ -19,7 +20,7 @@ return [
     'description' => '概要',
     'role' => '角色',
     'cover_image' => '封面图片',
-    'cover_image_description' => '此图像大小应约为 440x250 像素。',
+    'cover_image_description' => '此图像的大小应约为 440 x 250 像素，但会根据需要灵活缩放和裁剪以适应不同场景下的用户界面，因此实际显示尺寸会有所不同。',
 
     // Actions
     'actions' => '操作',
@@ -41,6 +42,7 @@ return [
     'remove' => '删除',
     'add' => '添加',
     'configure' => '配置',
+    'manage' => '管理',
     'fullscreen' => '全屏',
     'favourite' => '收藏',
     'unfavourite' => '取消收藏',
@@ -50,6 +52,7 @@ return [
     'filter_clear' => '清除过滤器',
     'download' => '下载',
     'open_in_tab' => '在标签页中打开。',
+    'open' => '打开',
 
     // Sort Options
     'sort_options' => '排序选项',
@@ -104,4 +107,7 @@ return [
     // Not directly used but available for convenience to users.
     'privacy_policy' => '隐私政策',
     'terms_of_service' => '服务条款',
+
+    // OpenSearch
+    'opensearch_description' => 'Search :appName',
 ];
